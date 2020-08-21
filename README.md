@@ -10,7 +10,7 @@ Some background information: Tableau Online already supports using SAML to authe
 However, these  users need to be provisioned; they need to be added to the Tableau Online site, have their Role in the site set (e.g. "Creator", "Explorer", "Viewer") and have their authentication mechanism specified. This tool does that.
 
 This is done in 2 steps:
-1. Setup: You defines (in a local XML file) (i) Azure AD groups to map to Tableau Online roles (ii) Groups to sync to Tableau Online (iii) Any service or external accounts
+1. Setup: You defines (in a local XML file) (i) Azure AD groups to map to Tableau Online roles, (ii) Groups to sync to Tableau Online, (iii) Any service or external accounts
 2. Execution: You run TabProvision.exe and it:
     i. Logs into your Azure AD (using credentials you provide) and pulls down the membership information of the groups you have specified.
     ii. Logs into your Tableau Online or Server site (using credentials you provide) and pushes up the Users/Roles/Authentication you wish to provision, as well as any Group membership you wish to provision
@@ -78,7 +78,7 @@ Three XML files are used by the application.
     </SynchronizeGroups>
 
 </SynchronizeConfiguration>
-
+```
 ### REQUIRED FOR FILE-BASED PROVISIONING OF USERS/GROUPS: XML file with Azure AD groups
 <?xml version="1.0" encoding="utf-8"?>
 <SiteProvisioning>
@@ -102,7 +102,7 @@ Three XML files are used by the application.
       </GroupMembership>
    </GroupsMemberships>
 </SiteProvisioning>
-
+```
 ## You will need to create an Application with ID and Secret Token in Azure AD
 The XML file that contains your sign in secrets above has a section:
     <AzureAdLogin tenantId="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" clientId="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" secret="xxxxxxxxxxxxxx" />
