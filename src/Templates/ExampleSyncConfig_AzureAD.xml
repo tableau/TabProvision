@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SynchronizeConfiguration>
+
+    <!-- Users in these source groups will be mapped to specific roles inside the Tableau site -->
+    <!-- Active Example:<SynchronizeRoles authSamlUnexpectedUsers="Unlicense" authDefaultUnexpectedUsers="Report" authSamlMissingUsers="Add" authDefaultMissingUsers="Add" authDefaultExistingUsers="Modify" authSamlExistingUsers="Modify">  -->
+    <!-- Reports only example: <SynchronizeRoles authSamlUnexpectedUsers="Report" authDefaultUnexpectedUsers="Report" authSamlMissingUsers="Report" authDefaultMissingUsers="Report" authDefaultExistingUsers="Report" authSamlExistingUsers="Report"> --> 
+    <SynchronizeRoles authSamlUnexpectedUsers="Report" authDefaultUnexpectedUsers="Report" authSamlMissingUsers="Report" authDefaultMissingUsers="Report" authDefaultExistingUsers="Report" authSamlExistingUsers="Report">  
+         <SynchronizeRole sourceGroup="Tableau Online 001 Admins" targetRole="SiteAdministratorCreator" auth="serverDefault"/>
+         <SynchronizeRole sourceGroup="Tableau Online 001 Creators" targetRole="Creator"  auth="serverDefault"/>
+         <SynchronizeRole sourceGroup="Tableau Online 001 Explorers" targetRole="Explorer"  auth="serverDefault"/>
+          <SynchronizeRole sourceGroup="Tableau Online 001 Viewers" targetRole="Viewer"  auth="serverDefault"/>
+
+         <!-- Specify any explicit user/auth/role that we want to supersede anything we find in the groups that we syncrhonize from -->
+         <SiteMembershipOverrides>
+              <User name="xxxxPersonxxxxx@xxxxDomainxxxxx.com"   role="SiteAdministratorExplorer" auth="serverDefault" />
+         </SiteMembershipOverrides>
+    </SynchronizeRoles>
+  
+    <!-- Users in these groups will me mapped into group membership inside the Tableau site -->
+    <!-- Active Example: <SynchronizeGroups unexpectedGroupMembers="Delete" missingGroupMembers="Add">   -->
+    <SynchronizeGroups unexpectedGroupMembers="Report" missingGroupMembers="Report">  
+         <SynchronizeGroup sourceGroup="Biz Group - Accounting" targetGroup="Accounting Analytics" />
+         <SynchronizeGroup sourceGroup="Biz Group - Marketing" targetGroup="Marketing Analytics" />
+    </SynchronizeGroups>
+
+</SynchronizeConfiguration>
