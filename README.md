@@ -81,6 +81,7 @@ Three XML files are used by the application.
 ```
 
 ### REQUIRED FOR FILE-BASED PROVISIONING OF USERS/GROUPS: XML file with Azure AD groups
+```xml
 <?xml version="1.0" encoding="utf-8"?>
 <SiteProvisioning>
    <!-- All the users on the site go here -->
