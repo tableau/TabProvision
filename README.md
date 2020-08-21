@@ -79,6 +79,7 @@ Three XML files are used by the application.
 
 </SynchronizeConfiguration>
 ```
+
 ### REQUIRED FOR FILE-BASED PROVISIONING OF USERS/GROUPS: XML file with Azure AD groups
 <?xml version="1.0" encoding="utf-8"?>
 <SiteProvisioning>
@@ -103,6 +104,7 @@ Three XML files are used by the application.
    </GroupsMemberships>
 </SiteProvisioning>
 ```
+
 ## You will need to create an Application with ID and Secret Token in Azure AD
 The XML file that contains your sign in secrets above has a section:
     <AzureAdLogin tenantId="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" clientId="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" secret="xxxxxxxxxxxxxx" />
