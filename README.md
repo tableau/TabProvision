@@ -109,8 +109,9 @@ Three XML files are used by the application.
 
 ## You will need to create an Application with ID and Secret Token in Azure AD
 The XML file that contains your sign in secrets above has a section:
+```xml
     <AzureAdLogin tenantId="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" clientId="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" secret="xxxxxxxxxxxxxx" />
-
+```
 You will need to get/create this information from your Microsoft Azure accout portal (https://portal.azure.com/ -> Tenant Properties)
 1. The "tenantId" you can get from your Azure AD
 2. The "clientId" wil require you to create a new "Application" and specify what permissions it needs (DO THIS CAREFULLY! - IT NEEDS TO BE CORRECT)
