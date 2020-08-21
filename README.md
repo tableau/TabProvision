@@ -142,7 +142,7 @@ The REST APIs used by this application allow you to upload, download, and otherw
 -	First run the system with all changes set to "Report" (e.g. instead of "Add", "Delete" or "Unlicense"). This can be configured in your XML attributes.  Doing this will generate a report (in a CSV file) that you can inspect before running and making changes. 
 
 ## Getting started with TabProvision (for developers)
-Source code: The project is written in C# and should load into Visual Studio 2019 or newer, including the free Visual Studio Express for Desktop.             
+Source code: The project is written in C# and should load into Visual Studio 2019 or newer.             
 
 ### What’s particularly useful in the source code? 
 The code demonstrates complex aspects of both the REST API. Someone working with the code will have a great base for calling any Tableau REST APIs from C#.
