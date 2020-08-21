@@ -2,7 +2,7 @@
 [![Community Supported](https://img.shields.io/badge/Support%20Level-Community%20Supported-457387.svg)](https://www.tableau.com/support-levels-it-and-developer-tools)
 
 ## What is TabProvision?
-Many Tableau Online customers want to their organization's Azure AD directory to manage their Tableau Online deployment. 
+Many Tableau Online customers need to user their organization's Azure AD directory to manage their Tableau Online deployment. 
 This sample shows how to use Azure AD Groups (or groups defined explicitly in a local file) to provision Administrators/Creators/Explorers/Viewers in their Tableau Online site. 
 The sample code can also be adapted to read Group membership information from any other source and to use that information to provision the users/roles/groups in a Tableau Online (or Tableau Server) site.
 
