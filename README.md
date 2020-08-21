@@ -41,7 +41,8 @@ Three XML files are used by the application.
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
-    <SiteUrl value="https://10ay.online.tableau.com/#/site/xxxxYOUR SITE HERExxxx"/>
+    <!-- Replace the entire URL below with a URL to your Tableau server and site-->
+    <SiteUrl value="https://xxxxYourPodxxxx.online.tableau.com/#/site/xxxxYOUR SITE HERExxxx"/>
 
     <!-- Information we need to sign into the Tableau site-->
     <TableauSiteLogin clientId="xxxxx@xxxx.com" secret="xxxxxxxx"/>
@@ -62,7 +63,7 @@ Three XML files are used by the application.
          <SynchronizeRole sourceGroup="Tableau Online 001 Admins" targetRole="SiteAdministratorCreator" auth="serverDefault"/>
          <SynchronizeRole sourceGroup="Tableau Online 001 Creators" targetRole="Creator"  auth="serverDefault"/>
          <SynchronizeRole sourceGroup="Tableau Online 001 Explorers" targetRole="Explorer"  auth="serverDefault"/>
-          <SynchronizeRole sourceGroup="Tableau Online 001 Viewers" targetRole="Viewer"  auth="serverDefault"/>
+         <SynchronizeRole sourceGroup="Tableau Online 001 Viewers" targetRole="Viewer"  auth="serverDefault"/>
 
          <!-- Specify any explicit user/auth/role that we want to supersede anything we find in the groups that we syncrhonize from -->
          <SiteMembershipOverrides>
@@ -87,20 +88,20 @@ Three XML files are used by the application.
    <!-- All the users on the site go here -->
    <!-- Valid roles: Creator, Explorer, ExplorerCanPublish, SiteAdministratorExplorer, SiteAdministratorCreator, Unlicensed, or Viewer -->
    <SiteMembership authSamlUnexpectedUsers="Unlicense" authDefaultUnexpectedUsers="Report" authSamlMissingUsers="Report" authDefaultMissingUsers="Add" authDefaultExistingUsers="Report" authSamlExistingUsers="Report">
-       <User name="ivosa@hotmail.com"   role="SiteAdministratorExplorer" auth="serverDefault" />
-       <User name="ivosa+1@hotmail.com" role="Creator"                   auth="serverDefault" />
-       <User name="ivosa+2@hotmail.com" role="Viewer"                    auth="serverDefault" />
+       <User name="xxxxUser0xxxx@xxxxxxx.com"   role="SiteAdministratorExplorer" auth="serverDefault" />
+       <User name="xxxxUser1xxxx@xxxxxxx.com" role="Creator"                   auth="serverDefault" />
+       <User name="xxxxUser2xxxx@xxxxxxx.com" role="Viewer"                    auth="serverDefault" />
    </SiteMembership>
 
    <!-- A list of all the groups who's member members we want to audit-->
    <GroupsMemberships unexpectedGroupMembers="Delete" missingGroupMembers="Add">
       <GroupMembership name="Group1">
-          <GroupMember name="ivosa+1@hotmail.com" />
+          <GroupMember name="xxxxUser1xxxx@xxxxxxx.com" />
       </GroupMembership>
 
       <GroupMembership name="Group2">
-          <GroupMember name="ivosa+1@hotmail.com" />
-          <GroupMember name="ivosa+2@hotmail.com" />
+          <GroupMember name="xxxxUser1xxxx@xxxxxxx.com" />
+          <GroupMember name="xxxxUser2xxxx@xxxxxxx.com" />
       </GroupMembership>
    </GroupsMemberships>
 </SiteProvisioning>
