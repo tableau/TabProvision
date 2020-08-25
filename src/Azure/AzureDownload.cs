@@ -127,29 +127,6 @@ internal partial class AzureDownload
         t.Wait();
     }
 
-
-    /// <summary>
-    /// Makes a starting group for each Role Group we are provisioning for (so even empty groups get represented, so we know to keep them empty)
-    /// </summary>
-    private void EnsureTrackingGroupsExist_Roles()
-    {
-        foreach(var item in _configSyncGroups.GroupsToRolesSyncList)
-        {
-            this.SetManagerForRoles.EnsureRoleManagerExistsForRole(item.TableauRole);
-        }
-    }
-
-    /// <summary>
-    /// Makes a starting group for each Group we are provisioning for (so even empty groups get represented, so we know to keep them empty)
-    /// </summary>
-    private void EnsureTrackingGroupsExist_Groups()
-    {
-        foreach (var item in _configSyncGroups.GroupsToGroupsSyncList)
-        {
-            this.SetManagerForGroups.EnsureRoleManagerExistsForRole(item.TargetGroupName);
-        }
-    }
-
     /// <summary>
     /// Inner wrapper for async operations
     /// </summary>
@@ -183,6 +160,30 @@ internal partial class AzureDownload
         IsExecuteComplete.Trigger();
     }
 
+
+
+    /// <summary>
+    /// Makes a starting group for each Role Group we are provisioning for (so even empty groups get represented, so we know to keep them empty)
+    /// </summary>
+    private void EnsureTrackingGroupsExist_Roles()
+    {
+        foreach(var item in _configSyncGroups.GroupsToRolesSyncList)
+        {
+            this.SetManagerForRoles.EnsureRoleManagerExistsForRole(item.TableauRole);
+        }
+    }
+
+    /// <summary>
+    /// Makes a starting group for each Group we are provisioning for (so even empty groups get represented, so we know to keep them empty)
+    /// </summary>
+    private void EnsureTrackingGroupsExist_Groups()
+    {
+        foreach (var item in _configSyncGroups.GroupsToGroupsSyncList)
+        {
+            this.SetManagerForGroups.EnsureRoleManagerExistsForRole(item.TargetGroupName);
+        }
+    }
+
     /// <summary>
     /// Query for each of the specified groups and pull down their members list from Azure
     /// </summary>
@@ -195,7 +196,7 @@ internal partial class AzureDownload
             _statusLogs.AddStatus("Azure getting group: " + groupToRetrieve.SourceGroupName);
             var thisGroupAsSet = await azureGraph.Groups.Request().Select(x => new { x.Id, x.DisplayName }).Filter("displayName eq '" + groupToRetrieve.SourceGroupName + "'").GetAsync();
             //If the group does not exist in Azure, not the error condition
-            if(thisGroupAsSet.Count < 1)
+            if (thisGroupAsSet.Count < 1)
             {
                 _statusLogs.AddError("Azure AD group does not exist" + groupToRetrieve.SourceGroupName);
                 throw new Exception("814-722: Azure AD group does not exist" + groupToRetrieve.SourceGroupName);
@@ -205,21 +206,22 @@ internal partial class AzureDownload
             //https://docs.microsoft.com/en-us/graph/api/group-list-members?view=graph-rest-1.0&tabs=http
             //UNDONE: Filter down to just USERS and SUB-GROUPS
 
-            //elect(x => new {x.UserPricipalName, x.DisplayName, x.Mail  }
             var thisGroupsMembers = await azureGraph.Groups[thiGroupId].Members.Request().GetAsync();
+            //TEST: Test paging by forcing  small page size
+            //var thisGroupsMembers = await azureGraph.Groups[thiGroupId].Members.Request().Top(2).GetAsync();
 
             //Get all the users in the group and sub-groups
-            AzureRecurseGroupsGenerateGroupMembersList(azureGraph, thisGroupsMembers, groupToRetrieve);
+            await AzureRecurseGroupsGenerateGroupMembersList(azureGraph, thisGroupsMembers, groupToRetrieve);
         }
     }
 
     /// <summary>
-    /// Itterate down a groups membership, looing in any sub-groups, and record all the members
+    /// Itterate down a groups membership, looking in any sub-groups, and record all the members
     /// </summary>
     /// <param name="azureGraph"></param>
     /// <param name="thisGroupsMembers"></param>
     /// <param name="baseGroupToRetrieve"></param>
-    async void AzureRecurseGroupsGenerateGroupMembersList(GraphServiceClient azureGraph, IGroupMembersCollectionWithReferencesPage thisGroupsMembers, ProvisionConfigExternalDirectorySync.SynchronizeGroupToGroup baseGroupToRetrieve)
+    async Task AzureRecurseGroupsGenerateGroupMembersList(GraphServiceClient azureGraph, IGroupMembersCollectionWithReferencesPage thisGroupsMembers, ProvisionConfigExternalDirectorySync.SynchronizeGroupToGroup baseGroupToRetrieve)
     {
         var thispage_members = thisGroupsMembers;
         do
@@ -245,7 +247,7 @@ internal partial class AzureDownload
                         //Recurse down the subgroup and get its members
                         //-----------------------------------------------------------------------------------
                         var subGroupsMembers = await azureGraph.Groups[asSubGroup.Id].Members.Request().GetAsync();
-                        AzureRecurseGroupsGenerateGroupMembersList(azureGraph, subGroupsMembers, baseGroupToRetrieve);
+                        await AzureRecurseGroupsGenerateGroupMembersList(azureGraph, subGroupsMembers, baseGroupToRetrieve);
                     }
                 }
             }
@@ -324,11 +326,12 @@ internal partial class AzureDownload
             //https://docs.microsoft.com/en-us/graph/api/group-list-members?view=graph-rest-1.0&tabs=http
             //UNDONE: Filter down to just USERS and SUB-GROUPS
 
-            //elect(x => new {x.UserPricipalName, x.DisplayName, x.Mail  }
             var thisGroupsMembers = await azureGraph.Groups[thiGroupId].Members.Request().GetAsync();
+            //TEST: Test paging by forcing the # of items to be returned per page to be 2
+            //var thisGroupsMembers = await azureGraph.Groups[thiGroupId].Members.Request().Top(2).GetAsync();
 
             //Get all the users in the group and sub-groups
-            AzureRecurseGroupsGenerateRolesList(azureGraph, thisGroupsMembers, groupToRetrieve);
+            await AzureRecurseGroupsGenerateRolesList(azureGraph, thisGroupsMembers, groupToRetrieve);
         }
     }
 
@@ -338,14 +341,13 @@ internal partial class AzureDownload
     /// <param name="azureGraph"></param>
     /// <param name="thisGroupsMembers"></param>
     /// <param name="baseGroupToRetrieve"></param>
-    async void AzureRecurseGroupsGenerateRolesList(GraphServiceClient azureGraph, IGroupMembersCollectionWithReferencesPage thisGroupsMembers, ProvisionConfigExternalDirectorySync.SynchronizeGroupToRole baseGroupToRetrieve)
+    async Task AzureRecurseGroupsGenerateRolesList(GraphServiceClient azureGraph, IGroupMembersCollectionWithReferencesPage thisGroupsMembers, ProvisionConfigExternalDirectorySync.SynchronizeGroupToRole baseGroupToRetrieve)
     {
         var thispage_members = thisGroupsMembers;
         do
         {
             if (thispage_members.Count > 0)
             {
-
                 foreach (var thisMember in thispage_members)
                 {
                     var asUser = thisMember as Microsoft.Graph.User;
@@ -365,11 +367,10 @@ internal partial class AzureDownload
                         //Recurse down the subgroup and get its members
                         //-----------------------------------------------------------------------------------
                         var subGroupsMembers = await azureGraph.Groups[asSubGroup.Id].Members.Request().GetAsync();
-                        AzureRecurseGroupsGenerateRolesList(azureGraph, subGroupsMembers, baseGroupToRetrieve);
+                        await AzureRecurseGroupsGenerateRolesList(azureGraph, subGroupsMembers, baseGroupToRetrieve);
                     }
 
                 }
-
             }
 
             //Go to the next page
@@ -442,12 +443,17 @@ internal partial class AzureDownload
         _statusLogs.AddStatus("Azure sign in");
         string azureSessionToken = AzureSignInGetAccessToken();
 
+        //Note: This generates a CS1998 compiler warning, incidating that the method is marked 'async' but does 
+        //not actually do any asynchonous work, and so does not need to be marked 'async'.  This is OK.
+        //The surrounding method requires a function signature that looks like this (i.e. allows async work),
+        //so we marks the function as 'async' even though it does not need to be.
         GraphServiceClient graphClient = new GraphServiceClient(
             "https://graph.microsoft.com/v1.0/" + _configAzure.AzureAdTenantId,
              new DelegateAuthenticationProvider(async (requestMessage) => {
                  requestMessage.Headers.Authorization = new
                           System.Net.Http.Headers.AuthenticationHeaderValue("bearer", azureSessionToken);
              }));
+
 
         return graphClient;
     }
@@ -467,37 +473,4 @@ internal partial class AzureDownload
 
         return authResultAsync.Result.AccessToken;
     }
-
-    /*
-
-    /// <summary>
-    /// Make a record of a user modification
-    /// </summary>
-    /// <param name="userName"></param>
-    /// <param name="userRole"></param>
-    /// <param name="userAuth"></param>
-    /// <param name="modification"></param>
-    /// <param name="notes"></param>
-    private void CSVRecord_Warning(string userName, string userRole, string userAuth, string notes)
-    {
-        _csvProvisionResults.AddKeyValuePairs(
-            new string[] { "area", "user-name", "user-role", "user-auth", "notes" },
-            new string[] { "warning", userName, userRole, userAuth, notes });
-    }
-
-    /// <summary>
-    /// Make a record of a user modification
-    /// </summary>
-    /// <param name="userName"></param>
-    /// <param name="userRole"></param>
-    /// <param name="userAuth"></param>
-    /// <param name="modification"></param>
-    /// <param name="notes"></param>
-    private void CSVRecord_Error(string userName, string userRole, string userAuth, string notes)
-    {
-        _csvProvisionResults.AddKeyValuePairs(
-            new string[] { "area", "user-name", "user-role", "user-auth", "notes" },
-            new string[] { "error", userName, userRole, userAuth, notes });
-    }
-*/
 }

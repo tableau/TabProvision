@@ -26,8 +26,11 @@ internal partial class ProvisionFromDirectoryGroupsMembershipManager
     /// <param name="user"></param>
     public void AddUserToGroup(ProvisionConfigExternalDirectorySync.SynchronizeGroupToGroup group, string userName)
     {
-        //Add
-        GetManagerForGroup(group.TargetGroupName).AddUser(userName);
+        //Get (create if necesary) the group's manager
+        var groupManager = GetManagerForGroup(group.TargetGroupName);
+
+        //Add the user toe hte group
+       groupManager.AddUser(userName);
     }
 
     /// <summary>
