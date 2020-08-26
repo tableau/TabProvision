@@ -127,8 +127,8 @@ You will need to get/create this information from your Microsoft Azure accout po
       - Click on the button at the top of the list that says, "Grant admin consent for Default Directory"  (THIS IS IMPORTANT!)  
       
     v. Generate a Azure secret that your application can use to sign into Azure with
-      - If your application config (see above), choose "Certificates and secrets" and click "New client secret"
-      - Choose the secret lifetime expiration (e.g. 1 year, never)
+      - In your application config (see above), choose "Certificates and secrets" and click "New client secret"
+      - Choose the secret lifetime expiration (e.g. 1 year or never)
       - Copy/paste the secret from here.  
       
     vi. Take the Tenant Id, the Client Id (Application Id), and the Secret, and copy/paste them into your local Secrets.XML file.
