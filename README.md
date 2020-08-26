@@ -114,7 +114,7 @@ The XML file that contains your sign in secrets above has a section:
 ```
 You will need to get/create this information from your Microsoft Azure accout portal (https://portal.azure.com/ -> Tenant Properties)
 1. The "tenantId" you can get from your Azure AD portal webpage
-2. The "clientId" wil require you to create a new "Application" and specify what permissions it needs  
+2. For the "clientId", you need to create a new "Application" and specify what permissions it needs  
 (DO THIS CAREFULLY! - IT NEEDS TO BE CORRECT)  
     i. In the Azure Portal: Go to "App Registrations"  
     ii. Choose "New Registration" and create a new application.  When done, you can copy/paste the "Application (client ID)") from here     
