@@ -114,20 +114,24 @@ The XML file that contains your sign in secrets above has a section:
 ```
 You will need to get/create this information from your Microsoft Azure accout portal (https://portal.azure.com/ -> Tenant Properties)
 1. The "tenantId" you can get from your Azure AD portal webpage
-2. The "clientId" wil require you to create a new "Application" and specify what permissions it needs (DO THIS CAREFULLY! - IT NEEDS TO BE CORRECT)  
-  i. In the Azure Portal: Go to "App Registrations"  
-  ii. Choose "New Registration" and create a new application.  When done, you can copy/paste the "Application (client ID)") from here     
-  iii. Set the required access permissions for the new application you just registered.  
+2. The "clientId" wil require you to create a new "Application" and specify what permissions it needs  
+(DO THIS CAREFULLY! - IT NEEDS TO BE CORRECT)  
+    i. In the Azure Portal: Go to "App Registrations"  
+    ii. Choose "New Registration" and create a new application.  When done, you can copy/paste the "Application (client ID)") from here     
+    iii. Set the required access permissions for the new application you just registered.
       - In the Application choose "API Permissions" and "Add a permission"
-      - Choose "Microsoft Graph" -> "Application Permissions" -> "Directory" and check "Directory.Read.All (Read directory data)"
-  iv. Grant your Azure AD instance consent to use your new application.
+      - Choose "Microsoft Graph" -> "Application Permissions" -> "Directory" and check "Directory.Read.All (Read directory data)"  
+      
+    iv. Grant your Azure AD instance consent to use your new application.
       - In your Application config (see above), chose "API Permissions"  You will see an alert on this screen that says "(!) Not granted for Default..."
-      - Click on the button at the top of the list that says, "Grant admin consent for Default Directory"  (THIS IS IMPORTANT!)
-  v. Generate a Azure secret that your application can use to sign into Azure with
+      - Click on the button at the top of the list that says, "Grant admin consent for Default Directory"  (THIS IS IMPORTANT!)  
+      
+    v. Generate a Azure secret that your application can use to sign into Azure with
       - If your application config (see above), choose "Certificates and secrets" and click "New client secret"
       - Choose the secret lifetime expiration (e.g. 1 year, never)
-      - Copy/paste the secret from here.
-  vi. Take the Tenant Id, the Client Id (Application Id), and the Secret, and copy/paste them into your local Secrets.XML file.
+      - Copy/paste the secret from here.  
+      
+    vi. Take the Tenant Id, the Client Id (Application Id), and the Secret, and copy/paste them into your local Secrets.XML file.
 
 That's it. You now have a client applicaiton ID registered in Azure AD with the necessary permissions, and the secret needed for TabProvision.exe to sign in to Azure as this application.
 
