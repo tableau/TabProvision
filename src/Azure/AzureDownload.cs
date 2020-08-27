@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Graph;
 using System.Linq;
-using Microsoft.Azure.ActiveDirectory.GraphClient;
-using Microsoft.Azure.ActiveDirectory.GraphClient.Internal;
+//using Microsoft.Azure.ActiveDirectory.GraphClient;
+//using Microsoft.Azure.ActiveDirectory.GraphClient.Internal;
 
 /// <summary>
 /// Provision a site
