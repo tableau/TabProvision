@@ -19,12 +19,15 @@ internal partial class ProvisionUserInstructions
     //Unexpected site users
     public readonly UnexpectedUserAction ActionForUnexpectedSamlUsers;
     public readonly UnexpectedUserAction ActionForUnexpectedDefaultAuthUsers;
+    public readonly UnexpectedUserAction ActionForUnexpectedOpenIdUsers;
     //Site missing users needing provisioning
     public readonly MissingUserAction ActionForMissingSamlUsers;
     public readonly MissingUserAction ActionForMissingDefaultAuthUsers;
+    public readonly MissingUserAction ActionForMissingOpenIdUsers;
     //Site existing users needing modification
     public readonly ExistingUserAction ActionForExistingSamlUsers;
     public readonly ExistingUserAction ActionForExistingDefaultAuthUsers;
+    public readonly ExistingUserAction ActionForExistingOpenIdUsers;
 
     //Group membership
     public readonly UnexpectedGroupMemberAction ActionForUnexpectedGroupMembers;
@@ -46,23 +49,41 @@ internal partial class ProvisionUserInstructions
         //Get instructions about the intended site membership provisioning
         //-------------------------------------------------------------------------------
         var xnodeSiteMembership = xmlConfigTargetSite.SelectSingleNode("//SiteProvisioning/SiteMembership");
-        this.ActionForUnexpectedSamlUsers = ParseUnexpectedUserAction(
-                                        xnodeSiteMembership.Attributes[ProvisionUserInstructions.XmlAttribute_authSamlUnexpectedUsers].Value);
+        //UNEXPECTED USERS
+        //1.
+        this.ActionForUnexpectedSamlUsers = ParseUnexpectedUserActionFromAttribute(
+                                        xnodeSiteMembership, ProvisionUserInstructions.XmlAttribute_authSamlUnexpectedUsers);
+        //2.
+        this.ActionForUnexpectedDefaultAuthUsers = ParseUnexpectedUserActionFromAttribute(
+                                xnodeSiteMembership, ProvisionUserInstructions.XmlAttribute_authDefaultUnexpectedUsers);
+        //3.
+        this.ActionForUnexpectedOpenIdUsers = ParseUnexpectedUserActionFromAttribute(
+                                        xnodeSiteMembership, ProvisionUserInstructions.XmlAttribute_authOpenIdUnexpectedUsers);
 
-        this.ActionForUnexpectedDefaultAuthUsers = ParseUnexpectedUserAction(
-                                xnodeSiteMembership.Attributes[ProvisionUserInstructions.XmlAttribute_authDefaultUnexpectedUsers].Value);
 
-        this.ActionForMissingSamlUsers = ParseMissingUserAction(
-                                                xnodeSiteMembership.Attributes[ProvisionUserInstructions.XmlAttribute_authSamlMissingUsers].Value);
 
-        this.ActionForMissingDefaultAuthUsers = ParseMissingUserAction(
-                                                xnodeSiteMembership.Attributes[ProvisionUserInstructions.XmlAttribute_authDefaultMissingUsers].Value);
+        //MISSING USERS
+        //1.
+        this.ActionForMissingSamlUsers = ParseMissingUserActionFromAttribute(
+                                                xnodeSiteMembership, ProvisionUserInstructions.XmlAttribute_authSamlMissingUsers);
+        //2.
+        this.ActionForMissingDefaultAuthUsers = ParseMissingUserActionFromAttribute(
+                                                xnodeSiteMembership, ProvisionUserInstructions.XmlAttribute_authDefaultMissingUsers);
+        //3.
+        this.ActionForMissingOpenIdUsers = ParseMissingUserActionFromAttribute(
+                                                xnodeSiteMembership, ProvisionUserInstructions.XmlAttribute_authOpenIdMissingUsers);
 
-        this.ActionForExistingSamlUsers = ParseExistingUserAction(
-                                        xnodeSiteMembership.Attributes[ProvisionUserInstructions.XmlAttribute_authSamlExistingUsers].Value);
 
-        this.ActionForExistingDefaultAuthUsers = ParseExistingUserAction(
-                                                xnodeSiteMembership.Attributes[ProvisionUserInstructions.XmlAttribute_authDefaultExistingUsers].Value);
+        //EXISTING USERS NEEDING MODIFICATION
+        //1.
+        this.ActionForExistingSamlUsers = ParseExistingUserActionFromAttribute(
+                                        xnodeSiteMembership, ProvisionUserInstructions.XmlAttribute_authSamlExistingUsers);
+        //2.
+        this.ActionForExistingDefaultAuthUsers = ParseExistingUserActionFromAttribute(
+                                         xnodeSiteMembership, ProvisionUserInstructions.XmlAttribute_authDefaultExistingUsers);
+        //3.
+        this.ActionForExistingOpenIdUsers = ParseExistingUserActionFromAttribute(
+                                        xnodeSiteMembership, ProvisionUserInstructions.XmlAttribute_authOpenIdExistingUsers);
 
         //-------------------------------------------------------------------------------
         //Get the users

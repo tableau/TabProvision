@@ -2,9 +2,12 @@
 <SynchronizeConfiguration>
 
     <!-- Users in these source groups will be mapped to specific roles inside the Tableau site -->
-    <!-- Active Example:<SynchronizeRoles authSamlUnexpectedUsers="Unlicense" authDefaultUnexpectedUsers="Report" authSamlMissingUsers="Add" authDefaultMissingUsers="Add" authDefaultExistingUsers="Modify" authSamlExistingUsers="Modify">  -->
-    <!-- Reports only example: <SynchronizeRoles authSamlUnexpectedUsers="Report" authDefaultUnexpectedUsers="Report" authSamlMissingUsers="Report" authDefaultMissingUsers="Report" authDefaultExistingUsers="Report" authSamlExistingUsers="Report"> --> 
-    <SynchronizeRoles authSamlUnexpectedUsers="Report" authDefaultUnexpectedUsers="Report" authSamlMissingUsers="Report" authDefaultMissingUsers="Report" authDefaultExistingUsers="Report" authSamlExistingUsers="Report">  
+    <!-- Valid actions: authXXXXXUnexpectedUsers ="Unlicense" or "Report" -->
+    <!-- Valid actions: authXXXXXMissingUsers    ="Add"       or "Report" -->
+    <!-- Valid actions: authXXXXXExistingUsers   ="Modify"    or "Report" -->
+    <!-- Active Example      : <SynchronizeRoles authSamlUnexpectedUsers="Unlicense" authSamlMissingUsers="Add"    authSamlExistingUsers="Modify"     authDefaultUnexpectedUsers="Unlicense" authDefaultMissingUsers="Add"    authDefaultExistingUsers="Modify"        authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">  -->
+    <!-- Reports only example: <SynchronizeRoles authSamlUnexpectedUsers="Report"    authSamlMissingUsers="Report" authSamlExistingUsers="Report"     authDefaultUnexpectedUsers="Report"    authDefaultMissingUsers="Report" authDefaultExistingUsers="Report"        authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report"> --> 
+    <SynchronizeRoles authSamlUnexpectedUsers="Report" authSamlMissingUsers="Report" authSamlExistingUsers="Report"   authDefaultUnexpectedUsers="Report" authDefaultMissingUsers="Report" authDefaultExistingUsers="Report"     authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">  
          <SynchronizeRole sourceGroup="Tableau Online 001 Admins" targetRole="SiteAdministratorCreator" auth="serverDefault"/>
          <SynchronizeRole sourceGroup="Tableau Online 001 Creators" targetRole="Creator"  auth="serverDefault"/>
          <SynchronizeRole sourceGroup="Tableau Online 001 Explorers" targetRole="Explorer"  auth="serverDefault"/>

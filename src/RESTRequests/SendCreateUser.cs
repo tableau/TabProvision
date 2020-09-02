@@ -67,6 +67,8 @@ class SendCreateUser : TableauServerSignedInRequestBase
                 return "ServerDefault";
             case SiteUserAuth.SAML:
                 return "SAML";
+            case SiteUserAuth.OpenID:
+                return "OpenID";
             default:
                 IwsDiagnostics.Assert(false, "810-1036: Unknown auth type for user ");
                 throw new Exception("810-1036: Unknown auth type for user ");

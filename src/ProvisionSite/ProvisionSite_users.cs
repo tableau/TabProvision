@@ -81,6 +81,9 @@ internal partial class ProvisionSite
             case SiteUserAuth.SAML:
                 Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(unexpectedUser, siteSignIn, _provisionInstructions.ActionForUnexpectedSamlUsers);
                 break;
+            case SiteUserAuth.OpenID:
+                Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(unexpectedUser, siteSignIn, _provisionInstructions.ActionForUnexpectedOpenIdUsers);
+                break;
             default:
                 IwsDiagnostics.Assert(false, "811-1123: Unknown authentication type " + unexpectedUser.SiteAuthentication + ", for user " + unexpectedUser.Name);
                 _statusLogs.AddError("811-1123: Unknown authentication type " + unexpectedUser.SiteAuthentication + ", for user " + unexpectedUser.Name);
@@ -116,9 +119,19 @@ internal partial class ProvisionSite
                 missingUserAction = _provisionInstructions.ActionForMissingSamlUsers;
                 unexpectedUserAction = _provisionInstructions.ActionForUnexpectedSamlUsers;
                 break;
+            case SiteUserAuth.OpenID:
+                missingUserAction = _provisionInstructions.ActionForMissingOpenIdUsers;
+                unexpectedUserAction = _provisionInstructions.ActionForUnexpectedOpenIdUsers;
+                break;
             default:
-                IwsDiagnostics.Assert(false, "814-1204: Unknown auth type");
-                throw new Exception("814-1204: Unknown auth type");
+                var unknownAuthType = userToProvision.UserAuthentication;
+                if(unknownAuthType == null)
+                {
+                    unknownAuthType = "";
+                }
+
+                IwsDiagnostics.Assert(false, "814-1204: Unknown auth type, " + unknownAuthType);
+                throw new Exception("814-1204: Unknown auth type, " + unknownAuthType);
         }
 
         //CASE 1: The user does NOT exist.  So add them
@@ -160,6 +173,9 @@ internal partial class ProvisionSite
                 break;
             case SiteUserAuth.SAML:
                 existingUserAction = _provisionInstructions.ActionForExistingSamlUsers;
+                break;
+            case SiteUserAuth.OpenID:
+                existingUserAction = _provisionInstructions.ActionForExistingOpenIdUsers;
                 break;
             default:
                 IwsDiagnostics.Assert(false, "814-1234: Unknown user auth type");

@@ -51,32 +51,47 @@ internal partial class ProvisionFromDirectoryManager
         //Write the provisioning instructions into the XML
         //--------------------------------------------------------------------------------
         //Modify existing users?
+        //1.
         xmlWriter.WriteAttributeString(
             ProvisionUserInstructions.XmlAttribute_authDefaultExistingUsers,
             ProvisionUserInstructions.XmlAttributeText(provisionConfig.ActionForExistingDefaultAuthUsers));
-
+        //2.
         xmlWriter.WriteAttributeString(
             ProvisionUserInstructions.XmlAttribute_authSamlExistingUsers,
             ProvisionUserInstructions.XmlAttributeText(provisionConfig.ActionForExistingSamlUsers));
+        //3.
+        xmlWriter.WriteAttributeString(
+            ProvisionUserInstructions.XmlAttribute_authOpenIdExistingUsers,
+            ProvisionUserInstructions.XmlAttributeText(provisionConfig.ActionForExistingOpenIdUsers));
+
 
         //Modify missing users
+        //1.
         xmlWriter.WriteAttributeString(
             ProvisionUserInstructions.XmlAttribute_authDefaultMissingUsers,
             ProvisionUserInstructions.XmlAttributeText(provisionConfig.ActionForMissingDefaultAuthUsers));
-
+        //2.
         xmlWriter.WriteAttributeString(
             ProvisionUserInstructions.XmlAttribute_authSamlMissingUsers,
             ProvisionUserInstructions.XmlAttributeText(provisionConfig.ActionForMissingSamlUsers));
+        //3.
+        xmlWriter.WriteAttributeString(
+            ProvisionUserInstructions.XmlAttribute_authOpenIdMissingUsers,
+            ProvisionUserInstructions.XmlAttributeText(provisionConfig.ActionForMissingOpenIdUsers));
 
         //Unlicese unexptected users
+        //1.
         xmlWriter.WriteAttributeString(
             ProvisionUserInstructions.XmlAttribute_authDefaultUnexpectedUsers,
             ProvisionUserInstructions.XmlAttributeText(provisionConfig.ActionForUnexpectedDefaultAuthUsers));
-
+        //2.
         xmlWriter.WriteAttributeString(
             ProvisionUserInstructions.XmlAttribute_authSamlUnexpectedUsers,
             ProvisionUserInstructions.XmlAttributeText(provisionConfig.ActionForUnexpectedSamlUsers));
-
+        //3.
+        xmlWriter.WriteAttributeString(
+            ProvisionUserInstructions.XmlAttribute_authOpenIdUnexpectedUsers,
+            ProvisionUserInstructions.XmlAttributeText(provisionConfig.ActionForUnexpectedOpenIdUsers));
 
         //Write out all the users
         RolesManager.WriteUserRolesAsXml(xmlWriter);

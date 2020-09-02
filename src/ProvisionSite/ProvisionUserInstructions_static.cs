@@ -13,12 +13,15 @@ internal partial class ProvisionUserInstructions
 {
     public const string XmlAttribute_authSamlUnexpectedUsers = "authSamlUnexpectedUsers";
     public const string XmlAttribute_authDefaultUnexpectedUsers = "authDefaultUnexpectedUsers";
+    public const string XmlAttribute_authOpenIdUnexpectedUsers = "authOpenIdUnexpectedUsers";
 
     public const string XmlAttribute_authSamlMissingUsers = "authSamlMissingUsers";
     public const string XmlAttribute_authDefaultMissingUsers = "authDefaultMissingUsers";
+    public const string XmlAttribute_authOpenIdMissingUsers = "authOpenIdMissingUsers";
 
     public const string XmlAttribute_authSamlExistingUsers = "authSamlExistingUsers";
     public const string XmlAttribute_authDefaultExistingUsers = "authDefaultExistingUsers";
+    public const string XmlAttribute_authOpenIdExistingUsers = "authOpenIdExistingUsers";
 
     public const string XmlAttribute_MissingGroupMembers    = "missingGroupMembers";                                                              
     public const string XmlAttribute_UnexpectedGroupMembers = "unexpectedGroupMembers";
@@ -173,6 +176,29 @@ internal partial class ProvisionUserInstructions
     }
 
     /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="xmlNode"></param>
+    /// <param name="attributeName"></param>
+    /// <returns></returns>
+    public static UnexpectedUserAction ParseUnexpectedUserActionFromAttribute(XmlNode xmlNode, string attributeName)
+    {
+        if (xmlNode == null)
+        {
+            throw new Exception("0902-315: Missing XML node");
+        }
+
+        
+        var attribute = xmlNode.Attributes[attributeName];
+        if(attribute == null)
+        {
+            throw new Exception("0902-316: XML attribute not found, '" + attributeName + "' in " + xmlNode.Name);
+        }
+
+        return ParseUnexpectedUserAction(attribute.Value);
+    }
+
+    /// <summary>
     /// Parse the attribute text
     /// </summary>
     /// <param name="parseText"></param>
@@ -194,6 +220,29 @@ internal partial class ProvisionUserInstructions
     }
 
     /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="xmlNode"></param>
+    /// <param name="attributeName"></param>
+    /// <returns></returns>
+    public static MissingUserAction ParseMissingUserActionFromAttribute(XmlNode xmlNode, string attributeName)
+    {
+        if (xmlNode == null)
+        {
+            throw new Exception("0902-317: Missing XML node");
+        }
+
+
+        var attribute = xmlNode.Attributes[attributeName];
+        if (attribute == null)
+        {
+            throw new Exception("0902-318: XML attribute not found, '" + attributeName + "' in " + xmlNode.Name);
+        }
+
+        return ParseMissingUserAction(attribute.Value);
+    }
+
+    /// <summary>
     /// Parse the attribute text
     /// </summary>
     /// <param name="parseText"></param>
@@ -212,6 +261,29 @@ internal partial class ProvisionUserInstructions
 
         IwsDiagnostics.Assert(false, "814-1015: Unkown value for ParseMissingUserAction: " + parseText);
         throw new Exception("814-1015: Unkown value for ParseMissingUserAction: " + parseText);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="xmlNode"></param>
+    /// <param name="attributeName"></param>
+    /// <returns></returns>
+    public static ExistingUserAction ParseExistingUserActionFromAttribute(XmlNode xmlNode, string attributeName)
+    {
+        if (xmlNode == null)
+        {
+            throw new Exception("0902-319: Missing XML node");
+        }
+
+
+        var attribute = xmlNode.Attributes[attributeName];
+        if (attribute == null)
+        {
+            throw new Exception("0902-320: XML attribute not found, '" + attributeName + "' in " + xmlNode.Name);
+        }
+
+        return ParseExistingUserAction(attribute.Value);
     }
 
     /// <summary>

@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SiteProvisioning>
    <!-- All the users on the site go here -->
+   <!-- Valid actions: authXXXXXUnexpectedUsers ="Unlicense" or "Report" -->
+   <!-- Valid actions: authXXXXXMissingUsers    ="Add"       or "Report" -->
+   <!-- Valid actions: authXXXXXExistingUsers   ="Modify"    or "Report" -->
    <!-- Valid roles: Creator, Explorer, ExplorerCanPublish, SiteAdministratorExplorer, SiteAdministratorCreator, Unlicensed, or Viewer -->
-   <SiteMembership authSamlUnexpectedUsers="Unlicense" authDefaultUnexpectedUsers="Report" authSamlMissingUsers="Report" authDefaultMissingUsers="Add" authDefaultExistingUsers="Report" authSamlExistingUsers="Report">
+   <SiteMembership authSamlUnexpectedUsers="Unlicense" authSamlMissingUsers="Report" authSamlExistingUsers="Report"     authDefaultUnexpectedUsers="Report" authDefaultMissingUsers="Add" authDefaultExistingUsers="Report"      authOpenIdUnexpectedUsers="Unlicense" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">
        <User name="xxxxxPERSON+0xxxxxx@xxxxDOMAINxxxx.com"   role="SiteAdministratorExplorer" auth="serverDefault" />
-       <User name="xxxxxPERSON+1xxxxxx@xxxxDOMAINxxxx.com" role="Creator"                   auth="serverDefault" />
-       <User name="xxxxxPERSON+2xxxxxx@xxxxDOMAINxxxx.com" role="Viewer"                    auth="serverDefault" />
+       <User name="xxxxxPERSON+1xxxxxx@xxxxDOMAINxxxx.com"   role="Creator"                   auth="serverDefault" />
+       <User name="xxxxxPERSON+2xxxxxx@xxxxDOMAINxxxx.com"   role="Viewer"                    auth="serverDefault" />
    </SiteMembership>
 
    <!-- A list of all the groups who's member members we want to audit-->

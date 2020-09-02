@@ -57,9 +57,12 @@ Three XML files are used by the application.
 <?xml version="1.0" encoding="utf-8"?>
 <SynchronizeConfiguration>
     <!-- Users in these source groups will be mapped to specific roles inside the Tableau site -->
-    <!-- Active Example:<SynchronizeRoles authSamlUnexpectedUsers="Unlicense" authDefaultUnexpectedUsers="Report" authSamlMissingUsers="Add" authDefaultMissingUsers="Add" authDefaultExistingUsers="Modify" authSamlExistingUsers="Modify">  -->
-    <!-- Reports only example: <SynchronizeRoles authSamlUnexpectedUsers="Report" authDefaultUnexpectedUsers="Report" authSamlMissingUsers="Report" authDefaultMissingUsers="Report" authDefaultExistingUsers="Report" authSamlExistingUsers="Report"> --> 
-    <SynchronizeRoles authSamlUnexpectedUsers="Report" authDefaultUnexpectedUsers="Report" authSamlMissingUsers="Report" authDefaultMissingUsers="Report" authDefaultExistingUsers="Report" authSamlExistingUsers="Report">  
+    <!-- Valid actions: authXXXXXUnexpectedUsers ="Unlicense" or "Report" -->
+    <!-- Valid actions: authXXXXXMissingUsers    ="Add"       or "Report" -->
+    <!-- Valid actions: authXXXXXExistingUsers   ="Modify"    or "Report" -->
+    <!-- Active Example      : <SynchronizeRoles authSamlUnexpectedUsers="Unlicense" authSamlMissingUsers="Add"    authSamlExistingUsers="Modify"     authDefaultUnexpectedUsers="Unlicense" authDefaultMissingUsers="Add"    authDefaultExistingUsers="Modify"        authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">  -->
+    <!-- Reports only example: <SynchronizeRoles authSamlUnexpectedUsers="Report"    authSamlMissingUsers="Report" authSamlExistingUsers="Report"     authDefaultUnexpectedUsers="Report"    authDefaultMissingUsers="Report" authDefaultExistingUsers="Report"        authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report"> --> 
+    <SynchronizeRoles authSamlUnexpectedUsers="Report" authSamlMissingUsers="Report" authSamlExistingUsers="Report"   authDefaultUnexpectedUsers="Report" authDefaultMissingUsers="Report" authDefaultExistingUsers="Report"     authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">  
          <SynchronizeRole sourceGroup="Tableau Online 001 Admins" targetRole="SiteAdministratorCreator" auth="serverDefault"/>
          <SynchronizeRole sourceGroup="Tableau Online 001 Creators" targetRole="Creator"  auth="serverDefault"/>
          <SynchronizeRole sourceGroup="Tableau Online 001 Explorers" targetRole="Explorer"  auth="serverDefault"/>
@@ -86,8 +89,11 @@ Three XML files are used by the application.
 <?xml version="1.0" encoding="utf-8"?>
 <SiteProvisioning>
    <!-- All the users on the site go here -->
+   <!-- Valid actions: authXXXXXUnexpectedUsers ="Unlicense" or "Report" -->
+   <!-- Valid actions: authXXXXXMissingUsers    ="Add"       or "Report" -->
+   <!-- Valid actions: authXXXXXExistingUsers   ="Modify"    or "Report" -->
    <!-- Valid roles: Creator, Explorer, ExplorerCanPublish, SiteAdministratorExplorer, SiteAdministratorCreator, Unlicensed, or Viewer -->
-   <SiteMembership authSamlUnexpectedUsers="Unlicense" authDefaultUnexpectedUsers="Report" authSamlMissingUsers="Report" authDefaultMissingUsers="Add" authDefaultExistingUsers="Report" authSamlExistingUsers="Report">
+   <SiteMembership authSamlUnexpectedUsers="Unlicense" authSamlMissingUsers="Report" authSamlExistingUsers="Report"     authDefaultUnexpectedUsers="Report" authDefaultMissingUsers="Add" authDefaultExistingUsers="Report"      authOpenIdUnexpectedUsers="Unlicense" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">
        <User name="xxxxUser0xxxx@xxxxxxx.com"   role="SiteAdministratorExplorer" auth="serverDefault" />
        <User name="xxxxUser1xxxx@xxxxxxx.com" role="Creator"                   auth="serverDefault" />
        <User name="xxxxUser2xxxx@xxxxxxx.com" role="Viewer"                    auth="serverDefault" />

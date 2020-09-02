@@ -26,6 +26,9 @@ partial class SiteUser : IHasSiteItemId
             case "saml":
                 return SiteUserAuth.SAML;
 
+            case "openid":
+                return SiteUserAuth.OpenID;
+
             default:
                 return SiteUserAuth.Unknown;
         }

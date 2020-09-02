@@ -30,12 +30,15 @@ internal partial class ProvisionConfigExternalDirectorySync
     //Unexpected users
     public readonly ProvisionUserInstructions.UnexpectedUserAction ActionForUnexpectedSamlUsers;
     public readonly ProvisionUserInstructions.UnexpectedUserAction ActionForUnexpectedDefaultAuthUsers;
+    public readonly ProvisionUserInstructions.UnexpectedUserAction ActionForUnexpectedOpenIdUsers;
     //Missing users
     public readonly ProvisionUserInstructions.MissingUserAction ActionForMissingSamlUsers;
     public readonly ProvisionUserInstructions.MissingUserAction ActionForMissingDefaultAuthUsers;
+    public readonly ProvisionUserInstructions.MissingUserAction ActionForMissingOpenIdUsers;
     //Existing users needing modification
     public readonly ProvisionUserInstructions.ExistingUserAction ActionForExistingSamlUsers;
     public readonly ProvisionUserInstructions.ExistingUserAction ActionForExistingDefaultAuthUsers;
+    public readonly ProvisionUserInstructions.ExistingUserAction ActionForExistingOpenIdUsers;
     //Group memberships
     public readonly ProvisionUserInstructions.UnexpectedGroupMemberAction ActionForGroupUnexpectedMembers;
     public readonly ProvisionUserInstructions.MissingGroupMemberAction ActionForGroupMisingMembers;
@@ -56,23 +59,38 @@ internal partial class ProvisionConfigExternalDirectorySync
         //-------------------------------------------------------------------------------
         //Get instructions about the intended site membership provisioning
         //-------------------------------------------------------------------------------
-        this.ActionForUnexpectedSamlUsers = ProvisionUserInstructions.ParseUnexpectedUserAction(
-                                xnodeRoleSyncHeader.Attributes[ProvisionUserInstructions.XmlAttribute_authSamlUnexpectedUsers].Value);
+        //UNEXPECTED USERS
+        //1.
+        this.ActionForUnexpectedSamlUsers = ProvisionUserInstructions.ParseUnexpectedUserActionFromAttribute(
+            xnodeRoleSyncHeader, ProvisionUserInstructions.XmlAttribute_authSamlUnexpectedUsers);
+        //2.
+        this.ActionForUnexpectedDefaultAuthUsers = ProvisionUserInstructions.ParseUnexpectedUserActionFromAttribute(
+                                xnodeRoleSyncHeader, ProvisionUserInstructions.XmlAttribute_authDefaultUnexpectedUsers);
+        //3.
+        this.ActionForUnexpectedOpenIdUsers = ProvisionUserInstructions.ParseUnexpectedUserActionFromAttribute(
+                                xnodeRoleSyncHeader, ProvisionUserInstructions.XmlAttribute_authOpenIdUnexpectedUsers);
 
-        this.ActionForUnexpectedDefaultAuthUsers = ProvisionUserInstructions.ParseUnexpectedUserAction(
-                                xnodeRoleSyncHeader.Attributes[ProvisionUserInstructions.XmlAttribute_authDefaultUnexpectedUsers].Value);
+        //MISSING USERS
+        //1.
+        this.ActionForMissingSamlUsers = ProvisionUserInstructions.ParseMissingUserActionFromAttribute(
+                                xnodeRoleSyncHeader, ProvisionUserInstructions.XmlAttribute_authSamlMissingUsers);
+        //2.
+        this.ActionForMissingDefaultAuthUsers = ProvisionUserInstructions.ParseMissingUserActionFromAttribute(
+                                xnodeRoleSyncHeader, ProvisionUserInstructions.XmlAttribute_authDefaultMissingUsers);
+        //3.
+        this.ActionForMissingOpenIdUsers = ProvisionUserInstructions.ParseMissingUserActionFromAttribute(
+                                xnodeRoleSyncHeader, ProvisionUserInstructions.XmlAttribute_authOpenIdMissingUsers);
 
-        this.ActionForMissingSamlUsers = ProvisionUserInstructions.ParseMissingUserAction(
-                                xnodeRoleSyncHeader.Attributes[ProvisionUserInstructions.XmlAttribute_authSamlMissingUsers].Value);
-
-        this.ActionForMissingDefaultAuthUsers = ProvisionUserInstructions.ParseMissingUserAction(
-                                xnodeRoleSyncHeader.Attributes[ProvisionUserInstructions.XmlAttribute_authDefaultMissingUsers].Value);
-
-        this.ActionForExistingSamlUsers = ProvisionUserInstructions.ParseExistingUserAction(
-                                xnodeRoleSyncHeader.Attributes[ProvisionUserInstructions.XmlAttribute_authSamlExistingUsers].Value);
-
-        this.ActionForExistingDefaultAuthUsers = ProvisionUserInstructions.ParseExistingUserAction(
-                                xnodeRoleSyncHeader.Attributes[ProvisionUserInstructions.XmlAttribute_authDefaultExistingUsers].Value);
+        //EXISTING USERS
+        //1.
+        this.ActionForExistingSamlUsers = ProvisionUserInstructions.ParseExistingUserActionFromAttribute(
+                                xnodeRoleSyncHeader, ProvisionUserInstructions.XmlAttribute_authSamlExistingUsers);
+        //2.
+        this.ActionForExistingDefaultAuthUsers = ProvisionUserInstructions.ParseExistingUserActionFromAttribute(
+                                xnodeRoleSyncHeader, ProvisionUserInstructions.XmlAttribute_authDefaultExistingUsers);
+        //3.
+        this.ActionForExistingOpenIdUsers = ProvisionUserInstructions.ParseExistingUserActionFromAttribute(
+                                xnodeRoleSyncHeader, ProvisionUserInstructions.XmlAttribute_authOpenIdExistingUsers);
 
 
         //-------------------------------------------------------------------------------

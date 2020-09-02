@@ -6,5 +6,6 @@ enum SiteUserAuth
 {
     Default,
     SAML,
+    OpenID,
     Unknown
 }
