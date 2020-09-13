@@ -169,6 +169,7 @@
     <Compile Include="ProvisionSite\ProvisionFromDirectoryRolesMembershipManager.SingleRoleManager.cs" />
     <Compile Include="ProvisionSite\ProvisionFromDirectoryRolesMembershipManager.cs" />
     <Compile Include="ProvisionSite\ProvisioningGroup.cs" />
+    <Compile Include="ProvisionSite\ProvisioningUser_static.cs" />
     <Compile Include="ProvisionSite\ProvisioningUser.cs" />
     <Compile Include="ProvisionSite\ProvisionConfigExternalDirectorySync.cs" />
     <Compile Include="ProvisionSite\ProvisionSite_users.cs" />
@@ -259,11 +260,11 @@
     <Compile Include="TaskManager\TaskMasterOptions_static.cs" />
     <Compile Include="TaskManager\TaskMasterOptions.cs" />
     <Compile Include="RESTHelpers\DownloadPayloadTypeHelper.cs" />
-    <Compile Include="UI\FormSiteExportImport.cs">
+    <Compile Include="UI\FormTabProvision.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\FormSiteExportImport.Designer.cs">
-      <DependentUpon>FormSiteExportImport.cs</DependentUpon>
+    <Compile Include="UI\FormTabProvision.Designer.cs">
+      <DependentUpon>FormTabProvision.cs</DependentUpon>
     </Compile>
     <Compile Include="ServerData\SiteProject.cs" />
     <Compile Include="ServerData\SiteDatasource.cs" />
@@ -302,8 +303,8 @@
     <Compile Include="RESTHelpers\TableauServerUrls.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="UI\FormSiteExportImport.resx">
-      <DependentUpon>FormSiteExportImport.cs</DependentUpon>
+    <EmbeddedResource Include="UI\FormTabProvision.resx">
+      <DependentUpon>FormTabProvision.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

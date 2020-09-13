@@ -61,7 +61,7 @@ internal partial class AzureDownload
     }
 
     /// <summary>
-    /// Contructor
+    /// Constructor
     /// </summary>
     /// <param name="config"></param>
     /// <param name="configSyncGroups"></param>
@@ -198,8 +198,8 @@ internal partial class AzureDownload
             //If the group does not exist in Azure, not the error condition
             if (thisGroupAsSet.Count < 1)
             {
-                _statusLogs.AddError("Azure AD group does not exist" + groupToRetrieve.SourceGroupName);
-                throw new Exception("814-722: Azure AD group does not exist" + groupToRetrieve.SourceGroupName);
+                _statusLogs.AddError("Azure AD group does not exist: " + groupToRetrieve.SourceGroupName);
+                throw new Exception("814-722: Azure AD group does not exist: " + groupToRetrieve.SourceGroupName);
             }
             var thiGroupId = thisGroupAsSet.CurrentPage[0].Id;
 
@@ -356,6 +356,7 @@ internal partial class AzureDownload
                     {
                         AddUserToRoleProvisioningTrackingManager(
                             baseGroupToRetrieve.TableauRole,
+                            baseGroupToRetrieve.AllowPromotedRoleForMembers,
                             baseGroupToRetrieve.AuthenticationModel,
                             asUser,
                             baseGroupToRetrieve.SourceGroupName);
@@ -399,13 +400,13 @@ internal partial class AzureDownload
     /// <param name="authModel"></param>
     /// <param name="graphUser"></param>
     /// <param name="sourceGroupName"></param>
-    private void AddUserToRoleProvisioningTrackingManager(string tableauRole, string authModel, Microsoft.Graph.User graphUser, string sourceGroupName)
+    private void AddUserToRoleProvisioningTrackingManager(string tableauRole, bool allowPromotedRole, string authModel, Microsoft.Graph.User graphUser, string sourceGroupName)
     {
         //Because the request code can run async, and the collection management used is not designed to be thread-safe
         //we are going to serialize adding users to the collection.  
         lock(_lock_AddUserToRoleProvisioningTrackingManager)
         {
-            AddUserToRoleProvisioningTrackingManager_Inner(tableauRole, authModel, graphUser, sourceGroupName);
+            AddUserToRoleProvisioningTrackingManager_Inner(tableauRole, allowPromotedRole, authModel, graphUser, sourceGroupName);
         }
     }
     /// <summary>
@@ -413,13 +414,13 @@ internal partial class AzureDownload
     /// </summary>
     /// <param name="tableauRole"></param>
     /// <param name="graphUser"></param>
-    private void AddUserToRoleProvisioningTrackingManager_Inner(string tableauRole, string authModel, Microsoft.Graph.User graphUser, string sourceGroupName)
+    private void AddUserToRoleProvisioningTrackingManager_Inner(string tableauRole, bool allowPromotedRole, string authModel, Microsoft.Graph.User graphUser, string sourceGroupName)
     {
         string emailCandidate = GetUserEmailFromGraphADUser(graphUser);
         IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "813-326: User principal name is NULL");
 
         //Add the user to our tracking set
-        SetManagerForRoles.AddUser(new ProvisioningUser(emailCandidate, tableauRole, authModel, sourceGroupName));
+        SetManagerForRoles.AddUser(new ProvisioningUser(emailCandidate, tableauRole, authModel, sourceGroupName, allowPromotedRole));
     }
 
     /// <summary>

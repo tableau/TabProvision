@@ -331,15 +331,6 @@ internal static class AppSettings
         }
     }
 
-    /*
-    public static string ApplicationTitle
-    {
-        get
-        {
-            return "UNDONE: TEMP TITLE";
-        }
-    }
-    */
     /// <summary>
     /// Looks up an attribute by name and returns true/false
     /// </summary>

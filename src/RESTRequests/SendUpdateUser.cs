@@ -85,7 +85,7 @@ class SendUpdateUser: TableauServerSignedInRequestBase
         TableauServerRequestBase.SendPutContents(webRequest, xmlText);
         
         //Get the response
-        var response = GetWebReponseLogErrors(webRequest, "update yser (change auth or role)");
+        var response = GetWebReponseLogErrors(webRequest, "update user (change auth or role)");
         using (response)
         {
             var xmlDoc = GetWebResponseAsXml(response);

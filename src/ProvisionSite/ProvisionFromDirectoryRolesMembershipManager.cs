@@ -122,7 +122,9 @@ internal partial class ProvisionFromDirectoryRolesMembershipManager
             userToAdd = new ProvisioningUser(
                 userToAdd.UserName, //Keep the name
                 ProvisioningUser.RoleText_SiteAdministratorCreator, //Upgrade the role to Creator + Administrator 
-                userToAdd.UserAuthentication, "*multiple groups (" + existingUser.SourceGroup + "+" + userToAdd.SourceGroup+")*"); //Note that this is because of multiple groups
+                userToAdd.UserAuthentication, "*multiple groups (" + existingUser.SourceGroup + "+" + userToAdd.SourceGroup+")*",
+                (existingUser.AllowPromotedRole || userToAdd.AllowPromotedRole) //If either user definition allows role promotion, then allow it
+                ); //Note that this is because of multiple groups
 
             goto replace_existing_user;
 

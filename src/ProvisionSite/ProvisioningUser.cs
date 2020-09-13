@@ -1,20 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
-
-internal class ProvisioningUser
+/// <summary>
+/// Instructions for provisioning a single user
+/// </summary>
+internal partial class ProvisioningUser
 {
     public readonly string UserAuthentication;
     public readonly SiteUserAuth UserAuthenticationParsed;
     //public readonly SiteUserRole UserRoleParsed;
     public readonly string  UserRole;
     public readonly string UserName;
-    public readonly int RoleRank;
+    public readonly int RoleRank = RoleRank_Error; //Start with an error value (should get set in the constructor)
     public readonly string SourceGroup;
+
+    /// <summary>
+    /// TRUE: It is not unexpected to find that the user has an acutal role > than this specified role (useful for Grant License on Sign In scenarios)
+    /// FALSE: It is unexpected to find the user with a role that differs from this specified role
+    /// </summary>
+    public readonly bool AllowPromotedRole;
+
 
     /// <summary>
     /// Explictly passed in value
@@ -22,7 +29,7 @@ internal class ProvisioningUser
     /// <param name="userName"></param>
     /// <param name="userRole"></param>
     /// <param name="userAuthentication"></param>
-    public ProvisioningUser(string userName, string userRole, string userAuthentication, string sourceGroup)
+    public ProvisioningUser(string userName, string userRole, string userAuthentication, string sourceGroup, bool allowPromotedRole)
     {
         this.UserName = userName;
         this.UserRole = userRole;
@@ -30,17 +37,46 @@ internal class ProvisioningUser
         this.UserAuthenticationParsed = SiteUser.ParseUserAuthentication(this.UserAuthentication);
         this.RoleRank = CalculateRoleRank(userRole);
         this.SourceGroup = sourceGroup;
+        this.AllowPromotedRole = allowPromotedRole; 
     }
 
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="xmlNode"></param>
+    public ProvisioningUser(XmlNode xmlNode, string overrideSourceGroup)
+    {
+        this.UserAuthentication = xmlNode.Attributes[XmlAttribute_Auth].Value;
+        this.UserRole = xmlNode.Attributes[XmlAttribute_Role].Value;
+        this.UserName = xmlNode.Attributes[XmlAttribute_Name].Value;
 
-    public const int RoleRank_Unlicensed = 0;
-    public const int RoleRank_Viewer = 10;
-    public const int RoleRank_Explorer = 20;
-    public const int RoleRank_ExplorerCanPublish = 30;
-    public const int RoleRank_Creator = 40;
-    public const int RoleRank_SiteAdministratorExplorer = 50;
-    public const int RoleRank_SiteAdministratorCreator = 100;
-    public const string RoleText_SiteAdministratorCreator = "SiteAdministratorCreator";
+        this.RoleRank = CalculateRoleRank(this.UserRole);
+
+
+        /// <summary>
+        /// TRUE: It is not unexpected to find that the user has an acutal role > than this specified role (useful for Grant License on Sign In scenarios)
+        /// FALSE: It is unexpected to find the user with a role that differs from this specified role
+        /// </summary>
+        this.AllowPromotedRole =  XmlHelper.ReadBooleanAttribute(xmlNode, XmlAttribute_AllowPromotedRole, false);
+
+        //Source group information (useful for understanding where this role definition came from)
+        if (!string.IsNullOrEmpty(overrideSourceGroup))
+        {
+            this.SourceGroup = overrideSourceGroup;
+        }
+        else
+        {
+            var xAttributeSourceGroup = xmlNode.Attributes[XmlAttribute_SourceGroup];
+            if (xAttributeSourceGroup != null)
+            {
+                this.SourceGroup = xAttributeSourceGroup.Value;
+            }
+        }
+
+
+        this.UserAuthenticationParsed = SiteUser.ParseUserAuthentication(this.UserAuthentication);
+    }
+
 
     /// <summary>
     /// True of the combination of 2 roles is a "Creator" + "Administrator"
@@ -76,56 +112,6 @@ internal class ProvisioningUser
         return false;
     }
 
-    /// <summary>
-    /// When a user is in multiple groups, we need to choose the highest rank for their seat provisioning.
-    /// This calculation helps us do that
-    /// </summary>
-    /// <param name="role"></param>
-    /// <returns></returns>
-    private static int CalculateRoleRank(string role)
-    {
-        string cannonicalRole = role.ToLower();
-
-        if (cannonicalRole == "unlicensed")                return RoleRank_Unlicensed;
-        if (cannonicalRole == "viewer")                    return RoleRank_Viewer;
-        if (cannonicalRole == "explorer")                  return RoleRank_Explorer;
-        if (cannonicalRole == "explorercanpublish")        return RoleRank_ExplorerCanPublish;
-        if (cannonicalRole == "creator")                   return RoleRank_Creator;
-        if (cannonicalRole == "siteadministratorexplorer") return RoleRank_SiteAdministratorExplorer;
-        if (cannonicalRole == "siteadministrator")         return RoleRank_SiteAdministratorExplorer;
-        if (cannonicalRole == "siteadministratorcreator")  return RoleRank_SiteAdministratorCreator;
-
-        IwsDiagnostics.Assert(false, "813-549: Unknown role " + role);
-        throw new Exception("813-549: Unknown role " + role);
-
-    }
-
-    /// <summary>
-    /// Contructor
-    /// </summary>
-    /// <param name="xmlNode"></param>
-    public ProvisioningUser(XmlNode xmlNode, string overrideSourceGroup)
-    {
-        this.UserAuthentication = xmlNode.Attributes["auth"].Value;
-        this.UserRole = xmlNode.Attributes["role"].Value;
-        this.UserName = xmlNode.Attributes["name"].Value;
-
-        if(!string.IsNullOrEmpty(overrideSourceGroup))
-        {
-            this.SourceGroup = overrideSourceGroup;
-        }
-        else
-        {
-            var xAttributeSourceGroup = xmlNode.Attributes["sourceGroup"];
-            if(xAttributeSourceGroup != null)
-            {
-                this.SourceGroup = xAttributeSourceGroup.Value;
-            }
-        }
-
-
-        this.UserAuthenticationParsed = SiteUser.ParseUserAuthentication(this.UserAuthentication);
-    }
 
     /// <summary>
     /// Write out XML for the object
@@ -134,15 +120,15 @@ internal class ProvisioningUser
     internal void WriteAsXml(XmlWriter xmlWriter)
     {
         xmlWriter.WriteStartElement("User");
-        xmlWriter.WriteAttributeString("name", this.UserName);
-        xmlWriter.WriteAttributeString("role", this.UserRole);
-        xmlWriter.WriteAttributeString("auth", this.UserAuthentication);
+        xmlWriter.WriteAttributeString(XmlAttribute_Name, this.UserName);
+        xmlWriter.WriteAttributeString(XmlAttribute_Role, this.UserRole);
+        xmlWriter.WriteAttributeString(XmlAttribute_Auth, this.UserAuthentication);
+        XmlHelper.WriteBooleanAttribute(xmlWriter, XmlAttribute_AllowPromotedRole, this.AllowPromotedRole);
 
-        if(!string.IsNullOrEmpty(this.SourceGroup))
+        if (!string.IsNullOrEmpty(this.SourceGroup))
         {
-            xmlWriter.WriteAttributeString("sourceGroup", this.SourceGroup);
+            xmlWriter.WriteAttributeString(XmlAttribute_SourceGroup, this.SourceGroup);
         }
         xmlWriter.WriteEndElement();
-
     }
 }

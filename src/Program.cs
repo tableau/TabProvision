@@ -17,7 +17,7 @@ namespace OnlineContentDownloader
             Application.SetCompatibleTextRenderingDefault(false);
 
             //UI form we are going to show
-            var form = new FormSiteExportImport();
+            var form = new FormTabProvision();
 
             //Example command line:
             //-command emailSiteDigests -base "base_secrets.xml" -targetSite "target_CloudTeam.xml" -exitWhenDone false

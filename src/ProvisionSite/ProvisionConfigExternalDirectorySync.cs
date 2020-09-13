@@ -139,9 +139,14 @@ internal partial class ProvisionConfigExternalDirectorySync
         {
             var groupName = thisXmlNode.Attributes["sourceGroup"].Value;
             var tableauRoleName = thisXmlNode.Attributes["targetRole"].Value;
-            var authModel = thisXmlNode.Attributes["auth"].Value;
+            var authModel = thisXmlNode.Attributes[ProvisioningUser.XmlAttribute_Auth].Value;
 
-            var thisMapping = new SynchronizeGroupToRole(groupName, tableauRoleName, authModel);
+            /// TRUE: It is not unexpected to find that the user has an acutal role > than this specified role (useful for Grant License on Sign In scenarios)
+            /// FALSE: It is unexpected to find the user with a role that differs from this specified role
+            var allowPromotedRole = 
+                XmlHelper.SafeParseXmlAttribute_Boolean(thisXmlNode, ProvisioningUser.XmlAttribute_AllowPromotedRole, false);
+
+            var thisMapping = new SynchronizeGroupToRole(groupName, tableauRoleName, authModel, allowPromotedRole);
             listOut.Add(thisMapping);
         }
 
@@ -179,16 +184,22 @@ internal partial class ProvisionConfigExternalDirectorySync
         public readonly string TableauRole;
         public readonly string AuthenticationModel;
 
+        public readonly bool AllowPromotedRoleForMembers;
+
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="sourceGroup"></param>
         /// <param name="tableauRole"></param>
-        public SynchronizeGroupToRole(string sourceGroup, string tableauRole, string authModel)
+        public SynchronizeGroupToRole(string sourceGroup, string tableauRole, string authModel, bool allowPromotedRole)
         {
             this.SourceGroupName = sourceGroup;
             this.TableauRole = tableauRole;
             this.AuthenticationModel = authModel;
+
+            // TRUE: It is not unexpected to find that the user has an acutal role > than this specified role (useful for Grant License on Sign In scenarios)
+            // FALSE: It is unexpected to find the user with a role that differs from this specified role
+            this.AllowPromotedRoleForMembers = allowPromotedRole;
         }
     }
 

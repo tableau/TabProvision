@@ -17,7 +17,7 @@ internal class ProvisioningGroup
 
 
     /// <summary>
-    /// Contructor
+    /// Constructor
     /// </summary>
     /// <param name="xmlNode"></param>
     public ProvisioningGroup(XmlNode xmlNode)

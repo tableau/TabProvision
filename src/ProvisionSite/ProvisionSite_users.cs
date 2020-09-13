@@ -39,7 +39,7 @@ internal partial class ProvisionSite
             }
             catch (Exception ex)
             {
-                _statusLogs.AddError("Error provisioning user " + userToProvision.UserName + ", " + ex.Message);
+                _statusLogs.AddError("Error provisioning user (913-1158)" + userToProvision.UserName + ", " + ex.Message);
                 CSVRecord_Error(userToProvision.UserName, userToProvision.UserRole, userToProvision.UserAuthentication, "Error provisioning user " + userToProvision.UserName + ", " + ex.Message);
             }
 
@@ -134,7 +134,9 @@ internal partial class ProvisionSite
                 throw new Exception("814-1204: Unknown auth type, " + unknownAuthType);
         }
 
+        //===============================================================================================
         //CASE 1: The user does NOT exist.  So add them
+        //===============================================================================================
         if (foundExistingUser == null)
         {
 
@@ -142,18 +144,43 @@ internal partial class ProvisionSite
             return;
         }
 
-        //CASE 2: The user EXISTS but is not the right role or auth; update them
-        if (
-            (string.Compare(foundExistingUser.SiteRole, userToProvision.UserRole, true) != 0)
-            || (string.Compare(foundExistingUser.SiteAuthentication, userToProvision.UserAuthentication, true) != 0)
-          )
-
+        //===============================================================================================
+        //CASE 2a: The user EXISTS but is not the right AUTH; update them
+        //===============================================================================================
+        if (string.Compare(foundExistingUser.SiteAuthentication, userToProvision.UserAuthentication, true) != 0)         
         {
+            //Update the user
+            Execute_ProvisionUsers_SingleUser_ModifyUser(siteSignIn, userToProvision, foundExistingUser);
+            return;
+        }
+        //===============================================================================================
+        //CASE 2b: The user EXISTS but is not the right AUTH; update them
+        //===============================================================================================
+        else if (string.Compare(foundExistingUser.SiteRole, userToProvision.UserRole, true) != 0)
+        {
+            //==================================================================================================================================================================
+            //CASE 2b: Special case (to support Grant License on Sign In: If the user provisioning insturctions ALLOW
+            //NOTE: If the authentication schemes do not match, then move foward with modifying the user -- this is a more fundamental change, and we should honor it explicitly
+            //==================================================================================================================================================================
+            if (userToProvision.AllowPromotedRole)
+            {
+                var existingUserRoleRank = ProvisioningUser.CalculateRoleRank(foundExistingUser.SiteRole);
+                if(existingUserRoleRank > userToProvision.RoleRank)
+                {
+                    _statusLogs.AddStatus("No action: Provisioning rule for this user allow keeping existing higher ranked role. User: " + userToProvision.UserName + ", " + foundExistingUser.SiteRole);
+                    return;
+                }
+            }
+
+            //CASE 2c: Update the user because the provisioning Role differs from the existing user's Role
             Execute_ProvisionUsers_SingleUser_ModifyUser(siteSignIn, userToProvision, foundExistingUser);
             return;
         }
 
+
+        //===============================================================================================
         //CASE 3: The user exists and does NOT need to be modified
+        //===============================================================================================
         _statusLogs.AddStatus("No action: User exists and has expected role and authentication. User: " + userToProvision.UserName);
     }
 
@@ -196,28 +223,28 @@ internal partial class ProvisionSite
 
                 var userUpdated = updateUser.ExecuteRequest();
 
-                //-------------------------------------------------------------------------------
-                //Record the action in an output file
-                //-------------------------------------------------------------------------------
-                CSVRecord_UserModified(
-                    userToProvision.UserName,
-                    userToProvision.UserRole,
-                    userToProvision.UserAuthentication,
-                    "existing/modified",
-                    existingUser.SiteRole + "->" + userUpdated.SiteRole + ", " + existingUser.SiteAuthentication + "->" + userUpdated.SiteAuthentication);
-                return;
+                if(userUpdated != null)
+                {
+                    //-------------------------------------------------------------------------------
+                    //Record the action in an output file
+                    //-------------------------------------------------------------------------------
+                    CSVRecord_UserModified(
+                        userToProvision.UserName,
+                        userToProvision.UserRole,
+                        userToProvision.UserAuthentication,
+                        "existing/modified",
+                        existingUser.SiteRole + "->" + userUpdated.SiteRole + ", " + existingUser.SiteAuthentication + "->" + userUpdated.SiteAuthentication);
+                    return;
+                }
+                else
+                {
+                    //Error case, the user was not updated
+                    CSVRecord_Error(userToProvision.UserName, userToProvision.UserRole, userToProvision.UserAuthentication, "Error updating user (913-212)");
+                    return;
+                }
 
             //Don't modify, but report
             case ProvisionUserInstructions.ExistingUserAction.Report:
-                //-------------------------------------------------------------------------------
-                //Record the action in an output file
-                //-------------------------------------------------------------------------------
-                /*                CSVRecord_Warning(
-                                    userToProvision.UserName,
-                                    userToProvision.UserRole,
-                                    userToProvision.UserAuthentication,
-                                    "Modify user: Per provisioning instructions, existing user left unaltered. " + existingUser.SiteRole + "->" + userToProvision.UserRole + ", " + existingUser.SiteAuthentication + "->" + userToProvision.UserAuthentication);
-                */
                 CSVRecord_UserModified(
                     userToProvision.UserName,
                     userToProvision.UserRole,
@@ -230,9 +257,6 @@ internal partial class ProvisionSite
                 IwsDiagnostics.Assert(false, "814-1237: Internal error. Unknown modify user action");
                 throw new Exception("814-1237: Internal error. Unknown modify user action");
         }
-
-
-
     }
 
 
@@ -339,13 +363,21 @@ internal partial class ProvisionSite
                 //-------------------------------------------------------------------------------
                 //Record the action in an output file
                 //-------------------------------------------------------------------------------
-                CSVRecord_UserModified(
-                    unexpectedUser.Name,
-                    unexpectedUser.SiteRole,
-                    unexpectedUser.SiteAuthentication,
-                    "existing/removed",
-                    unexpectedUser.SiteRole + "->" + userUpdated.SiteRole);
-                return;
+                if(userUpdated != null)
+                {
+                    CSVRecord_UserModified(
+                        unexpectedUser.Name,
+                        unexpectedUser.SiteRole,
+                        unexpectedUser.SiteAuthentication,
+                        "existing/removed",
+                        unexpectedUser.SiteRole + "->" + userUpdated.SiteRole);
+                    return;
+                }
+                else
+                {
+                    CSVRecord_Error(unexpectedUser.Name, unexpectedUser.SiteRole, unexpectedUser.SiteAuthentication, "Error unlicensing user (913-215)");
+                    return;
+                }
 
             default:
                 IwsDiagnostics.Assert(false, "811-1130: Internal error. Unknown provisioning behavior for user " + unexpectedUser.ToString());

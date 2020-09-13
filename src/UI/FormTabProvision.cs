@@ -9,12 +9,12 @@ using System.Runtime.CompilerServices;
 
 namespace OnlineContentDownloader
 {
-    public partial class FormSiteExportImport : Form, IShowLogs
+    public partial class FormTabProvision : Form, IShowLogs
     {
 
 
 
-        public FormSiteExportImport()
+        public FormTabProvision()
         {
             InitializeComponent();
         }

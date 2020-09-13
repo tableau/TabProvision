@@ -249,7 +249,7 @@ internal static class XmlHelper
             return false;
         }
 
-        throw new Exception("Invalid boolean value " + attributeValue);
+        throw new Exception("913-1111 Invalid boolean value " + attributeValue);
     }
 
     /// <summary>
