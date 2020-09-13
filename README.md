@@ -56,29 +56,46 @@ Three XML files are used by the application.
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <SynchronizeConfiguration>
+
     <!-- Users in these source groups will be mapped to specific roles inside the Tableau site -->
     <!-- Valid actions: authXXXXXUnexpectedUsers ="Unlicense" or "Report" -->
     <!-- Valid actions: authXXXXXMissingUsers    ="Add"       or "Report" -->
     <!-- Valid actions: authXXXXXExistingUsers   ="Modify"    or "Report" -->
     <!-- Active Example      : <SynchronizeRoles authSamlUnexpectedUsers="Unlicense" authSamlMissingUsers="Add"    authSamlExistingUsers="Modify"     authDefaultUnexpectedUsers="Unlicense" authDefaultMissingUsers="Add"    authDefaultExistingUsers="Modify"        authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">  -->
     <!-- Reports only example: <SynchronizeRoles authSamlUnexpectedUsers="Report"    authSamlMissingUsers="Report" authSamlExistingUsers="Report"     authDefaultUnexpectedUsers="Report"    authDefaultMissingUsers="Report" authDefaultExistingUsers="Report"        authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report"> --> 
-    <SynchronizeRoles authSamlUnexpectedUsers="Report" authSamlMissingUsers="Report" authSamlExistingUsers="Report"   authDefaultUnexpectedUsers="Report" authDefaultMissingUsers="Report" authDefaultExistingUsers="Report"     authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">  
+    <SynchronizeRoles authSamlUnexpectedUsers="Unlicense" authSamlMissingUsers="Add" authSamlExistingUsers="Modify"   authDefaultUnexpectedUsers="Unlicense" authDefaultMissingUsers="Add" authDefaultExistingUsers="Modify"     authOpenIdUnexpectedUsers="Unlicense" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">  
          <SynchronizeRole sourceGroup="Tableau Online 001 Admins" targetRole="SiteAdministratorCreator" auth="serverDefault"/>
          <SynchronizeRole sourceGroup="Tableau Online 001 Creators" targetRole="Creator"  auth="serverDefault"/>
-         <SynchronizeRole sourceGroup="Tableau Online 001 Explorers" targetRole="Explorer"  auth="serverDefault"/>
-         <SynchronizeRole sourceGroup="Tableau Online 001 Viewers" targetRole="Viewer"  auth="serverDefault"/>
+
+         <!-- To support Tableau "Grant License on Sign In" you can specify the attribute  allowPromotedRole="true". This indicates that if the user already has a Role greater than the one specified in this Synchronize Role Group, then keep the higher role -->
+         <!-- allowPromotedRole="true" is particularly useful when BULK ADDING users as "Unlicensed" and using Tableau's Grant License on Sign in functionality to assign a default role to members of a Tableau Site Group-->
+         <SynchronizeRole sourceGroup="Tableau Online 001 Explorers" targetRole="Explorer"  auth="serverDefault"  allowPromotedRole="true"/>
+         <SynchronizeRole sourceGroup="Tableau Online 001 Viewers"   targetRole="Viewer"    auth="serverDefault"  allowPromotedRole="true"/>
+
+         <!-- RECOMMENDED: Have a group that contains ALL users you want to use Grant License on Sign In for. Provision them as "Unlicensed" and set allowPromotedRole="True"-->
+         <SynchronizeRole sourceGroup="Tableau Online 001 Potential Users" targetRole="Unlicensed"    auth="serverDefault"  allowPromotedRole="true"/>
 
          <!-- Specify any explicit user/auth/role that we want to supersede anything we find in the groups that we syncrhonize from -->
          <SiteMembershipOverrides>
-              <User name="ivosa@hotmail.com"   role="SiteAdministratorExplorer" auth="serverDefault" />
+              <User name="xxxxPersonxxxxx@xxxxDomainxxxxx.com"   role="SiteAdministratorExplorer" auth="serverDefault" />
          </SiteMembershipOverrides>
     </SynchronizeRoles>
   
     <!-- Users in these groups will me mapped into group membership inside the Tableau site -->
-    <!-- Active Example: <SynchronizeGroups unexpectedGroupMembers="Delete" missingGroupMembers="Add">   -->
-    <SynchronizeGroups unexpectedGroupMembers="Report" missingGroupMembers="Report">  
+    <!-- Valid actions: unexpectedGroupMembers ="Delete" or "Report" -->
+    <!-- Valid actions: missingGroupMembers    ="Add"    or "Report" -->
+    <SynchronizeGroups  missingGroupMembers="Add" unexpectedGroupMembers="Delete">  
          <SynchronizeGroup sourceGroup="Biz Group - Accounting" targetGroup="Accounting Analytics" />
          <SynchronizeGroup sourceGroup="Biz Group - Marketing" targetGroup="Marketing Analytics" />
+
+         <!-- RECOMMENDED: Use Grant License On Sign In.  To do this: -->
+         <!-- 1. Have a group for ALL users (see right below) -->
+         <!-- 2. In your Tableau Online site set the MINIMUM SITE ROLE for this GROUP to be "Explorer" or "Viewer" and check GRANT ROLE ON SIGN IN -->
+         <!-- 3. Add this group to your TabProvision SynchronizeGroups section (see right below)-->
+         <!-- 4. Add this group to your TabProvision SynchronizeRoles section (see above) with a targetRole as "Unlicensed" and allowPromotedRole="true" -->
+         <!-- RESULT: All of these users will become potential users for your site. If/when they sign in they will get upgraded from "Unlicensed" to "Explorer" or "Viewer"-->
+         <!-- More info: https://help.tableau.com/current/online/en-us/grant_role.htm -->
+         <SynchronizeGroup sourceGroup="Tableau Online 001 Potential Users" targetGroup="Potential Users" />
     </SynchronizeGroups>
 
 </SynchronizeConfiguration>
