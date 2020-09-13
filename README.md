@@ -185,6 +185,7 @@ The source code also contains example files in a “Secrets” subdirectory and 
 - Secrets\template.xml : Shows how to specify log-in information for Tableau Online (or Tableau Server) and Azure AD
 - ExampleConfigs\AzureAD_SyncConfigExample.xml : Shows how to specify Groups that you want to synchronize from Azure AD
 - FileSystem_SyncConfigExample.xml : Shows how to explicitly specify Groups and Users in a local file that are then provisioned in Tableau Online (or Tableau Server)
+- The XML attribute allowPromotedRole="true" (used in both the Azure AD and File System XML examples) is very useful in conjunction with Tableau Online and Server's "Grant License on Sign In". Users (and Azure AD Groups) imported with this setting can take advantage of being members of Tableau Groups that specify a MINIMUM SITE ROLE for group members. This is a great way to bulk add a potentially large number of Unlicensed users, and have these users be granted licensing roles when they first sign in. https://help.tableau.com/current/online/en-us/grant_role.htm
 
 
 ## Is TabProvision supported? 
