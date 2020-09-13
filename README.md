@@ -111,23 +111,30 @@ Three XML files are used by the application.
    <!-- Valid actions: authXXXXXExistingUsers   ="Modify"    or "Report" -->
    <!-- Valid roles: Creator, Explorer, ExplorerCanPublish, SiteAdministratorExplorer, SiteAdministratorCreator, Unlicensed, or Viewer -->
    <SiteMembership authSamlUnexpectedUsers="Unlicense" authSamlMissingUsers="Report" authSamlExistingUsers="Report"     authDefaultUnexpectedUsers="Report" authDefaultMissingUsers="Add" authDefaultExistingUsers="Report"      authOpenIdUnexpectedUsers="Unlicense" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">
-       <User name="xxxxUser0xxxx@xxxxxxx.com"   role="SiteAdministratorExplorer" auth="serverDefault" />
-       <User name="xxxxUser1xxxx@xxxxxxx.com" role="Creator"                   auth="serverDefault" />
-       <User name="xxxxUser2xxxx@xxxxxxx.com" role="Viewer"                    auth="serverDefault" />
+       <User name="xxxxxPERSON+0xxxxxx@xxxxDOMAINxxxx.com"   role="SiteAdministratorExplorer" auth="serverDefault" />
+       <User name="xxxxxPERSON+1xxxxxx@xxxxDOMAINxxxx.com"   role="Creator"                   auth="serverDefault" />
+       <User name="xxxxxPERSON+2xxxxxx@xxxxDOMAINxxxx.com"   role="Viewer"                    auth="serverDefault" />
+
+       <!-- RECOMMENDED: To support Tableau "Grant License on Sign In" you can specify the attribute allowPromotedRole="true". This indicates that if the user already has a Role greater than the one specified in this site membership list, then keep the higher role -->
+       <!-- allowPromotedRole="true" is particularly useful when BULK ADDING users as "Unlicensed" and using Tableau's Grant License on Sign in functionality to assign a default role to members of a Tableau Site Group-->
+       <!-- All of these users will become potential users for your site. If/when they sign in they will get upgraded from "Unlicensed" to "Explorer" or "Viewer"-->
+       <!-- More info: https://help.tableau.com/current/online/en-us/grant_role.htm -->
+       <User name="xxxxxPERSON+3xxxxxx@xxxxDOMAINxxxx.com"   role="Unlicensed"    allowPromotedRole="True"  auth="serverDefault" />
    </SiteMembership>
 
    <!-- A list of all the groups who's member members we want to audit-->
    <GroupsMemberships unexpectedGroupMembers="Delete" missingGroupMembers="Add">
       <GroupMembership name="Group1">
-          <GroupMember name="xxxxUser1xxxx@xxxxxxx.com" />
+          <GroupMember name="xxxxxPERSON+1xxxxxx@xxxxDOMAINxxxx.com" />
       </GroupMembership>
 
       <GroupMembership name="Group2">
-          <GroupMember name="xxxxUser1xxxx@xxxxxxx.com" />
-          <GroupMember name="xxxxUser2xxxx@xxxxxxx.com" />
+          <GroupMember name="xxxxxPERSON+1xxxxxx@xxxxDOMAINxxxx.com" />
+          <GroupMember name="xxxxxPERSON+2xxxxxx@xxxxDOMAINxxxx.com" />
       </GroupMembership>
    </GroupsMemberships>
 </SiteProvisioning>
+
 ```
 
 ## You will need to create an Application with ID and Secret Token in Azure AD
