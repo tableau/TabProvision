@@ -158,11 +158,19 @@
   <ItemGroup>
     <Compile Include="AppSettings\AppSettings.cs" />
     <Compile Include="Azure\AzureAdConfig.cs" />
+    <Compile Include="Azure\AzureDownload_groupSync.cs" />
+    <Compile Include="Azure\AzureDownload_roleSync.cs" />
+    <Compile Include="Azure\AzureDownload_static.cs" />
     <Compile Include="Azure\AzureDownload.cs" />
     <Compile Include="Diagnostics\AppLogging.cs" />
     <Compile Include="Diagnostics\IwsDiagnostics.cs" />
     <Compile Include="FilesLogging\PathHelper.cs" />
     <Compile Include="FilesLogging\SimpleLatch.cs" />
+    <Compile Include="ProvisionSite\ProvisionConfigExternalDirectorySync.ISynchronizeGroupToGroup.cs" />
+    <Compile Include="ProvisionSite\ProvisionConfigExternalDirectorySync.SynchronizePatternMatchGroupToGroup.cs" />
+    <Compile Include="ProvisionSite\ProvisionConfigExternalDirectorySync.SynchronizeGroupToGroup.cs" />
+    <Compile Include="ProvisionSite\ProvisionConfigExternalDirectorySync.NamePatternMatch.cs" />
+    <Compile Include="ProvisionSite\ProvisionConfigExternalDirectorySync.SynchronizeGroupToRole.cs" />
     <Compile Include="ProvisionSite\ProvisionFromDirectoryGroupsMembershipManager.SingleGroupManager.cs" />
     <Compile Include="ProvisionSite\ProvisionFromDirectoryManager.cs" />
     <Compile Include="ProvisionSite\ProvisionFromDirectoryGroupsMembershipManager.cs" />

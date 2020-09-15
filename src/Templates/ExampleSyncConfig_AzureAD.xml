@@ -5,12 +5,14 @@
     <!-- Valid actions: authXXXXXUnexpectedUsers ="Unlicense" or "Report" -->
     <!-- Valid actions: authXXXXXMissingUsers    ="Add"       or "Report" -->
     <!-- Valid actions: authXXXXXExistingUsers   ="Modify"    or "Report" -->
-    <!-- Active Example      : <SynchronizeRoles authSamlUnexpectedUsers="Unlicense" authSamlMissingUsers="Add"    authSamlExistingUsers="Modify"     authDefaultUnexpectedUsers="Unlicense" authDefaultMissingUsers="Add"    authDefaultExistingUsers="Modify"        authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">  -->
-    <!-- Reports only example: <SynchronizeRoles authSamlUnexpectedUsers="Report"    authSamlMissingUsers="Report" authSamlExistingUsers="Report"     authDefaultUnexpectedUsers="Report"    authDefaultMissingUsers="Report" authDefaultExistingUsers="Report"        authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report"> --> 
+    <!-- EXAMPLE: Apply changes: <SynchronizeRoles authSamlUnexpectedUsers="Unlicense" authSamlMissingUsers="Add"    authSamlExistingUsers="Modify"     authDefaultUnexpectedUsers="Unlicense" authDefaultMissingUsers="Add"    authDefaultExistingUsers="Modify"        authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">  -->
+    <!-- EXAMPLE: Reports only: <SynchronizeRoles authSamlUnexpectedUsers="Report"    authSamlMissingUsers="Report" authSamlExistingUsers="Report"     authDefaultUnexpectedUsers="Report"    authDefaultMissingUsers="Report" authDefaultExistingUsers="Report"        authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report"> --> 
     <SynchronizeRoles authSamlUnexpectedUsers="Unlicense" authSamlMissingUsers="Add" authSamlExistingUsers="Modify"   authDefaultUnexpectedUsers="Unlicense" authDefaultMissingUsers="Add" authDefaultExistingUsers="Modify"     authOpenIdUnexpectedUsers="Unlicense" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">  
+         <!-- EXAMPLE: EXPLICIT GROUPS for Tableau roles: These Azure AD groups members will be assigned the specified roles in Tableau-->
          <SynchronizeRole sourceGroup="Tableau Online 001 Admins" targetRole="SiteAdministratorCreator" auth="serverDefault"/>
          <SynchronizeRole sourceGroup="Tableau Online 001 Creators" targetRole="Creator"  auth="serverDefault"/>
 
+         <!-- EXAMPLE: ALLOW ROLE PROMOTION -->
          <!-- To support Tableau "Grant License on Sign In" you can specify the attribute  allowPromotedRole="true". This indicates that if the user already has a Role greater than the one specified in this Synchronize Role Group, then keep the higher role -->
          <!-- allowPromotedRole="true" is particularly useful when BULK ADDING users as "Unlicensed" and using Tableau's Grant License on Sign in functionality to assign a default role to members of a Tableau Site Group-->
          <SynchronizeRole sourceGroup="Tableau Online 001 Explorers" targetRole="Explorer"  auth="serverDefault"  allowPromotedRole="true"/>
@@ -19,16 +21,22 @@
          <!-- RECOMMENDED: Have a group that contains ALL users you want to use Grant License on Sign In for. Provision them as "Unlicensed" and set allowPromotedRole="True"-->
          <SynchronizeRole sourceGroup="Tableau Online 001 Potential Users" targetRole="Unlicensed"    auth="serverDefault"  allowPromotedRole="true"/>
 
-         <!-- Specify any explicit user/auth/role that we want to supersede anything we find in the groups that we syncrhonize from -->
+         <!-- EXAMPLE: WILDCARD group name matching: All users in groups starting with "TabProvision Groups" will be added with the specified targetRole-->         
+         <SynchronizeRole sourceGroupMatch="startswith" sourceGroup="TabProvision Groups" targetRole="Unlicensed" auth="serverDefault"/>
+
+         <!-- EXAMPLE: OVERRIDES specify any explicit user/auth/role that we want to supersede anything we find in the groups that we syncrhonize from -->
          <SiteMembershipOverrides>
-              <User name="xxxxPersonxxxxx@xxxxDomainxxxxx.com"   role="SiteAdministratorExplorer" auth="serverDefault" />
+              <!-- Example roles "Unlicensed", "Viewer", "Explorer", "Creator", "SiteAdministratorExplorer", "SiteAdministratorCreator"-->
+              <User name="xxxxPersonxxxxx@xxxxDomainxxxxx.com"   role="Unlicensed" auth="serverDefault" />
          </SiteMembershipOverrides>
     </SynchronizeRoles>
   
     <!-- Users in these groups will me mapped into group membership inside the Tableau site -->
     <!-- Valid actions: unexpectedGroupMembers ="Delete" or "Report" -->
     <!-- Valid actions: missingGroupMembers    ="Add"    or "Report" -->
-    <SynchronizeGroups  missingGroupMembers="Add" unexpectedGroupMembers="Delete">  
+    <SynchronizeGroups  missingGroupMembers="Add" unexpectedGroupMembers="Delete">
+
+         <!-- EXAMPLE: EXPLICIT GROUP MEMBERSHIP. These group memberships will be copied from Azure AD to Tableau -->  
          <SynchronizeGroup sourceGroup="Biz Group - Accounting" targetGroup="Accounting Analytics" />
          <SynchronizeGroup sourceGroup="Biz Group - Marketing" targetGroup="Marketing Analytics" />
 
@@ -40,6 +48,11 @@
          <!-- RESULT: All of these users will become potential users for your site. If/when they sign in they will get upgraded from "Unlicensed" to "Explorer" or "Viewer"-->
          <!-- More info: https://help.tableau.com/current/online/en-us/grant_role.htm -->
          <SynchronizeGroup sourceGroup="Tableau Online 001 Potential Users" targetGroup="Potential Users" />
+
+
+         <!-- EXAMPLE: WILDCARD GROUP NAMES. All groups starting with "TabProvision Groups" will be added    -->
+         <!--          The group names will be duplicated between Azure AD and Tableau.                      -->         
+         <SynchronizeMatchedGroup sourceGroupMatch="startswith" sourceGroup="TabProvision Groups"  />
     </SynchronizeGroups>
 
 </SynchronizeConfiguration>

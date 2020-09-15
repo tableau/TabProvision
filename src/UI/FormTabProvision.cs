@@ -470,7 +470,7 @@ namespace OnlineContentDownloader
             //===========================================================================================
             //Download all the data we need from Azure
             //===========================================================================================
-            statusLogs.AddStatus("Retrieving information from Azure AD");
+            statusLogs.AddStatusHeader("Retrieving information from Azure AD");
             UpdateStatusText(statusLogs);
             var azureDownload = new AzureDownload(configSignInAzure, configGroupsMapping, this, statusLogs, null);
             try
@@ -488,7 +488,7 @@ namespace OnlineContentDownloader
             //===========================================================================================
             //Write the provisioning manifest out to an intermediary file
             //===========================================================================================
-            statusLogs.AddStatus("Writing out manifest file for Tableau provisioning");
+            statusLogs.AddStatusHeader("Writing out manifest file for Tableau provisioning");
             UpdateStatusText(statusLogs);
             var outputProvisioningRoles = azureDownload.ProvisioningManifestResults;
             string provisioningManifest = Path.Combine(pathOutputs, "ProvisioningManifest.xml");
@@ -505,7 +505,7 @@ namespace OnlineContentDownloader
             //===========================================================================================
             //Provision the Tableau site using the manifest file we just created
             //===========================================================================================
-            statusLogs.AddStatus("Provision Tableau site using generated manifest file");
+            statusLogs.AddStatusHeader("Provision Tableau site using generated manifest file");
             UpdateStatusText(statusLogs);
             try
             {
@@ -516,7 +516,6 @@ namespace OnlineContentDownloader
                 statusLogs.AddError("Error provisioning Tableau Online site");
                 throw new Exception("814-353: Error provisioning Tableau Online site, " + exProvisionSite.Message);
             }
-
         }
 
         /// <summary>

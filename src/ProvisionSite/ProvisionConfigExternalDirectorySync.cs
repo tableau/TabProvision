@@ -21,7 +21,7 @@ internal partial class ProvisionConfigExternalDirectorySync
     /// <summary>
     /// Groups we are mirroring between the external directory and the Tableau site
     /// </summary>
-    public readonly ReadOnlyCollection<SynchronizeGroupToGroup> GroupsToGroupsSyncList;
+    public readonly ReadOnlyCollection<ISynchronizeGroupToGroup> GroupsToGroupsSyncList;
 
     //Explicit list of user/role overrides to perform that supercedes any data we find in the external user directories
     public readonly ReadOnlyCollection<ProvisioningUser> UserRolesOverrideList;
@@ -43,6 +43,9 @@ internal partial class ProvisionConfigExternalDirectorySync
     public readonly ProvisionUserInstructions.UnexpectedGroupMemberAction ActionForGroupUnexpectedMembers;
     public readonly ProvisionUserInstructions.MissingGroupMemberAction ActionForGroupMisingMembers;
 
+    private const string XmlAttribute_SourceGroup = "sourceGroup";
+    private const string XmlAttribute_TargetRole = "targetRole";
+    private const string XmlAttribute_SourceGroupMatch = "sourceGroupMatch";
     /// <summary>
     /// CONSTRUCTOR
     /// </summary>
@@ -121,7 +124,13 @@ internal partial class ProvisionConfigExternalDirectorySync
         //---------------------------------------------------------------------------------------------
         //Load the list of group/group mappings we want to look up in the external directory
         //---------------------------------------------------------------------------------------------
-        this.GroupsToGroupsSyncList = ParseGroupsToGroups(xmlConfig).AsReadOnly();
+        List<ISynchronizeGroupToGroup> groupsToSync = new List<ISynchronizeGroupToGroup>();
+        //1. Load and add explicit group/group mappings
+        groupsToSync.AddRange(ParseGroupsToGroups(xmlConfig));
+        //2. Load and add pattern matching group/group mappings
+        groupsToSync.AddRange(ParsePatternMatchGroupsToGroups(xmlConfig));
+
+        this.GroupsToGroupsSyncList = groupsToSync.AsReadOnly();
 
     }
 
@@ -137,8 +146,8 @@ internal partial class ProvisionConfigExternalDirectorySync
         var xNodesGroupToRole = xmlConfig.SelectNodes("//SynchronizeConfiguration/SynchronizeRoles/SynchronizeRole");
         foreach(XmlNode thisXmlNode in xNodesGroupToRole)
         {
-            var groupName = thisXmlNode.Attributes["sourceGroup"].Value;
-            var tableauRoleName = thisXmlNode.Attributes["targetRole"].Value;
+            var groupName = thisXmlNode.Attributes[XmlAttribute_SourceGroup].Value;
+            var tableauRoleName = thisXmlNode.Attributes[XmlAttribute_TargetRole].Value;
             var authModel = thisXmlNode.Attributes[ProvisioningUser.XmlAttribute_Auth].Value;
 
             /// TRUE: It is not unexpected to find that the user has an acutal role > than this specified role (useful for Grant License on Sign In scenarios)
@@ -146,7 +155,11 @@ internal partial class ProvisionConfigExternalDirectorySync
             var allowPromotedRole = 
                 XmlHelper.SafeParseXmlAttribute_Boolean(thisXmlNode, ProvisioningUser.XmlAttribute_AllowPromotedRole, false);
 
-            var thisMapping = new SynchronizeGroupToRole(groupName, tableauRoleName, authModel, allowPromotedRole);
+            //Is there a name pattern match
+            var namePatternMatch = ParseNamePatternMatch(
+                XmlHelper.SafeParseXmlAttribute(thisXmlNode, XmlAttribute_SourceGroupMatch, NamePatternMatch_Equals));
+
+            var thisMapping = new SynchronizeGroupToRole(groupName, tableauRoleName, authModel, allowPromotedRole, namePatternMatch);
             listOut.Add(thisMapping);
         }
 
@@ -162,6 +175,9 @@ internal partial class ProvisionConfigExternalDirectorySync
     {
         var listOut = new List<SynchronizeGroupToGroup>();
 
+        //=================================================================================
+        //Get the explicit group/group mapping
+        //=================================================================================
         var xNodesGroup = xmlConfig.SelectNodes("//SynchronizeConfiguration/SynchronizeGroups/SynchronizeGroup");
         foreach (XmlNode thisXmlNode in xNodesGroup)
         {
@@ -171,57 +187,33 @@ internal partial class ProvisionConfigExternalDirectorySync
             var thisMapping = new SynchronizeGroupToGroup(groupName, tableauGroupName);
             listOut.Add(thisMapping);
         }
+            return listOut;
+    }
 
+    /// <summary>
+    /// Parse the Pattern matching Group to Tableau Site Group mappings from the XML
+    /// </summary>
+    /// <param name="xmlConfig"></param>
+    /// <returns></returns>
+    private List<SynchronizePatternMatchingGroupToGroup> ParsePatternMatchGroupsToGroups(XmlDocument xmlConfig)
+    {
+        var listOut = new List<SynchronizePatternMatchingGroupToGroup>();
+
+        //=================================================================================
+        //Get the explicit group/group mapping
+        //=================================================================================
+        var xNodesGroup = xmlConfig.SelectNodes("//SynchronizeConfiguration/SynchronizeGroups/SynchronizeMatchedGroup");
+        foreach (XmlNode thisXmlNode in xNodesGroup)
+        {
+            var groupName = thisXmlNode.Attributes["sourceGroup"].Value;
+
+            //Get the name pattern match
+            var namePatternMatch = ParseNamePatternMatch(
+                XmlHelper.SafeParseXmlAttribute(thisXmlNode, XmlAttribute_SourceGroupMatch, NamePatternMatch_Equals));
+
+            var thisMapping = new SynchronizePatternMatchingGroupToGroup(groupName, namePatternMatch);
+            listOut.Add(thisMapping);
+        }
         return listOut;
     }
-
-    /// <summary>
-    /// A mapping of source Group (e.g. AzureAD group) to Tableau Online/Server role
-    /// </summary>
-    public class SynchronizeGroupToRole
-    {
-        public readonly string SourceGroupName;
-        public readonly string TableauRole;
-        public readonly string AuthenticationModel;
-
-        public readonly bool AllowPromotedRoleForMembers;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="sourceGroup"></param>
-        /// <param name="tableauRole"></param>
-        public SynchronizeGroupToRole(string sourceGroup, string tableauRole, string authModel, bool allowPromotedRole)
-        {
-            this.SourceGroupName = sourceGroup;
-            this.TableauRole = tableauRole;
-            this.AuthenticationModel = authModel;
-
-            // TRUE: It is not unexpected to find that the user has an acutal role > than this specified role (useful for Grant License on Sign In scenarios)
-            // FALSE: It is unexpected to find the user with a role that differs from this specified role
-            this.AllowPromotedRoleForMembers = allowPromotedRole;
-        }
-    }
-
-    /// <summary>
-    /// A mapping of source Group (e.g. AzureAD group) to Tableau Site's Group
-    /// </summary>
-    public class SynchronizeGroupToGroup
-    {
-        public readonly string SourceGroupName;
-        public readonly string TargetGroupName;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="sourceGroup"></param>
-        /// <param name="targetGroup"></param>
-        public SynchronizeGroupToGroup(string sourceGroup, string targetGroup)
-        {
-            this.SourceGroupName = sourceGroup;
-            this.TargetGroupName = targetGroup;
-        }
-
-    }
-
 }
