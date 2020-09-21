@@ -83,10 +83,6 @@ class DownloadGroupsList : TableauServerSignedInRequestBase
 
         _onlineSession.StatusLog.AddStatus("Web request: " + urlQuery, -10);
         XmlDocument xmlDoc = ResourceSafe_PerformWebRequest_GetXmlDocument(urlQuery, "get groups list");
-        //var webRequest = CreateLoggedInWebRequest(urlQuery);
-        //webRequest.Method = "GET";
-        //var response = GetWebReponseLogErrors(webRequest, "get groups list");
-        //var xmlDoc = GetWebResponseAsXml(response);
 
         //Get all the group nodes
         var nsManager = XmlHelper.CreateTableauXmlNamespaceManager("iwsOnline");

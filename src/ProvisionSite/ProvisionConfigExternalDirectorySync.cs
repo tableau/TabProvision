@@ -46,6 +46,7 @@ internal partial class ProvisionConfigExternalDirectorySync
     private const string XmlAttribute_SourceGroup = "sourceGroup";
     private const string XmlAttribute_TargetRole = "targetRole";
     private const string XmlAttribute_SourceGroupMatch = "sourceGroupMatch";
+
     /// <summary>
     /// CONSTRUCTOR
     /// </summary>
@@ -146,20 +147,7 @@ internal partial class ProvisionConfigExternalDirectorySync
         var xNodesGroupToRole = xmlConfig.SelectNodes("//SynchronizeConfiguration/SynchronizeRoles/SynchronizeRole");
         foreach(XmlNode thisXmlNode in xNodesGroupToRole)
         {
-            var groupName = thisXmlNode.Attributes[XmlAttribute_SourceGroup].Value;
-            var tableauRoleName = thisXmlNode.Attributes[XmlAttribute_TargetRole].Value;
-            var authModel = thisXmlNode.Attributes[ProvisioningUser.XmlAttribute_Auth].Value;
-
-            /// TRUE: It is not unexpected to find that the user has an acutal role > than this specified role (useful for Grant License on Sign In scenarios)
-            /// FALSE: It is unexpected to find the user with a role that differs from this specified role
-            var allowPromotedRole = 
-                XmlHelper.SafeParseXmlAttribute_Boolean(thisXmlNode, ProvisioningUser.XmlAttribute_AllowPromotedRole, false);
-
-            //Is there a name pattern match
-            var namePatternMatch = ParseNamePatternMatch(
-                XmlHelper.SafeParseXmlAttribute(thisXmlNode, XmlAttribute_SourceGroupMatch, NamePatternMatch_Equals));
-
-            var thisMapping = new SynchronizeGroupToRole(groupName, tableauRoleName, authModel, allowPromotedRole, namePatternMatch);
+            var thisMapping = new SynchronizeGroupToRole(thisXmlNode);
             listOut.Add(thisMapping);
         }
 
@@ -181,10 +169,7 @@ internal partial class ProvisionConfigExternalDirectorySync
         var xNodesGroup = xmlConfig.SelectNodes("//SynchronizeConfiguration/SynchronizeGroups/SynchronizeGroup");
         foreach (XmlNode thisXmlNode in xNodesGroup)
         {
-            var groupName = thisXmlNode.Attributes["sourceGroup"].Value;
-            var tableauGroupName = thisXmlNode.Attributes["targetGroup"].Value;
-
-            var thisMapping = new SynchronizeGroupToGroup(groupName, tableauGroupName);
+            var thisMapping = new SynchronizeGroupToGroup(thisXmlNode);
             listOut.Add(thisMapping);
         }
             return listOut;
@@ -205,13 +190,7 @@ internal partial class ProvisionConfigExternalDirectorySync
         var xNodesGroup = xmlConfig.SelectNodes("//SynchronizeConfiguration/SynchronizeGroups/SynchronizeMatchedGroup");
         foreach (XmlNode thisXmlNode in xNodesGroup)
         {
-            var groupName = thisXmlNode.Attributes["sourceGroup"].Value;
-
-            //Get the name pattern match
-            var namePatternMatch = ParseNamePatternMatch(
-                XmlHelper.SafeParseXmlAttribute(thisXmlNode, XmlAttribute_SourceGroupMatch, NamePatternMatch_Equals));
-
-            var thisMapping = new SynchronizePatternMatchingGroupToGroup(groupName, namePatternMatch);
+            var thisMapping = new SynchronizePatternMatchingGroupToGroup(thisXmlNode);
             listOut.Add(thisMapping);
         }
         return listOut;

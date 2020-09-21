@@ -54,6 +54,7 @@ class TableauServerUrls : ITableauServerSiteInfo
     private readonly string _urlCreateSiteUserTemplate;
     private readonly string _urlCreateSiteGroupTemplate;
     private readonly string _urlUpdateSiteUserTemplate;
+    private readonly string _urlUpdateSiteGroupTemplate;
     private readonly string _urlDeleteWorkbookTagTemplate;
     private readonly string _urlDeleteDatasourceTagTemplate;
     private readonly string _urlUpdateWorkbookTemplate;
@@ -108,7 +109,7 @@ class TableauServerUrls : ITableauServerSiteInfo
         this._urlListSchedulesTemplate             = serverNameWithProtocol + "/api/3.8/schedules?pageSize={{iwsPageSize}}&pageNumber={{iwsPageNumber}}";
         this._urlListTasksInScheduleTemplate       = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/schedules/{{iwsScheduleId}}/extracts?pageSize={{iwsPageSize}}&pageNumber={{iwsPageNumber}}";
         this._urlListViewsTemplate                 = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/views?includeUsageStatistics=true&pageSize={{iwsPageSize}}&pageNumber={{iwsPageNumber}}";
-        this._urlListGroupsTemplate                = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/groups?pageSize={{iwsPageSize}}&pageNumber={{iwsPageNumber}}";
+        this._urlListGroupsTemplate                = serverNameWithProtocol + "/api/3.9/sites/{{iwsSiteId}}/groups?pageSize={{iwsPageSize}}&pageNumber={{iwsPageNumber}}";
         this._urlListUsersTemplate                 = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/users?pageSize={{iwsPageSize}}&pageNumber={{iwsPageNumber}}";
         this._urlListUsersInGroupTemplate          = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/groups/{{iwsGroupId}}/users?pageSize={{iwsPageSize}}&pageNumber={{iwsPageNumber}}"; 
         this._urlDownloadDatasourceTemplate        = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/datasources/{{iwsRepositoryId}}/content";
@@ -132,6 +133,7 @@ class TableauServerUrls : ITableauServerSiteInfo
         this._urlUpdateDatasourceTemplate          = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/datasources/{{iwsDatasourceId}}";
         this._urlRecentContentListTemplate         = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/content/recent";
         this._urlWorkbooksInfoTemplate             = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/workbooks/{{iwsWorkbookId}}";
+        this._urlUpdateSiteGroupTemplate           = serverNameWithProtocol + "/api/3.9/sites/{{iwsSiteId}}/groups/{{iwsGroupId}}";
 
 
         //Any server version specific things we want to do?
@@ -513,6 +515,20 @@ class TableauServerUrls : ITableauServerSiteInfo
         string workingText = _urlUpdateSiteUserTemplate;
         workingText = workingText.Replace("{{iwsSiteId}}", session.SiteId);
         workingText = workingText.Replace("{{iwsUserId}}", userId);
+        ValidateTemplateReplaceComplete(workingText);
+
+        return workingText;
+    }
+
+    /// <summary>
+    /// URL for updating a group
+    /// </summary>
+    /// <returns></returns>
+    public string Url_UpdateSiteGroup(TableauServerSignIn session, string groupId)
+    {
+        string workingText = _urlUpdateSiteGroupTemplate;
+        workingText = workingText.Replace("{{iwsSiteId}}", session.SiteId);
+        workingText = workingText.Replace("{{iwsGroupId}}", groupId);
         ValidateTemplateReplaceComplete(workingText);
 
         return workingText;

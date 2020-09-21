@@ -11,15 +11,20 @@ internal partial class ProvisionSite
     /// Provision the groups
     /// </summary>
     /// <param name="siteSignIn"></param>
-    private void Execute_ProvisionGroups(TableauServerSignIn siteSignIn)
+    private void Execute_ProvisionGroups(TableauServerSignIn siteSignIn, WorkingListSiteUsers workingList_allKnownUsers)
     {
         _statusLogs.AddStatusHeader("Provision the specified groups in site");
 
         //=================================================================================
-        //Load the set of users for the site...we will need this to look up users
+        //If we do not have it already, load the set of users for the site...we will need this to look up users
         //=================================================================================
-        var existingUsers = DownloadUsersList.CreateAndExecute(siteSignIn);
-        existingUsers.ExecuteRequest();
+        if (workingList_allKnownUsers == null)
+        {
+            var existingUsers = DownloadUsersList.CreateAndExecute(siteSignIn);
+            existingUsers.ExecuteRequest();
+
+            workingList_allKnownUsers = new WorkingListSiteUsers(existingUsers.Users);
+        }
 
         //=================================================================================
         //Download the groups
@@ -30,7 +35,7 @@ internal partial class ProvisionSite
         //Go through each of the groups...
         foreach (var thisProvisionGroup in _provisionInstructions.GroupsToProvision)
         {
-            Execute_ProvisionGroups_SingleGroup(siteSignIn, thisProvisionGroup, downloadGroups, existingUsers);
+            Execute_ProvisionGroups_SingleGroup(siteSignIn, thisProvisionGroup, downloadGroups, workingList_allKnownUsers);
         }
     }
 
@@ -44,7 +49,7 @@ internal partial class ProvisionSite
         TableauServerSignIn siteSignIn,
         ProvisioningGroup thisProvisionGroup,
         DownloadGroupsList existingGroups,
-        DownloadUsersList siteUsersList)
+        WorkingListSiteUsers siteUsersList)
     {
         _statusLogs.AddStatusHeader("Provision the group: " + thisProvisionGroup.GroupName);
 
@@ -59,6 +64,12 @@ internal partial class ProvisionSite
 
             CSVRecord_GroupModified(thisExistingGroup.Name, "created group", "");
             _statusLogs.AddStatus("Created group: " + thisExistingGroup.Name);
+
+            //--------------------------------------------------------------------------
+            //Do we need to update the group's Grant License?
+            //--------------------------------------------------------------------------
+            Execute_ProvisionGroups_SingleGroup_GrantLicenseUpdate(siteSignIn, thisProvisionGroup, thisExistingGroup);
+
         }
         else
         {
@@ -66,7 +77,14 @@ internal partial class ProvisionSite
             var downloadGroupMembers = new DownloadUsersListInGroup(siteSignIn, thisExistingGroup.Id);
             downloadGroupMembers.ExecuteRequest();
             existingUsersInGroup = downloadGroupMembers.Users;
+
+            //--------------------------------------------------------------------------
+            //Do we need to update the group's Grant License?
+            //--------------------------------------------------------------------------
+            Execute_ProvisionGroups_SingleGroup_GrantLicenseUpdate(siteSignIn, thisProvisionGroup, thisExistingGroup);
         }
+
+
 
         //====================================================================================
         //Keep a list of the remaining users in the Server Site's group
@@ -79,7 +97,7 @@ internal partial class ProvisionSite
         //====================================================================================
         foreach (var provisionThisUser in thisProvisionGroup.Members)
         {
-            var userInGroup = workingListUnexaminedUsers.FindUser(provisionThisUser);
+            var userInGroup = workingListUnexaminedUsers.FindUserByName(provisionThisUser);
             if (userInGroup != null)
             {
                 //The user is already in the group, no need to add them
@@ -115,10 +133,116 @@ internal partial class ProvisionSite
             catch (Exception exUnxpectedUsers)
             {
                 _statusLogs.AddError("Error removing unexpected user in GROUP " + unexpectedUser.ToString() + ", " + exUnxpectedUsers.Message);
-                CSVRecord_Error(unexpectedUser.Name, unexpectedUser.SiteRole, unexpectedUser.SiteAuthentication, "Error removing unexpected user in GROUP" + unexpectedUser.ToString() + ", " + exUnxpectedUsers.Message);
+                CSVRecord_ErrorUpdatingUser(unexpectedUser.Name, unexpectedUser.SiteRole, unexpectedUser.SiteAuthentication, "Error removing unexpected user in GROUP" + unexpectedUser.ToString() + ", " + exUnxpectedUsers.Message);
             }
         }
 
+    }
+
+
+    /// <summary>
+    /// See if we need to update the Grant License on Sign In behavior of a group
+    /// </summary>
+    /// <param name="siteSignIn"></param>
+    /// <param name="groupProvisionInstructions"></param>
+    /// <param name="thisExistingGroup"></param>
+    private void Execute_ProvisionGroups_SingleGroup_GrantLicenseUpdate(
+        TableauServerSignIn siteSignIn, 
+        ProvisioningGroup groupProvisionInstructions, 
+        SiteGroup thisExistingGroup)
+    {
+        //If are instruction is to INGORE this attribute, then there is nothing to do
+        if(groupProvisionInstructions.GrantLicenseInstructions == ProvisioningGroup.GrantLicenseMode.Ignore)
+        {
+            return;
+        }
+
+        //======================================================================================
+        //Determine if we need to updae the group's Grant License setting 
+        //======================================================================================
+        string newGrantLicensingMode;
+        switch(groupProvisionInstructions.GrantLicenseInstructions)
+        {
+            case ProvisioningGroup.GrantLicenseMode.None:
+               //If the provisioning instructions are for NO Grant Licensing mode, and this is already the case, then there is nothing to do
+               if (string.IsNullOrEmpty(thisExistingGroup.GrantLicenseMode)) 
+                    { return; }
+
+                newGrantLicensingMode = ""; //Set the new mode as blank;
+                break;
+
+            case ProvisioningGroup.GrantLicenseMode.OnLogin:
+                //If the grant license mode and ROLEis already as expected, then there is nothing to do
+                if ((thisExistingGroup.GrantLicenseMode == ProvisioningGroup.GrantLicenseMode_OnLogin) 
+                    && (thisExistingGroup.SiteMinimumRoleOrNull == groupProvisionInstructions.GrantLicenseRole))
+                    { return; }
+
+                newGrantLicensingMode = ProvisioningGroup.GrantLicenseMode_OnLogin; //Set the new mode;
+                break;
+
+            //Degenerate case: Unknown instruction
+            default:
+                IwsDiagnostics.Assert(false, "920-1130: Unknown Grant License instruction for group: " + groupProvisionInstructions.GroupName);
+                throw new Exception("920-1130: Unknown Grant License instruction for group: " + groupProvisionInstructions.GroupName);
+        }
+
+        //================================================================================
+        //Perform the update to the site
+        //================================================================================
+        var sendUpdateGroup = new SendUpdateGroup(
+            siteSignIn,
+            thisExistingGroup.Id,
+            groupProvisionInstructions.GroupName,
+            true,
+            newGrantLicensingMode,
+            groupProvisionInstructions.GrantLicenseRole);
+
+        var wasSuccessUpdatingGroup = false;
+        string updateGroupErrorText = "";
+
+        try
+        {
+            wasSuccessUpdatingGroup = sendUpdateGroup.ExecuteRequest();
+        }
+        catch(Exception exUpdateGroup)
+        {
+            updateGroupErrorText = exUpdateGroup.Message;
+        }
+
+        if(!wasSuccessUpdatingGroup)
+        {
+            //Record failure
+            CSVRecord_ErrorUpdatingGroup(groupProvisionInstructions.GroupName,
+                "Error attempting to update group auto grant roles: "
+                + NullSafeText(thisExistingGroup.SiteMinimumRoleOrNull) 
+                + "->" + NullSafeText(groupProvisionInstructions.GrantLicenseRole) +
+                ", error details: " + updateGroupErrorText);
+        }
+        else
+        {
+            //Record success
+            CSVRecord_GroupModified(
+                groupProvisionInstructions.GroupName
+                , "Grant license: " + NullSafeText(thisExistingGroup.GrantLicenseMode) + "->" + NullSafeText(newGrantLicensingMode)
+                  + ", Site role: " + NullSafeText(thisExistingGroup.SiteMinimumRoleOrNull) + "->" + NullSafeText(groupProvisionInstructions.GrantLicenseRole)
+                , ""
+                );
+        }
+
+    }
+
+    /// <summary>
+    /// Simple helper
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns></returns>
+    private static string NullSafeText(string text)
+    {
+        if(string.IsNullOrEmpty(text))
+        {
+            return "";
+        }
+        return text;
     }
 
     /// <summary>
@@ -146,7 +270,7 @@ internal partial class ProvisionSite
                 }
                 else
                 {
-                    CSVRecord_Error(userRemoveFromGroup.Name, "", "", "User could not be removed to group " + siteGroup.Name);
+                    CSVRecord_ErrorUpdatingUser(userRemoveFromGroup.Name, "", "", "User could not be removed to group " + siteGroup.Name);
                     _statusLogs.AddError("Group membership error: Failed to remove " + userRemoveFromGroup.Name + " to group " + siteGroup.Name);
                 }
 
@@ -170,13 +294,17 @@ internal partial class ProvisionSite
     /// <param name="userEmail"></param>
     /// <param name="thisProvisionGroup"></param>
     /// <param name="siteUsersList"></param>
-    private void Execute_ProvisionGroups_SingleGroup_AddUser(TableauServerSignIn siteSignIn, string userEmail, SiteGroup siteGroup, DownloadUsersList siteUsersList)
+    private void Execute_ProvisionGroups_SingleGroup_AddUser(
+        TableauServerSignIn siteSignIn, 
+        string userEmail, 
+        SiteGroup siteGroup, 
+        WorkingListSiteUsers siteUsersList)
     {
-        var siteUserToAddToGroup = siteUsersList.FindUserByEmail(userEmail);
+        var siteUserToAddToGroup = siteUsersList.FindUserByName(userEmail);
         //Sanity test. If the user is not a member of the site, they cannot be added to a group
         if (siteUserToAddToGroup == null)
         {
-            CSVRecord_Error(userEmail, "", "", "User not on site. Cannot be added to group");
+            CSVRecord_ErrorUpdatingUser(userEmail, "", "", "User not on site. Cannot be added to group");
             _statusLogs.AddError("User not on site. Cannot be added to group, " + userEmail);
             return; //FAILED
         }
@@ -195,7 +323,7 @@ internal partial class ProvisionSite
                 }
                 else
                 {
-                    CSVRecord_Error(userEmail, "", "", "User could not be added to group " + siteGroup.Name);
+                    CSVRecord_ErrorUpdatingUser(userEmail, "", "", "User could not be added to group " + siteGroup.Name);
                     _statusLogs.AddError("Group membership error: Failed to add " + siteUserToAddToGroup.Name + " to group " + siteGroup.Name);
                 }
                 return;
@@ -224,8 +352,8 @@ internal partial class ProvisionSite
     private void CSVRecord_GroupModified(string groupName, string modification, string notes)
     {
         _csvProvisionResults.AddKeyValuePairs(
-            new string[] { "area", "group-name", "modification", "notes" },
-            new string[] { "group provisioning", groupName, modification, notes });
+            new string[] { "area"              , "group-name", "modification", "notes" },
+            new string[] { "group provisioning",  groupName  , modification  ,  notes });
     }
 
     /// <summary>

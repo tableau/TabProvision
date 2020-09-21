@@ -86,7 +86,6 @@ internal partial class ProvisionSite
         var signInSuccess = siteSignIn.Execute();
         ShowLogs();
 
-
         //=================================================================================
         //Get the basic site info
         //=================================================================================
@@ -94,18 +93,17 @@ internal partial class ProvisionSite
         downloadSiteInfo.ExecuteRequest();
         var siteInfo = downloadSiteInfo.Site;
 
-
         ShowLogs();
         //=================================================================================
         //Provision the users
         //=================================================================================
-        Execute_ProvisionUsers(siteSignIn);
+        var workingList_allKnownUsers = Execute_ProvisionUsers(siteSignIn);
         ShowLogs();
 
         //=================================================================================
         //Provision the groups
         //=================================================================================
-        Execute_ProvisionGroups(siteSignIn);
+        Execute_ProvisionGroups(siteSignIn, workingList_allKnownUsers);
     }
 
 
@@ -119,7 +117,7 @@ internal partial class ProvisionSite
     /// <param name="userAuth"></param>
     /// <param name="modification"></param>
     /// <param name="notes"></param>
-    private void CSVRecord_Warning(string userName, string userRole, string userAuth, string notes)
+    private void CSVRecord_WarningUpdatingUser(string userName, string userRole, string userAuth, string notes)
     {
         _csvProvisionResults.AddKeyValuePairs(
             new string[] { "area", "user-name", "user-role", "user-auth", "notes" },
@@ -134,11 +132,26 @@ internal partial class ProvisionSite
     /// <param name="userAuth"></param>
     /// <param name="modification"></param>
     /// <param name="notes"></param>
-    private void CSVRecord_Error(string userName, string userRole, string userAuth, string notes)
+    private void CSVRecord_ErrorUpdatingUser(string userName, string userRole, string userAuth, string notes)
     {
         _csvProvisionResults.AddKeyValuePairs(
             new string[] { "area", "user-name", "user-role", "user-auth", "notes" },
             new string[] { "error", userName, userRole, userAuth, notes });
+    }
+
+    /// <summary>
+    /// Make a record of a user modification
+    /// </summary>
+    /// <param name="userName"></param>
+    /// <param name="userRole"></param>
+    /// <param name="userAuth"></param>
+    /// <param name="modification"></param>
+    /// <param name="notes"></param>
+    private void CSVRecord_ErrorUpdatingGroup(string groupName, string notes)
+    {
+        _csvProvisionResults.AddKeyValuePairs(
+            new string[] { "area", "group-name", "notes" },
+            new string[] { "error", groupName  , notes });
     }
 
 }

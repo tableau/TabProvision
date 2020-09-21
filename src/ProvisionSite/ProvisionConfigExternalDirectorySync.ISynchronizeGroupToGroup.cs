@@ -42,6 +42,19 @@ internal partial class ProvisionConfigExternalDirectorySync
         /// <param name=""></param>
         /// <returns></returns>
         string RequiredTargetGroupNameOrNull { get; }
+
+
+        /// <summary>
+        /// Instructions for what to do about the Grant License mode of the Tableau site Group
+        /// </summary>
+        ProvisioningGroup.GrantLicenseMode GrantLicenseInstructions { get; }
+
+        /// <summary>
+        /// If we are using GrantLicense then what is the role, e.g. "Creator", "Explorer", "Viewer", types of admins, ...
+        /// This may be NULL if there is no Grant License instruction
+        /// </summary>
+        string GrantLicenseRole { get; }
+
     }
 
 }

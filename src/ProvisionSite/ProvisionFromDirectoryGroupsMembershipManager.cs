@@ -19,44 +19,28 @@ internal partial class ProvisionFromDirectoryGroupsMembershipManager
     {
 
     }
-    
-    /// <summary>
-    /// Add a user to a group
-    /// </summary>
-    /// <param name="user"></param>
-    public void AddUserToGroup(string targetGroupName, string userName)
-    {
-        //Get (create if necesary) the group's manager
-        var groupManager = GetManagerForGroup(targetGroupName);
-
-        //Add the user toe the group
-       groupManager.AddUser(userName);
-    }
-
-    /// <summary>
-    /// If a group manager does not yet exist, then it creates one
-    /// </summary>
-    /// <param name="group"></param>
-    public void EnsureGroupManagerExistsForGroup(string group)
-    {
-        GetManagerForGroup(group);
-    }
 
     /// <summary>
     /// Return the group manager for the group
     /// </summary>
     /// <param name="group"></param>
+    /// <param name="ifCreateGrantLicenseMode">If a group needs to be created, give it this Grant License Mode</param>
+    /// <param name="ifCreateGrantLicenseRole">If the group needs to be created, give it this Grant License Role</param>
     /// <returns></returns>
-    private SingleGroupManager GetManagerForGroup(string group)
+    public SingleGroupManager GetManagerForGroup_CreateIfNeeded(
+        string group, 
+        ProvisioningGroup.GrantLicenseMode ifCreateGrantLicenseMode, 
+        string ifCreateGrantLicenseRole)
     {
         var cannonicalGroup = group.ToLower();
-        SingleGroupManager thisGroupManager = null;
+        SingleGroupManager thisGroupManager;
 
         //Add the user to a group manager
         _groupsManager.TryGetValue(cannonicalGroup, out thisGroupManager);
+
         if (thisGroupManager == null)
         {
-            thisGroupManager = new SingleGroupManager(group);
+            thisGroupManager = new SingleGroupManager(group, ifCreateGrantLicenseMode, ifCreateGrantLicenseRole);
             _groupsManager.Add(cannonicalGroup, thisGroupManager);
         }
 
@@ -74,12 +58,6 @@ internal partial class ProvisionFromDirectoryGroupsMembershipManager
         foreach (var thisGroupManager in _groupsManager.Values)
         {
             thisGroupManager.WriteGroupAsXml(xmlWriter);
-            /*
-            //For all the users mapped to this group, write them out
-            foreach (var thisUserInfo in thisGroupManager.GetUsers())
-            {
-                thisUserInfo.WriteAsXml(xmlWriter);
-            }*/
         }
     }
 
@@ -102,8 +80,11 @@ internal partial class ProvisionFromDirectoryGroupsMembershipManager
     /// If a class does not exist get for this group, then one is added to the set
     /// </summary>
     /// <param name="groupName"></param>
-    internal void EnsureRoleManagerExistsForRole(string groupName)
+    internal void EnsureRoleManagerExistsForRole(
+        string groupName, 
+        ProvisioningGroup.GrantLicenseMode ifCreateGrantLicenseMode,
+        string ifCreateGrantLicenseRole)
     {
-        GetManagerForGroup(groupName);
+        GetManagerForGroup_CreateIfNeeded(groupName, ifCreateGrantLicenseMode, ifCreateGrantLicenseRole);
     }
 }

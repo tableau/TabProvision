@@ -111,10 +111,10 @@
             this.chkVerboseLog.AutoSize = true;
             this.chkVerboseLog.Checked = true;
             this.chkVerboseLog.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkVerboseLog.Location = new System.Drawing.Point(301, 315);
+            this.chkVerboseLog.Location = new System.Drawing.Point(355, 321);
             this.chkVerboseLog.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.chkVerboseLog.Name = "chkVerboseLog";
-            this.chkVerboseLog.Size = new System.Drawing.Size(170, 23);
+            this.chkVerboseLog.Size = new System.Drawing.Size(116, 17);
             this.chkVerboseLog.TabIndex = 11;
             this.chkVerboseLog.Text = "Verbose logging";
             this.chkVerboseLog.UseVisualStyleBackColor = true;
@@ -125,7 +125,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtPathToSecrets.Location = new System.Drawing.Point(136, 4);
             this.txtPathToSecrets.Name = "txtPathToSecrets";
-            this.txtPathToSecrets.Size = new System.Drawing.Size(1290, 26);
+            this.txtPathToSecrets.Size = new System.Drawing.Size(1290, 20);
             this.txtPathToSecrets.TabIndex = 64;
             this.txtPathToSecrets.Text = "<<Path to the secrets file...>>";
             // 
@@ -134,7 +134,7 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(2, 7);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(117, 19);
+            this.label2.Size = new System.Drawing.Size(79, 13);
             this.label2.TabIndex = 66;
             this.label2.Text = "Secrets path";
             // 
@@ -155,7 +155,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtPathToFileProvisioningConfig.Location = new System.Drawing.Point(296, 74);
             this.txtPathToFileProvisioningConfig.Name = "txtPathToFileProvisioningConfig";
-            this.txtPathToFileProvisioningConfig.Size = new System.Drawing.Size(1130, 26);
+            this.txtPathToFileProvisioningConfig.Size = new System.Drawing.Size(1130, 20);
             this.txtPathToFileProvisioningConfig.TabIndex = 68;
             this.txtPathToFileProvisioningConfig.Text = "<<Path to the file based provisioning...>>";
             // 
@@ -176,7 +176,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtPathToAzureAdProvisioningConfig.Location = new System.Drawing.Point(296, 145);
             this.txtPathToAzureAdProvisioningConfig.Name = "txtPathToAzureAdProvisioningConfig";
-            this.txtPathToAzureAdProvisioningConfig.Size = new System.Drawing.Size(1130, 26);
+            this.txtPathToAzureAdProvisioningConfig.Size = new System.Drawing.Size(1130, 20);
             this.txtPathToAzureAdProvisioningConfig.TabIndex = 73;
             this.txtPathToAzureAdProvisioningConfig.Text = "<<Path to the Azure based provisioning...>>";
             // 
@@ -199,7 +199,7 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(2, 210);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(828, 19);
+            this.label1.Size = new System.Drawing.Size(553, 13);
             this.label1.TabIndex = 75;
             this.label1.Text = "Generated command line (copy/paste from here if you want to run this from the com" +
     "mand line)";
@@ -209,7 +209,7 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(2, 358);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(108, 19);
+            this.label3.Size = new System.Drawing.Size(73, 13);
             this.label3.TabIndex = 76;
             this.label3.Text = "Output logs";
             // 
@@ -229,7 +229,7 @@
             this.label5.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.Location = new System.Drawing.Point(2, 34);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(454, 28);
+            this.label5.Size = new System.Drawing.Size(315, 19);
             this.label5.TabIndex = 78;
             this.label5.Text = "Choose source of provisioning data";
             // 
@@ -239,13 +239,13 @@
             this.label6.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.Location = new System.Drawing.Point(131, 108);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(38, 28);
+            this.label6.Size = new System.Drawing.Size(27, 19);
             this.label6.TabIndex = 79;
             this.label6.Text = "OR";
             // 
             // FormTabProvision
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1433, 734);
@@ -266,7 +266,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MinimumSize = new System.Drawing.Size(900, 500);
             this.Name = "FormTabProvision";
-            this.Text = "Online - TabProvision, site user/roles/auth/groups provisioning (v1.004)";
+            this.Text = "Online - TabProvision, site user/roles/auth/groups provisioning (v1.005)";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);

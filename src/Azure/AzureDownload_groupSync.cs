@@ -33,10 +33,15 @@ internal partial class AzureDownload
     {
         foreach (var item in _configSyncGroups.GroupsToGroupsSyncList)
         {
+            //If the Synchronize group has an explicit output name (i.e. not a wildcard/pattern match),
+            //then always create a group for it.  We want to know/show any explicit groups that have 0 members
             var explicitNameOrNull = item.RequiredTargetGroupNameOrNull;
             if (!string.IsNullOrWhiteSpace(explicitNameOrNull))
             {
-                this.SetManagerForGroups.EnsureRoleManagerExistsForRole(explicitNameOrNull);
+                this.SetManagerForGroups.EnsureRoleManagerExistsForRole(
+                    explicitNameOrNull, 
+                    item.GrantLicenseInstructions,
+                    item.GrantLicenseRole);
             }
         }
     }
@@ -50,7 +55,9 @@ internal partial class AzureDownload
         GraphServiceClient azureGraph,
         IEnumerable<ProvisionConfigExternalDirectorySync.ISynchronizeGroupToGroup> groupsToGroupsSyncList)
     {
+        //---------------------------------------------------------------
         //Loop through each of the groups we want to sync
+        //---------------------------------------------------------------
         foreach (var groupToRetrieve in groupsToGroupsSyncList)
         {
             _statusLogs.AddStatus("Azure getting group/group sync group(s) for: " + groupToRetrieve.SourceGroupName);
@@ -184,7 +191,8 @@ internal partial class AzureDownload
                     if (asUser != null)
                     {
                         AddUserToGroupProvisioningTrackingManager(
-                            groupSyncInstructions.GenerateTargetGroupName(sourceBaseGroupName), //groupSyncInstructions.TargetGroupName,
+                            groupSyncInstructions,
+                            sourceBaseGroupName, 
                             asUser);
                         //Add them to the list of users
                     }
@@ -223,15 +231,15 @@ internal partial class AzureDownload
     /// <param name="asUser"></param>
     /// <param name="sourceGroupName"></param>
     private void AddUserToGroupProvisioningTrackingManager(
-        string targetGroupName,
+        ProvisionConfigExternalDirectorySync.ISynchronizeGroupToGroup groupSyncInstructions,
+        string sourceGroupName,
         Microsoft.Graph.User graphUser)
-    //        ProvisionConfigExternalDirectorySync.ISynchronizeGroupToGroup groupSyncInstuctions)
     {
         //Because the request code can run async, and the collection management used is not designed to be thread-safe
         //we are going to serialize adding users to the collection.  
         lock (_lock_AddUserToGroupProvisioningTrackingManager)
         {
-            AddUserToGroupProvisioningTrackingManager_Inner(targetGroupName, graphUser);
+            AddUserToGroupProvisioningTrackingManager_Inner(groupSyncInstructions, sourceGroupName, graphUser);
         }
     }
 
@@ -243,15 +251,20 @@ internal partial class AzureDownload
     /// <param name="graphUser"></param>
     /// <param name="sourceGroupName"></param>
     private void AddUserToGroupProvisioningTrackingManager_Inner(
-        string targetGroupName,
+        ProvisionConfigExternalDirectorySync.ISynchronizeGroupToGroup groupSyncInstructions,
+        string sourceGroupName,
         Microsoft.Graph.User graphUser)
     {
         string emailCandidate = GetUserEmailFromGraphADUser(graphUser);
         IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "843-706: User principal name is NULL");
 
+        //Get the group manager
+        var groupManager = SetManagerForGroups.GetManagerForGroup_CreateIfNeeded(
+            groupSyncInstructions.GenerateTargetGroupName(sourceGroupName),
+            groupSyncInstructions.GrantLicenseInstructions,
+            groupSyncInstructions.GrantLicenseRole);
+
         //Add the user to our tracking set
-        SetManagerForGroups.AddUserToGroup(targetGroupName, emailCandidate);
+        groupManager.AddUser(emailCandidate);
     }
-
-
 }

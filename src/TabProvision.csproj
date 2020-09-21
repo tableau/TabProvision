@@ -176,6 +176,7 @@
     <Compile Include="ProvisionSite\ProvisionFromDirectoryGroupsMembershipManager.cs" />
     <Compile Include="ProvisionSite\ProvisionFromDirectoryRolesMembershipManager.SingleRoleManager.cs" />
     <Compile Include="ProvisionSite\ProvisionFromDirectoryRolesMembershipManager.cs" />
+    <Compile Include="ProvisionSite\ProvisioningGroup.GrantLicenseMode.cs" />
     <Compile Include="ProvisionSite\ProvisioningGroup.cs" />
     <Compile Include="ProvisionSite\ProvisioningUser_static.cs" />
     <Compile Include="ProvisionSite\ProvisioningUser.cs" />
@@ -219,6 +220,7 @@
     <Compile Include="RESTRequests\SendAddUserToGroup.cs" />
     <Compile Include="RESTRequests\SendCreateUser.cs" />
     <Compile Include="RESTRequests\SendDeleteUserFromGroup.cs" />
+    <Compile Include="RESTRequests\SendUpdateGroup.cs" />
     <Compile Include="RESTRequests\SendUpdateUser.cs" />
     <Compile Include="RESTRequests\SendUpdateDatasourceOwner.cs" />
     <Compile Include="RESTRequests\SendUpdateWorkbookOwner.cs" />

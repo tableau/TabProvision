@@ -45,5 +45,25 @@ internal partial class ProvisionConfigExternalDirectorySync
             // FALSE: It is unexpected to find the user with a role that differs from this specified role
             this.AllowPromotedRoleForMembers = allowPromotedRole;
         }
+
+
+        /// <summary>
+        /// Constructor: From XML
+        /// </summary>
+        /// <param name="xmlNode"></param>
+        public SynchronizeGroupToRole(XmlNode xmlNode)
+        {
+            this.SourceGroupName = xmlNode.Attributes[XmlAttribute_SourceGroup].Value;
+            this.TableauRole = xmlNode.Attributes[XmlAttribute_TargetRole].Value;
+            this.AuthenticationModel = xmlNode.Attributes[ProvisioningUser.XmlAttribute_Auth].Value; 
+            this.NamePatternMatch = ParseNamePatternMatch(
+                XmlHelper.SafeParseXmlAttribute(xmlNode, XmlAttribute_SourceGroupMatch, NamePatternMatch_Equals));
+
+            // TRUE: It is not unexpected to find that the user has an acutal role > than this specified role (useful for Grant License on Sign In scenarios)
+            // FALSE: It is unexpected to find the user with a role that differs from this specified role
+            this.AllowPromotedRoleForMembers = XmlHelper.SafeParseXmlAttribute_Boolean(
+                xmlNode, ProvisioningUser.XmlAttribute_AllowPromotedRole, false); ;
+
+        }
     }
 }

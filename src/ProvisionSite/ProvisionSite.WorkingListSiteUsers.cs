@@ -23,6 +23,27 @@ internal partial class ProvisionSite
         }
 
         /// <summary>
+        /// Adds a user to the list, if an existing user does not already exist
+        /// </summary>
+        /// <param name="userToAdd"></param>
+        public void AddUser(SiteUser userToAdd)
+        {
+            if(userToAdd == null)
+            {
+                IwsDiagnostics.Assert(false, "920-740: Null user being added to list");
+                throw new ArgumentException("920-740: Null user being added to list");
+            }
+
+            var matchingExistingUser = FindUserByName(userToAdd.Name);
+            if (matchingExistingUser != null)
+            {
+                IwsDiagnostics.Assert(false, "920-731: User already exists, " + userToAdd.Name);
+                throw new Exception("920-731: User already exists, " + userToAdd.Name);
+            }
+            _usersList.Add(userToAdd);
+        }
+
+        /// <summary>
         /// Return the list of users
         /// </summary>
         /// <returns></returns>
@@ -37,7 +58,7 @@ internal partial class ProvisionSite
         /// </summary>
         /// <param name="findName"></param>
         /// <returns></returns>
-        internal SiteUser FindUser(string findName)
+        internal SiteUser FindUserByName(string findName)
         {
             foreach(var thisUser in _usersList)
             {
@@ -67,11 +88,20 @@ internal partial class ProvisionSite
         /// <returns></returns>
         internal bool RemoveUser(string userName)
         {
-            var foundUser = FindUser(userName);
+            var foundUser = FindUserByName(userName);
             if (foundUser == null) return false;
 
             return _usersList.Remove(foundUser);
         }
 
+        /// <summary>
+        /// Replace a user if it exists
+        /// </summary>
+        /// <param name="userAdd"></param>
+        internal void ReplaceUser(SiteUser userAdd)
+        {
+            RemoveUser(userAdd.Name);
+            AddUser(userAdd);
+        }
     }
 }

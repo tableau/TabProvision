@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Text;
 using System.Xml;
 /// <summary>
@@ -10,6 +11,8 @@ class SiteGroup : IHasSiteItemId
     public readonly string Id;
     public readonly string Name;
     List<SiteUser> _usersInGroup;
+    public readonly string SiteMinimumRoleOrNull = null;
+    public readonly string GrantLicenseMode = null;
 
     SimpleLatch _groupUsersKnown = new SimpleLatch();
 
@@ -43,8 +46,8 @@ class SiteGroup : IHasSiteItemId
     /// <summary>
     /// Constructor
     /// </summary>
-    /// <param name="projectNode"></param>
-    public SiteGroup(XmlNode projectNode, IEnumerable<SiteUser> usersToPlaceInGroup )
+    /// <param name="groupNode"></param>
+    public SiteGroup(XmlNode groupNode, IEnumerable<SiteUser> usersToPlaceInGroup )
     {
         //If we were passed in a set of users, store them
         var usersList = new List<SiteUser>();
@@ -55,15 +58,26 @@ class SiteGroup : IHasSiteItemId
         _usersInGroup = usersList;
 
 
-        if(projectNode.Name.ToLower() != "group")
+        if(groupNode.Name.ToLower() != "group")
         {
             AppDiagnostics.Assert(false, "Not a group");
             throw new Exception("Unexpected content - not group");
         }
 
-        this.Id = projectNode.Attributes["id"].Value;
-        this.Name = projectNode.Attributes["name"].Value;
-//        this.DomainName = projectNode.Attributes["description"].Value;
+        this.Id = groupNode.Attributes["id"].Value;
+        this.Name = groupNode.Attributes["name"].Value;
+
+        //===================================================================================
+        //See if there is a GRANT LICENSE ON SIGN IN mode here
+        //===================================================================================
+        //Get all the group nodes
+        var nsManager = XmlHelper.CreateTableauXmlNamespaceManager("iwsOnline");
+        var xmlGroupImportNode = groupNode.SelectSingleNode(".//iwsOnline:import", nsManager);
+        if (xmlGroupImportNode != null)
+        {
+            this.SiteMinimumRoleOrNull = XmlHelper.GetAttributeIfExists(xmlGroupImportNode, "siteRole", null);
+            this.GrantLicenseMode = XmlHelper.GetAttributeIfExists(xmlGroupImportNode, "grantLicenseMode", null);
+        }
     }
 
 

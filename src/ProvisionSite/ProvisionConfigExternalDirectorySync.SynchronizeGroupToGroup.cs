@@ -21,6 +21,22 @@ internal partial class ProvisionConfigExternalDirectorySync
         public readonly string TargetGroupName;
 
         /// <summary>
+        /// Instructions for what to do about the Grant License mode of the Tableau site Group
+        /// </summary>
+        public readonly ProvisioningGroup.GrantLicenseMode GrantLicenseInstructions;
+
+        /// <summary>
+        /// If we are using GrantLicense then what is the role, e.g. "Creator", "Explorer", "Viewer", types of admins, ...
+        /// </summary>
+        public readonly string GrantLicenseRole;
+
+
+        //XML attributes
+        public const string XmlAttribute_SoruceGroup = "sourceGroup";
+        public const string XmlAttribute_TargetGroup = "targetGroup";
+
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="sourceGroup"></param>
@@ -29,6 +45,25 @@ internal partial class ProvisionConfigExternalDirectorySync
         {
             this.SourceGroupName = sourceGroup;
             this.TargetGroupName = targetGroup;
+        }
+
+        /// <summary>
+        /// Constructor: From XML
+        /// </summary>
+        /// <param name="xmlNode"></param>
+        public SynchronizeGroupToGroup(XmlNode xmlNode)
+        {
+            this.SourceGroupName = xmlNode.Attributes[XmlAttribute_SoruceGroup].Value;
+            //Note: If there is no target group specified, use the source group name
+            this.TargetGroupName = XmlHelper.SafeParseXmlAttribute(xmlNode, XmlAttribute_TargetGroup, this.SourceGroupName);
+
+            //Is there a Grant License policy?
+            this.GrantLicenseInstructions = ProvisioningGroup.ParseGrantLicenseMode(
+                XmlHelper.SafeParseXmlAttribute(xmlNode, ProvisioningGroup.XmlAttribute_GrantLicenseMode, ""));
+
+            //Get the grant license role if any
+            this.GrantLicenseRole =
+                XmlHelper.SafeParseXmlAttribute(xmlNode, ProvisioningGroup.XmlAttribute_GrantLicenseSiteRole, null);
         }
 
         string ISynchronizeGroupToGroup.SourceGroupName
@@ -59,5 +94,22 @@ internal partial class ProvisionConfigExternalDirectorySync
                 return this.TargetGroupName;
             }
         }
+
+        string ISynchronizeGroupToGroup.GrantLicenseRole
+        {
+            get
+            {
+                return this.GrantLicenseRole;
+            }
+        }
+
+        ProvisioningGroup.GrantLicenseMode ISynchronizeGroupToGroup.GrantLicenseInstructions
+        {
+            get
+            {
+                return this.GrantLicenseInstructions;
+            }
+        }
+
     }
 }

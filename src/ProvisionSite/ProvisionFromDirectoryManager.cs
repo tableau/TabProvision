@@ -21,7 +21,11 @@ internal partial class ProvisionFromDirectoryManager
     public readonly ProvisionFromDirectoryGroupsMembershipManager GroupsMembershipManager = new ProvisionFromDirectoryGroupsMembershipManager();
 
 
-
+    /// <summary>
+    /// Take all the User->Role/Auth mappings, and all the Group memberships and create a provisioning manifest XML file
+    /// </summary>
+    /// <param name="provisioningManifest"></param>
+    /// <param name="provisionConfig"></param>
     internal void GenerateProvisioningManifestFile(string provisioningManifest, ProvisionConfigExternalDirectorySync provisionConfig)
     {
         var xmlWriter = XmlWriter.Create(provisioningManifest);

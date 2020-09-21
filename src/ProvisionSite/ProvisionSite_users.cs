@@ -13,9 +13,8 @@ internal partial class ProvisionSite
     /// Compare the list of users on the Server Site with the provision list of users and make the necessary updates
     /// </summary>
     /// <param name="existingSiteUsers"></param>
-    private void Execute_ProvisionUsers(TableauServerSignIn siteSignIn)
+    private WorkingListSiteUsers Execute_ProvisionUsers(TableauServerSignIn siteSignIn)
     {
-
         _statusLogs.AddStatusHeader("Provision users/roles in site");
         //=================================================================================
         //Load the set of users for the site...
@@ -24,6 +23,7 @@ internal partial class ProvisionSite
 
         //Keep a list of the remaining users
         var workingListUnexaminedUsers = new WorkingListSiteUsers(existingUsers.Users);
+        var workingList_allKnownUsers = new WorkingListSiteUsers(existingUsers.Users);
 
         //==============================================================================
         //Go through each user in our "to provision" list and see if we need to
@@ -35,12 +35,12 @@ internal partial class ProvisionSite
         {
             try
             {
-                Execute_ProvisionUsers_SingleUser(userToProvision, siteSignIn, workingListUnexaminedUsers);
+                Execute_ProvisionUsers_SingleUser(userToProvision, siteSignIn, workingListUnexaminedUsers, workingList_allKnownUsers);
             }
             catch (Exception ex)
             {
                 _statusLogs.AddError("Error provisioning user (913-1158)" + userToProvision.UserName + ", " + ex.Message);
-                CSVRecord_Error(userToProvision.UserName, userToProvision.UserRole, userToProvision.UserAuthentication, "Error provisioning user " + userToProvision.UserName + ", " + ex.Message);
+                CSVRecord_ErrorUpdatingUser(userToProvision.UserName, userToProvision.UserRole, userToProvision.UserAuthentication, "Error provisioning user " + userToProvision.UserName + ", " + ex.Message);
             }
 
             //If the user was in the working list of users on the site, then remove them (since we have looked at them)
@@ -55,14 +55,16 @@ internal partial class ProvisionSite
         {
             try
             {
-                Execute_UpdateUnexpectedUsersProvisioning_SingleUser(unexpectedUser, siteSignIn);
+                Execute_UpdateUnexpectedUsersProvisioning_SingleUser(unexpectedUser, siteSignIn, workingList_allKnownUsers);
             }
             catch (Exception exUnxpectedUsers)
             {
                 _statusLogs.AddError("Error processing unexpected user " + unexpectedUser.ToString() + ", " + exUnxpectedUsers.Message);
-                CSVRecord_Error(unexpectedUser.Name, unexpectedUser.SiteRole, unexpectedUser.SiteAuthentication, "Error processing unexpected user " + unexpectedUser.ToString() + ", " + exUnxpectedUsers.Message);
+                CSVRecord_ErrorUpdatingUser(unexpectedUser.Name, unexpectedUser.SiteRole, unexpectedUser.SiteAuthentication, "Error processing unexpected user " + unexpectedUser.ToString() + ", " + exUnxpectedUsers.Message);
             }
         }
+
+        return workingList_allKnownUsers;
     }
 
     /// <summary>
@@ -70,19 +72,22 @@ internal partial class ProvisionSite
     /// </summary>
     /// <param name="unexpectedUser"></param>
     /// <param name="siteSignIn"></param>
-    private void Execute_UpdateUnexpectedUsersProvisioning_SingleUser(SiteUser unexpectedUser, TableauServerSignIn siteSignIn)
+    private void Execute_UpdateUnexpectedUsersProvisioning_SingleUser(
+        SiteUser unexpectedUser, 
+        TableauServerSignIn siteSignIn,
+        WorkingListSiteUsers workingList_allKnownUsers)
     {
         _statusLogs.AddStatus("Process unexpected user: " + unexpectedUser.ToString());
         switch (unexpectedUser.SiteAuthenticationParsed)
         {
             case SiteUserAuth.Default:
-                Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(unexpectedUser, siteSignIn, _provisionInstructions.ActionForUnexpectedDefaultAuthUsers);
+                Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(unexpectedUser, siteSignIn, _provisionInstructions.ActionForUnexpectedDefaultAuthUsers, workingList_allKnownUsers);
                 break;
             case SiteUserAuth.SAML:
-                Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(unexpectedUser, siteSignIn, _provisionInstructions.ActionForUnexpectedSamlUsers);
+                Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(unexpectedUser, siteSignIn, _provisionInstructions.ActionForUnexpectedSamlUsers, workingList_allKnownUsers);
                 break;
             case SiteUserAuth.OpenID:
-                Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(unexpectedUser, siteSignIn, _provisionInstructions.ActionForUnexpectedOpenIdUsers);
+                Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(unexpectedUser, siteSignIn, _provisionInstructions.ActionForUnexpectedOpenIdUsers, workingList_allKnownUsers);
                 break;
             default:
                 IwsDiagnostics.Assert(false, "811-1123: Unknown authentication type " + unexpectedUser.SiteAuthentication + ", for user " + unexpectedUser.Name);
@@ -100,10 +105,11 @@ internal partial class ProvisionSite
     private void Execute_ProvisionUsers_SingleUser(
         ProvisioningUser userToProvision,
         TableauServerSignIn siteSignIn,
-        WorkingListSiteUsers workingListUnexaminedUsers)
+        WorkingListSiteUsers workingListUnexaminedUsers,
+        WorkingListSiteUsers workingList_allKnownUsers)
     {
         //See if a user with this name already exists
-        var foundExistingUser = workingListUnexaminedUsers.FindUser(userToProvision.UserName);
+        var foundExistingUser = workingListUnexaminedUsers.FindUserByName(userToProvision.UserName);
 
         ProvisionUserInstructions.MissingUserAction missingUserAction;
         ProvisionUserInstructions.UnexpectedUserAction unexpectedUserAction;
@@ -140,7 +146,7 @@ internal partial class ProvisionSite
         if (foundExistingUser == null)
         {
 
-            Execute_ProvisionUsers_SingleUser_AddUser(siteSignIn, userToProvision, missingUserAction);
+            Execute_ProvisionUsers_SingleUser_AddUser(siteSignIn, userToProvision, missingUserAction, workingList_allKnownUsers);
             return;
         }
 
@@ -154,7 +160,7 @@ internal partial class ProvisionSite
             return;
         }
         //===============================================================================================
-        //CASE 2b: The user EXISTS but is not the right AUTH; update them
+        //CASE 2b: The user EXISTS but is not the right ROLE; update them
         //===============================================================================================
         else if (string.Compare(foundExistingUser.SiteRole, userToProvision.UserRole, true) != 0)
         {
@@ -239,7 +245,7 @@ internal partial class ProvisionSite
                 else
                 {
                     //Error case, the user was not updated
-                    CSVRecord_Error(userToProvision.UserName, userToProvision.UserRole, userToProvision.UserAuthentication, "Error updating user (913-212)");
+                    CSVRecord_ErrorUpdatingUser(userToProvision.UserName, userToProvision.UserRole, userToProvision.UserAuthentication, "Error updating user (913-212)");
                     return;
                 }
 
@@ -266,7 +272,11 @@ internal partial class ProvisionSite
     /// <param name="siteSignIn"></param>
     /// <param name="userToProvision"></param>
     /// <param name="missingUserAction"></param>
-    private void Execute_ProvisionUsers_SingleUser_AddUser(TableauServerSignIn siteSignIn, ProvisioningUser userToProvision, ProvisionUserInstructions.MissingUserAction missingUserAction)
+    private SiteUser Execute_ProvisionUsers_SingleUser_AddUser(
+        TableauServerSignIn siteSignIn, 
+        ProvisioningUser userToProvision, 
+        ProvisionUserInstructions.MissingUserAction missingUserAction,
+        WorkingListSiteUsers workingList_allKnownUsers)
     {
         switch(missingUserAction)
         {
@@ -286,19 +296,14 @@ internal partial class ProvisionSite
                 //Record the action in an output file
                 //-------------------------------------------------------------------------------
                 CSVRecord_UserModified(userToProvision.UserName, userToProvision.UserRole, userToProvision.UserAuthentication, "added", "");
-                return;
+                workingList_allKnownUsers.AddUser(userCreated);
+                return userCreated;
 
             //Don't add the user, just record the finding
             case ProvisionUserInstructions.MissingUserAction.Report:
-                /*CSVRecord_Warning(
-                    userToProvision.UserName,
-                    userToProvision.UserRole,
-                    userToProvision.UserAuthentication,
-                    "Add user: Per provisioning instructions, unknown existing user left unaltered");
-                */
                 CSVRecord_UserModified(userToProvision.UserName, userToProvision.UserRole, userToProvision.UserAuthentication, "SIMULATED added", "");
 
-                return;
+                return null;
 
             default:
                 IwsDiagnostics.Assert(false, "814-1210: Unknown missing user provisioning action");
@@ -312,7 +317,11 @@ internal partial class ProvisionSite
     /// <param name="unexpectedUser"></param>
     /// <param name="siteSignIn"></param>
     /// <param name="behavior"></param>
-    private void Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(SiteUser unexpectedUser, TableauServerSignIn siteSignIn, ProvisionUserInstructions.UnexpectedUserAction behavior)
+    private void Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(
+        SiteUser unexpectedUser, 
+        TableauServerSignIn siteSignIn, 
+        ProvisionUserInstructions.UnexpectedUserAction behavior,
+        WorkingListSiteUsers workingList_allKnownUsers)
     {
         switch (behavior)
         {
@@ -325,12 +334,6 @@ internal partial class ProvisionSite
                     //-------------------------------------------------------------------------------
                     //Record the non-action in an output file
                     //-------------------------------------------------------------------------------
-                    /*CSVRecord_Warning(
-                        unexpectedUser.Name,
-                        unexpectedUser.SiteRole,
-                        unexpectedUser.SiteAuthentication,
-                        "Per provisioning instructions, unknown existing user left unaltered");
-                    */
                     CSVRecord_UserModified(
                         unexpectedUser.Name,
                         unexpectedUser.SiteRole,
@@ -371,11 +374,13 @@ internal partial class ProvisionSite
                         unexpectedUser.SiteAuthentication,
                         "existing/removed",
                         unexpectedUser.SiteRole + "->" + userUpdated.SiteRole);
+
+                    workingList_allKnownUsers.ReplaceUser(userUpdated);
                     return;
                 }
                 else
                 {
-                    CSVRecord_Error(unexpectedUser.Name, unexpectedUser.SiteRole, unexpectedUser.SiteAuthentication, "Error unlicensing user (913-215)");
+                    CSVRecord_ErrorUpdatingUser(unexpectedUser.Name, unexpectedUser.SiteRole, unexpectedUser.SiteAuthentication, "Error unlicensing user (913-215)");
                     return;
                 }
 
