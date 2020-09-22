@@ -18,7 +18,22 @@ This is done in 2 steps:
 
 TabProvision.exe can be run as frequently as you need to keep Azure AD and you Tableau Online / Server site in sync (e.g. daily/weekly/monthly)
 
+### How to “provision like a pro” using Grant License on Sign In and the TabProvison tool
+Using Grant License on Sign In can dramatically simplify provisioning and remove adoption bottlenecks. To use Grant License on Sign In with TabProvision follow these two steps:
 
+1.	Use a group (e.g. “All potential users”) to import all of your potential users as “Unlicensed” users to your site. This is a great way to pre-provision your organization’s members without needing licenses for each user upfront.
+
+2.	Add that same group to the “SynchronizeGroups” section in your XML (example below)
+-	Set grantLicenseMode=’true”
+-	Set grantLicenseMinimumSiteRole="Viewer" or “Explorer”   
+
+RESULTS: 
+-	All of these users will become potential users for your site.                                                            
+-	If/when they sign in they will get upgraded from "Unlicensed" to "Explorer" or "Viewer" 
+
+The example XML later in this ReadMe shows exactly how this is done.   
+More info: https://help.tableau.com/current/online/en-us/grant_role.htm             
+          
 ## Versions of Tableau Online (and Tableau Server) 
 TabProvision was written and tested with Tableau Online for the 2020.3 release
 - It should work in all Tableau Server versions >= 2020.3  
