@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Graph;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Xml;
@@ -11,6 +12,12 @@ using System.Xml.Serialization;
 internal partial class ProvisionFromDirectoryGroupsMembershipManager
 {
     private Dictionary<string, SingleGroupManager> _groupsManager = new Dictionary<string, SingleGroupManager>();
+
+
+    /// <summary>
+    /// A lock we can use for thread safety
+    /// </summary>
+    private object _threadLock_ModifyGroupsList = new object();
 
     /// <summary>
     /// Constructor
@@ -35,15 +42,18 @@ internal partial class ProvisionFromDirectoryGroupsMembershipManager
         var cannonicalGroup = group.ToLower();
         SingleGroupManager thisGroupManager;
 
-        //Add the user to a group manager
-        _groupsManager.TryGetValue(cannonicalGroup, out thisGroupManager);
-
-        if (thisGroupManager == null)
+        //Prevent this from getting entered my multiple threads
+        lock (_threadLock_ModifyGroupsList)
         {
-            thisGroupManager = new SingleGroupManager(group, ifCreateGrantLicenseMode, ifCreateGrantLicenseRole);
-            _groupsManager.Add(cannonicalGroup, thisGroupManager);
-        }
+            //Add the user to a group manager
+            _groupsManager.TryGetValue(cannonicalGroup, out thisGroupManager);
 
+            if (thisGroupManager == null)
+            {
+                thisGroupManager = new SingleGroupManager(group, ifCreateGrantLicenseMode, ifCreateGrantLicenseRole);
+                _groupsManager.Add(cannonicalGroup, thisGroupManager);
+            }
+        }
         return thisGroupManager;
     }
 

@@ -10,7 +10,7 @@ internal partial class ProvisionFromDirectoryGroupsMembershipManager
 {
 
     /// <summary>
-    /// Constructor
+    /// Manages the list of users in a single group
     /// </summary>
     internal partial class SingleGroupManager
     {
@@ -31,6 +31,11 @@ internal partial class ProvisionFromDirectoryGroupsMembershipManager
 
 
         /// <summary>
+        /// Lock to prevent reentrant access
+        /// </summary>
+        private object _threadLock_modifyUsersList = new object();
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="group"></param>
@@ -41,13 +46,12 @@ public SingleGroupManager(string group, ProvisioningGroup.GrantLicenseMode grant
             this.GrantLicenseRole = grantLicenseRole;
         }
 
-
         /// <summary>
         /// Group members
         /// </summary>
         private Dictionary<string, string> _usersSet = new Dictionary<string, string>();
 
-        public Dictionary<string, string>.ValueCollection GetUserNamess()
+        public Dictionary<string, string>.ValueCollection GetUserNames()
         {
             return _usersSet.Values;
         }
@@ -65,7 +69,11 @@ public SingleGroupManager(string group, ProvisioningGroup.GrantLicenseMode grant
         /// <returns></returns>
         internal bool RemoveUser(string key)
         {
-            return _usersSet.Remove(CannonicalKey(key));
+            //Prevent multiple streams of acccess
+            lock(_threadLock_modifyUsersList)
+            {
+                return _usersSet.Remove(CannonicalKey(key));
+            }
         }
 
         /// <summary>
@@ -76,13 +84,16 @@ public SingleGroupManager(string group, ProvisioningGroup.GrantLicenseMode grant
         {
             string cannonicalKey = CannonicalKey(userName);
 
-            if (_usersSet.ContainsKey(cannonicalKey))
+            lock(_threadLock_modifyUsersList)
             {
-                //User is already there.  Don't need to do anything
-            }
-            else
-            {
-                _usersSet.Add(cannonicalKey, userName);
+                if (_usersSet.ContainsKey(cannonicalKey))
+                {
+                    //User is already there.  Don't need to do anything
+                }
+                else
+                {
+                    _usersSet.Add(cannonicalKey, userName);
+                }
             }
         }
 

@@ -153,6 +153,14 @@ internal partial class AzureDownload
     {
         _statusLogs.AddStatus("Loading members of Azure group '" + azureGroup.DisplayName + "' for sync group '" + groupSyncInstructions.SourceGroupName + "'");
 
+        //==============================================================
+        //Get/Create the membership manager for the group
+        //==============================================================
+        var singleGroupMembershipManager = SetManagerForGroups.GetManagerForGroup_CreateIfNeeded(
+            groupSyncInstructions.GenerateTargetGroupName(azureGroup.DisplayName),
+            groupSyncInstructions.GrantLicenseInstructions,
+            groupSyncInstructions.GrantLicenseRole);
+
         var thiGroupId = azureGroup.Id;
 
         //https://docs.microsoft.com/en-us/graph/api/group-list-members?view=graph-rest-1.0&tabs=http
@@ -163,7 +171,7 @@ internal partial class AzureDownload
         //var thisGroupsMembers = await azureGraph.Groups[thiGroupId].Members.Request().Top(2).GetAsync();
 
         //Get all the users in the group and sub-groups
-        await AzureRecurseGroupsGenerateGroupMembersList(azureGraph, thisGroupsMembers, azureGroup.DisplayName, groupSyncInstructions);
+        await AzureRecurseGroupsGenerateGroupMembersList(azureGraph, thisGroupsMembers, singleGroupMembershipManager);
     }
 
     /// <summary>
@@ -171,12 +179,13 @@ internal partial class AzureDownload
     /// </summary>
     /// <param name="azureGraph"></param>
     /// <param name="thisGroupsMembers"></param>
+    /// <param name="singleGroupMembershipManager"></param>
     /// <param name="groupSyncInstructions"></param>
+    /// <returns></returns>
     async Task AzureRecurseGroupsGenerateGroupMembersList(
         GraphServiceClient azureGraph,
         IGroupMembersCollectionWithReferencesPage thisGroupsMembers,
-        string sourceBaseGroupName,
-        ProvisionConfigExternalDirectorySync.ISynchronizeGroupToGroup groupSyncInstructions)
+        ProvisionFromDirectoryGroupsMembershipManager.SingleGroupManager singleGroupMembershipManager)
     {
         var thispage_members = thisGroupsMembers;
         do
@@ -188,21 +197,28 @@ internal partial class AzureDownload
                 {
                     var asUser = thisMember as Microsoft.Graph.User;
                     var asSubGroup = thisMember as Microsoft.Graph.Group;
+                    //-------------------------------------------------
+                    //If it's a USER, then add it to our tracking list
+                    //-------------------------------------------------
                     if (asUser != null)
                     {
-                        AddUserToGroupProvisioningTrackingManager(
-                            groupSyncInstructions,
-                            sourceBaseGroupName, 
-                            asUser);
+                        //-------------------------------------------------
                         //Add them to the list of users
+                        //-------------------------------------------------
+                        AddUserToGroupProvisioningTrackingManager(
+                            singleGroupMembershipManager, 
+                            asUser);
                     }
+                    //-------------------------------------------------
+                    //If it's a GROUP, then recurse down it
+                    //-------------------------------------------------
                     else if (asSubGroup != null)
                     {
                         //-----------------------------------------------------------------------------------
                         //Recurse down the subgroup and get its members
                         //-----------------------------------------------------------------------------------
                         var subGroupsMembers = await azureGraph.Groups[asSubGroup.Id].Members.Request().GetAsync();
-                        await AzureRecurseGroupsGenerateGroupMembersList(azureGraph, subGroupsMembers, sourceBaseGroupName, groupSyncInstructions);
+                        await AzureRecurseGroupsGenerateGroupMembersList(azureGraph, subGroupsMembers, singleGroupMembershipManager);
                     }
                 }
             }
@@ -221,50 +237,20 @@ internal partial class AzureDownload
     }
 
     /// <summary>
-    /// Threadsafety lock for this function
-    /// </summary>
-    private object _lock_AddUserToGroupProvisioningTrackingManager = new object();
-    /// <summary>
     /// Add a user to specified Group 
     /// </summary>
-    /// <param name="targetGroupName"></param>
-    /// <param name="asUser"></param>
-    /// <param name="sourceGroupName"></param>
-    private void AddUserToGroupProvisioningTrackingManager(
-        ProvisionConfigExternalDirectorySync.ISynchronizeGroupToGroup groupSyncInstructions,
-        string sourceGroupName,
-        Microsoft.Graph.User graphUser)
-    {
-        //Because the request code can run async, and the collection management used is not designed to be thread-safe
-        //we are going to serialize adding users to the collection.  
-        lock (_lock_AddUserToGroupProvisioningTrackingManager)
-        {
-            AddUserToGroupProvisioningTrackingManager_Inner(groupSyncInstructions, sourceGroupName, graphUser);
-        }
-    }
-
-
-    /// <summary>
-    /// Add the user to the tracking object
-    /// </summary>
-    /// <param name="targetGroupName"></param>
+    /// <param name="groupSyncInstructions"></param>
+    /// <param name="singleGroupMembershipManager"></param>
     /// <param name="graphUser"></param>
-    /// <param name="sourceGroupName"></param>
-    private void AddUserToGroupProvisioningTrackingManager_Inner(
-        ProvisionConfigExternalDirectorySync.ISynchronizeGroupToGroup groupSyncInstructions,
-        string sourceGroupName,
+    private void AddUserToGroupProvisioningTrackingManager(
+        ProvisionFromDirectoryGroupsMembershipManager.SingleGroupManager singleGroupMembershipManager,
         Microsoft.Graph.User graphUser)
     {
         string emailCandidate = GetUserEmailFromGraphADUser(graphUser);
         IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "843-706: User principal name is NULL");
 
-        //Get the group manager
-        var groupManager = SetManagerForGroups.GetManagerForGroup_CreateIfNeeded(
-            groupSyncInstructions.GenerateTargetGroupName(sourceGroupName),
-            groupSyncInstructions.GrantLicenseInstructions,
-            groupSyncInstructions.GrantLicenseRole);
-
-        //Add the user to our tracking set
-        groupManager.AddUser(emailCandidate);
+        singleGroupMembershipManager.AddUser(emailCandidate);
     }
+
+
 }
