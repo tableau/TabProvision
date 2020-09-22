@@ -162,13 +162,14 @@ internal partial class AzureDownload
         //not actually do any asynchonous work, and so does not need to be marked 'async'.  This is OK.
         //The surrounding method requires a function signature that looks like this (i.e. allows async work),
         //so we marks the function as 'async' even though it does not need to be.
+#pragma warning disable 1998
         GraphServiceClient graphClient = new GraphServiceClient(
             "https://graph.microsoft.com/v1.0/" + _configAzure.AzureAdTenantId,
              new DelegateAuthenticationProvider(async (requestMessage) => {
                  requestMessage.Headers.Authorization = new
                           System.Net.Http.Headers.AuthenticationHeaderValue("bearer", azureSessionToken);
              }));
-
+#pragma warning restore 1998
 
         return graphClient;
     }
