@@ -124,9 +124,9 @@ internal partial class ProvisionFromDirectoryManager
             ProvisionUserInstructions.XmlAttribute_UnexpectedGroupMembers,
             ProvisionUserInstructions.XmlAttributeText(provisionConfig.ActionForGroupUnexpectedMembers));
 
+        //Write out all the groups
         GroupsMembershipManager.WriteUserGroupsAsXml(xmlWriter);
 
-        //WriteProvisioningManifestXml_SiteMembership(xmlWriter);
         xmlWriter.WriteEndElement();
     }
 

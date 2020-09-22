@@ -120,7 +120,7 @@ public SingleGroupManager(string group, ProvisioningGroup.GrantLicenseMode grant
                 )
             {
                 xmlWriter.WriteAttributeString(
-                    ProvisioningGroup.XmlAttribute_GrantLicenseSiteRole,
+                    ProvisioningGroup.XmlAttribute_GrantLicenseMinimumSiteRole,
                     this.GrantLicenseRole);
             }
 

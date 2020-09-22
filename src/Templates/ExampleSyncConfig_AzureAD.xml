@@ -22,12 +22,16 @@
          <SynchronizeRole sourceGroup="Tableau Online 001 Potential Users" targetRole="Unlicensed"    auth="serverDefault"  allowPromotedRole="true"/>
 
          <!-- EXAMPLE: WILDCARD group name matching: All users in groups starting with "TabProvision Groups" will be added with the specified targetRole-->         
-         <SynchronizeRole sourceGroupMatch="startswith" sourceGroup="TabProvision Groups" targetRole="Unlicensed" auth="serverDefault"/>
+         <SynchronizeRole sourceGroupMatch="startswith" sourceGroup="TabProvision Groups" targetRole="Unlicensed" auth="serverDefault" allowPromotedRole="true"/>
 
          <!-- EXAMPLE: OVERRIDES specify any explicit user/auth/role that we want to supersede anything we find in the groups that we syncrhonize from -->
          <SiteMembershipOverrides>
-              <!-- Example roles "Unlicensed", "Viewer", "Explorer", "Creator", "SiteAdministratorExplorer", "SiteAdministratorCreator"-->
-              <User name="xxxxPersonxxxxx@xxxxDomainxxxxx.com"   role="Unlicensed" auth="serverDefault" />
+              <!-- Valid role values: "Unlicensed", "Viewer", "Explorer", "Creator", "SiteAdministratorExplorer", "SiteAdministratorCreator"-->
+              <!-- EXAMPLE: This user will be licensed as "Unlicensed"-->
+              <User name="xxxxPerson1xxxxx@xxxxDomainxxxxx.com"   role="Unlicensed" auth="serverDefault" allowPromotedRole="false" />
+              <!-- EXAMPLE: This user will be licensed as "Unlicensed" if they don't exist on the site.                                     -->
+              <!--          If they do exist and have a higher ranked role, that will be left as-is because allowPromotedRole="true" is set -->
+              <User name="xxxxPerson2xxxxx@xxxxDomainxxxxx.com"   role="Unlicensed" auth="serverDefault" allowPromotedRole="true" />
          </SiteMembershipOverrides>
     </SynchronizeRoles>
   
@@ -35,24 +39,32 @@
     <!-- Valid actions: unexpectedGroupMembers ="Delete" or "Report" -->
     <!-- Valid actions: missingGroupMembers    ="Add"    or "Report" -->
     <SynchronizeGroups  missingGroupMembers="Add" unexpectedGroupMembers="Delete">
+         <!-- RECOMMENDED: Most groups should set grantLicenseMode="onLogin" and grantLicenseMinimumSiteRole="Viewer" or "Explorer"      -->
+         <!--              This will facilitate auto-provisioning for users in these groups; as they sign in they will be given licenses -->
 
-         <!-- EXAMPLE: EXPLICIT GROUP MEMBERSHIP. These group memberships will be copied from Azure AD to Tableau -->  
-         <SynchronizeGroup sourceGroup="Biz Group - Accounting" targetGroup="Accounting Analytics" />
-         <SynchronizeGroup sourceGroup="Biz Group - Marketing" targetGroup="Marketing Analytics" />
+         <!-- Valid grantLicenseMode values:                                                                                                 -->
+         <!--   grantLicenseMode="ignore"  : do nothing (default)                                                                            -->
+         <!--   grantLicenseMode="none"    : REMOVE Grant Licenense on Login for the group                                                   -->
+         <!--   grantLicenseMode="onLogin" : (RECOMMENDED!) ENABLE Grant License on Login (requires 'grantLicenseMinimumSiteRole' to be set) -->
 
          <!-- RECOMMENDED: Use Grant License On Sign In.  To do this: -->
          <!-- 1. Have a group for ALL users (see right below) -->
-         <!-- 2. In your Tableau Online site set the MINIMUM SITE ROLE for this GROUP to be "Explorer" or "Viewer" and check GRANT ROLE ON SIGN IN -->
-         <!-- 3. Add this group to your TabProvision SynchronizeGroups section (see right below)-->
-         <!-- 4. Add this group to your TabProvision SynchronizeRoles section (see above) with a targetRole as "Unlicensed" and allowPromotedRole="true" -->
-         <!-- RESULT: All of these users will become potential users for your site. If/when they sign in they will get upgraded from "Unlicensed" to "Explorer" or "Viewer"-->
-         <!-- More info: https://help.tableau.com/current/online/en-us/grant_role.htm -->
-         <SynchronizeGroup sourceGroup="Tableau Online 001 Potential Users" targetGroup="Potential Users" />
+         <!-- 2. In your Tableau Online site set the MINIMUM SITE ROLE for this GROUP to be "Explorer" or "Viewer" and check GRANT ROLE ON SIGN IN  -->
+         <!--        NOTE: This can be done by setting the 'grantLicenseMode' and 'grantLicenseMinimumSiteRole' attributes of the group (see below) -->
+         <!-- 3. Add this group to your TabProvision SynchronizeGroups section (see below)                                                          -->
+         <!-- 4. Add this group to your TabProvision SynchronizeRoles section (see above) with targetRole="Unlicensed" and allowPromotedRole="true" -->
+         <!-- RESULTS: All of these users will become potential users for your site.                                                                -->
+         <!--          If/when they sign in they will get upgraded from "Unlicensed" to "Explorer" or "Viewer"                                      -->
+         <!-- More info: https://help.tableau.com/current/online/en-us/grant_role.htm                                                               -->
+         <SynchronizeGroup sourceGroup="Tableau Online 001 Potential Users" targetGroup="Potential Users" grantLicenseMode="onLogin" grantLicenseMinimumSiteRole="Viewer"/>
 
+         <!-- EXAMPLE: EXPLICIT GROUP MEMBERSHIP. These group memberships will be copied from Azure AD to Tableau -->  
+         <SynchronizeGroup sourceGroup="Biz Group - Accounting" targetGroup="Accounting Analytics" grantLicenseMode="onLogin" grantLicenseMinimumSiteRole="Explorer"/>
+         <SynchronizeGroup sourceGroup="Biz Group - Marketing" targetGroup="Marketing Analytics"   grantLicenseMode="onLogin" grantLicenseMinimumSiteRole="Explorer"/>
 
          <!-- EXAMPLE: WILDCARD GROUP NAMES. All groups starting with "TabProvision Groups" will be added    -->
          <!--          The group names will be duplicated between Azure AD and Tableau.                      -->         
-         <SynchronizeMatchedGroup sourceGroupMatch="startswith" sourceGroup="TabProvision Groups"  />
+         <SynchronizeMatchedGroup sourceGroupMatch="startswith" sourceGroup="TabProvision Groups" grantLicenseMode="ignore" />
     </SynchronizeGroups>
 
 </SynchronizeConfiguration>

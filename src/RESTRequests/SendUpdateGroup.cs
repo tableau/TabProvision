@@ -102,8 +102,8 @@ class SendUpdateGroup : TableauServerSignedInRequestBase
             if(this.PerformUpdateGrantLicense)
             {
                 xmlWriter.WriteAttributeString("grantLicenseMode", this.UpdatedGrantLicenseMode);
-                xmlWriter.WriteAttributeString("siteRole", this.UpdatedGrantLicenseSiteRole);
-                //xmlWriter.WriteAttributeString("minimumSiteRole", this.UpdatedGrantLicenseSiteRole);
+                //xmlWriter.WriteAttributeString("siteRole", this.UpdatedGrantLicenseSiteRole);
+                xmlWriter.WriteAttributeString("minimumSiteRole", this.UpdatedGrantLicenseSiteRole);
         }
 
         xmlWriter.WriteEndElement();//</group>

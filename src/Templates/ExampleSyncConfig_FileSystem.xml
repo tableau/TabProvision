@@ -19,11 +19,18 @@
 
    <!-- A list of all the groups who's member members we want to audit-->
    <GroupsMemberships unexpectedGroupMembers="Delete" missingGroupMembers="Add">
-      <GroupMembership name="Group1">
+      <!-- RECOMMENDED: Most groups should set grantLicenseMode="onLogin" and grantLicenseMinimumSiteRole="Viewer" or "Explorer"      -->
+      <!--              This will facilitate auto-provisioning for users in these groups; as they sign in they will be given licenses -->
+
+      <!-- Valid grantLicenseMode values:                                                                                                 -->
+      <!--   grantLicenseMode="ignore"  : do nothing (default)                                                                            -->
+      <!--   grantLicenseMode="none"    : REMOVE Grant Licenense on Login for the group                                                   -->
+      <!--   grantLicenseMode="onLogin" : (RECOMMENDED!) ENABLE Grant License on Login (requires 'grantLicenseMinimumSiteRole' to be set) -->
+      <GroupMembership name="Group1" grantLicenseMode="onLogin" grantLicenseMinimumSiteRole="Viewer">
           <GroupMember name="xxxxxPERSON+1xxxxxx@xxxxDOMAINxxxx.com" />
       </GroupMembership>
 
-      <GroupMembership name="Group2">
+      <GroupMembership name="Group2"  grantLicenseMode="onLogin" grantLicenseMinimumSiteRole="Explorer">
           <GroupMember name="xxxxxPERSON+1xxxxxx@xxxxDOMAINxxxx.com" />
           <GroupMember name="xxxxxPERSON+2xxxxxx@xxxxDOMAINxxxx.com" />
       </GroupMembership>

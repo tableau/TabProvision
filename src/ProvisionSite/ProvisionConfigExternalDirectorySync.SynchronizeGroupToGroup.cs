@@ -57,13 +57,13 @@ internal partial class ProvisionConfigExternalDirectorySync
             //Note: If there is no target group specified, use the source group name
             this.TargetGroupName = XmlHelper.SafeParseXmlAttribute(xmlNode, XmlAttribute_TargetGroup, this.SourceGroupName);
 
-            //Is there a Grant License policy?
-            this.GrantLicenseInstructions = ProvisioningGroup.ParseGrantLicenseMode(
-                XmlHelper.SafeParseXmlAttribute(xmlNode, ProvisioningGroup.XmlAttribute_GrantLicenseMode, ""));
 
-            //Get the grant license role if any
-            this.GrantLicenseRole =
-                XmlHelper.SafeParseXmlAttribute(xmlNode, ProvisioningGroup.XmlAttribute_GrantLicenseSiteRole, null);
+            //Read in the grant license attributes
+            ProvisioningGroup.ReadGrantLicenseXmlAttributes(
+                xmlNode,
+                this.SourceGroupName,
+                out this.GrantLicenseInstructions,
+                out this.GrantLicenseRole);
         }
 
         string ISynchronizeGroupToGroup.SourceGroupName

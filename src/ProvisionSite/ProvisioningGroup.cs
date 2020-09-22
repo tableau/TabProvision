@@ -27,7 +27,7 @@ internal partial class ProvisioningGroup
     public readonly GrantLicenseMode GrantLicenseInstructions;
 
     public const string XmlAttribute_GrantLicenseMode = "grantLicenseMode";
-    public const string XmlAttribute_GrantLicenseSiteRole = "grantLicenseSiteRole";
+    public const string XmlAttribute_GrantLicenseMinimumSiteRole = "grantLicenseMinimumSiteRole";
 
     /// <summary>
     /// If we are using GrantLicense then what is the role, e.g. "Creator", "Explorer", "Viewer", types of admins, ...
@@ -43,30 +43,12 @@ internal partial class ProvisioningGroup
     {
         this.GroupName = xmlNode.Attributes["name"].Value;
 
-        //Parse the grant license mode
-        this.GrantLicenseInstructions = ParseGrantLicenseMode(
-            XmlHelper.SafeParseXmlAttribute(xmlNode, XmlAttribute_GrantLicenseMode, ""));
-
-        //Store the target role
-        this.GrantLicenseRole =
-            XmlHelper.SafeParseXmlAttribute(xmlNode, XmlAttribute_GrantLicenseSiteRole, null);
-
-        //=======================================================================
-        //Sanity check
-        //=======================================================================
-        if(this.GrantLicenseInstructions == GrantLicenseMode.OnLogin)
-        {
-            if(string.IsNullOrWhiteSpace(this.GrantLicenseRole))
-            {
-                throw new Exception("920-1010: grantLicenseRole cannot be blank for group: " + this.GroupName);
-            }
-
-            var sanityParseRole = SiteUser.ParseUserRole(this.GrantLicenseRole);
-            if(sanityParseRole == SiteUserRole.Unknown)
-            {
-                throw new Exception("920-1007: Unknown grant license role found for group: " + this.GroupName + "/" + this.GrantLicenseRole);
-            }
-        }
+        //Read in the grant license attributes
+        ReadGrantLicenseXmlAttributes(
+            xmlNode,
+            this.GroupName,
+            out this.GrantLicenseInstructions,
+            out this.GrantLicenseRole);
 
         //==========================================================================
         ///Load all the members of the group
@@ -79,4 +61,43 @@ internal partial class ProvisioningGroup
         }
         this.Members = usersInGroup.AsReadOnly();
     }
+
+
+    /// <summary>
+    /// Parse the grant license values
+    /// </summary>
+    /// <param name="xmlNode"></param>
+    /// <param name="groupName"></param>
+    /// <param name="grantLicenseMode"></param>
+    /// <param name="grantLicenseRole"></param>
+    public static void ReadGrantLicenseXmlAttributes(XmlNode xmlNode, string groupName, out GrantLicenseMode grantLicenseMode, out string grantLicenseRole)
+    {
+        //Parse the grant license mode
+        grantLicenseMode = ParseGrantLicenseMode(
+            XmlHelper.SafeParseXmlAttribute(xmlNode, XmlAttribute_GrantLicenseMode, ""));
+
+        //Store the target role
+        grantLicenseRole =
+            XmlHelper.SafeParseXmlAttribute(xmlNode, XmlAttribute_GrantLicenseMinimumSiteRole, null);
+
+        //=======================================================================
+        //Sanity check
+        //=======================================================================
+        if (grantLicenseMode == GrantLicenseMode.OnLogin)
+        {
+            if (string.IsNullOrWhiteSpace(grantLicenseRole))
+            {
+                throw new Exception("920-1010: grantLicenseMinimumSiteRole cannot be blank for group: " + groupName);
+            }
+
+            var sanityParseRole = SiteUser.ParseUserRole(grantLicenseRole);
+            if (sanityParseRole == SiteUserRole.Unknown)
+            {
+                throw new Exception("920-1007: Unknown grant license role found for group: " + groupName + "/" + grantLicenseRole);
+            }
+        }
+
+    }
+
+
 }
