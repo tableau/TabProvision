@@ -18,7 +18,22 @@ This is done in 2 steps:
 
 TabProvision.exe can be run as frequently as you need to keep Azure AD and you Tableau Online / Server site in sync (e.g. daily/weekly/monthly)
 
+### How to “provision like a pro” using Grant License on Sign In and the TabProvison tool
+Using Grant License on Sign In can dramatically simplify provisioning and remove adoption bottlenecks. To use Grant License on Sign In with TabProvision follow these two steps:
 
+1.	Use a group (e.g. “All potential users”) to import all of your potential users as “Unlicensed” users to your site. This is a great way to pre-provision your organization’s members without needing licenses for each user upfront.
+
+2.	Add that same group to the “SynchronizeGroups” section in your XML (example below)
+-	Set grantLicenseMode=’true”
+-	Set grantLicenseMinimumSiteRole="Viewer" or “Explorer”   
+
+RESULTS: 
+-	All of these users will become potential users for your site.                                                            
+-	If/when they sign in they will get upgraded from "Unlicensed" to "Explorer" or "Viewer" 
+
+The example XML later in this ReadMe shows exactly how this is done.   
+More info: https://help.tableau.com/current/online/en-us/grant_role.htm             
+          
 ## Versions of Tableau Online (and Tableau Server) 
 TabProvision was written and tested with Tableau Online for the 2020.3 release
 - It should work in all Tableau Server versions >= 2020.3  
@@ -78,12 +93,16 @@ Three XML files are used by the application.
          <SynchronizeRole sourceGroup="Tableau Online 001 Potential Users" targetRole="Unlicensed"    auth="serverDefault"  allowPromotedRole="true"/>
 
          <!-- EXAMPLE: WILDCARD group name matching: All users in groups starting with "TabProvision Groups" will be added with the specified targetRole-->         
-         <SynchronizeRole sourceGroupMatch="startswith" sourceGroup="TabProvision Groups" targetRole="Unlicensed" auth="serverDefault"/>
+         <SynchronizeRole sourceGroupMatch="startswith" sourceGroup="TabProvision Groups" targetRole="Unlicensed" auth="serverDefault" allowPromotedRole="true"/>
 
          <!-- EXAMPLE: OVERRIDES specify any explicit user/auth/role that we want to supersede anything we find in the groups that we syncrhonize from -->
          <SiteMembershipOverrides>
-              <!-- Example roles "Unlicensed", "Viewer", "Explorer", "Creator", "SiteAdministratorExplorer", "SiteAdministratorCreator"-->
-              <User name="xxxxPersonxxxxx@xxxxDomainxxxxx.com"   role="Unlicensed" auth="serverDefault" />
+              <!-- Valid role values: "Unlicensed", "Viewer", "Explorer", "Creator", "SiteAdministratorExplorer", "SiteAdministratorCreator"-->
+              <!-- EXAMPLE: This user will be licensed as "Unlicensed"-->
+              <User name="xxxxPerson1xxxxx@xxxxDomainxxxxx.com"   role="Unlicensed" auth="serverDefault" allowPromotedRole="false" />
+              <!-- EXAMPLE: This user will be licensed as "Unlicensed" if they don't exist on the site.                                     -->
+              <!--          If they do exist and have a higher ranked role, that will be left as-is because allowPromotedRole="true" is set -->
+              <User name="xxxxPerson2xxxxx@xxxxDomainxxxxx.com"   role="Unlicensed" auth="serverDefault" allowPromotedRole="true" />
          </SiteMembershipOverrides>
     </SynchronizeRoles>
   
@@ -91,24 +110,32 @@ Three XML files are used by the application.
     <!-- Valid actions: unexpectedGroupMembers ="Delete" or "Report" -->
     <!-- Valid actions: missingGroupMembers    ="Add"    or "Report" -->
     <SynchronizeGroups  missingGroupMembers="Add" unexpectedGroupMembers="Delete">
+         <!-- RECOMMENDED: Most groups should set grantLicenseMode="onLogin" and grantLicenseMinimumSiteRole="Viewer" or "Explorer"      -->
+         <!--              This will facilitate auto-provisioning for users in these groups; as they sign in they will be given licenses -->
 
-         <!-- EXAMPLE: EXPLICIT GROUP MEMBERSHIP. These group memberships will be copied from Azure AD to Tableau -->  
-         <SynchronizeGroup sourceGroup="Biz Group - Accounting" targetGroup="Accounting Analytics" />
-         <SynchronizeGroup sourceGroup="Biz Group - Marketing" targetGroup="Marketing Analytics" />
+         <!-- Valid grantLicenseMode values:                                                                                                 -->
+         <!--   grantLicenseMode="ignore"  : do nothing (default)                                                                            -->
+         <!--   grantLicenseMode="none"    : REMOVE Grant Licenense on Login for the group                                                   -->
+         <!--   grantLicenseMode="onLogin" : (RECOMMENDED!) ENABLE Grant License on Login (requires 'grantLicenseMinimumSiteRole' to be set) -->
 
          <!-- RECOMMENDED: Use Grant License On Sign In.  To do this: -->
          <!-- 1. Have a group for ALL users (see right below) -->
-         <!-- 2. In your Tableau Online site set the MINIMUM SITE ROLE for this GROUP to be "Explorer" or "Viewer" and check GRANT ROLE ON SIGN IN -->
-         <!-- 3. Add this group to your TabProvision SynchronizeGroups section (see right below)-->
-         <!-- 4. Add this group to your TabProvision SynchronizeRoles section (see above) with a targetRole as "Unlicensed" and allowPromotedRole="true" -->
-         <!-- RESULT: All of these users will become potential users for your site. If/when they sign in they will get upgraded from "Unlicensed" to "Explorer" or "Viewer"-->
-         <!-- More info: https://help.tableau.com/current/online/en-us/grant_role.htm -->
-         <SynchronizeGroup sourceGroup="Tableau Online 001 Potential Users" targetGroup="Potential Users" />
+         <!-- 2. In your Tableau Online site set the MINIMUM SITE ROLE for this GROUP to be "Explorer" or "Viewer" and check GRANT ROLE ON SIGN IN  -->
+         <!--        NOTE: This can be done by setting the 'grantLicenseMode' and 'grantLicenseMinimumSiteRole' attributes of the group (see below) -->
+         <!-- 3. Add this group to your TabProvision SynchronizeGroups section (see below)                                                          -->
+         <!-- 4. Add this group to your TabProvision SynchronizeRoles section (see above) with targetRole="Unlicensed" and allowPromotedRole="true" -->
+         <!-- RESULTS: All of these users will become potential users for your site.                                                                -->
+         <!--          If/when they sign in they will get upgraded from "Unlicensed" to "Explorer" or "Viewer"                                      -->
+         <!-- More info: https://help.tableau.com/current/online/en-us/grant_role.htm                                                               -->
+         <SynchronizeGroup sourceGroup="Tableau Online 001 Potential Users" targetGroup="Potential Users" grantLicenseMode="onLogin" grantLicenseMinimumSiteRole="Viewer"/>
 
+         <!-- EXAMPLE: EXPLICIT GROUP MEMBERSHIP. These group memberships will be copied from Azure AD to Tableau -->  
+         <SynchronizeGroup sourceGroup="Biz Group - Accounting" targetGroup="Accounting Analytics" grantLicenseMode="onLogin" grantLicenseMinimumSiteRole="Explorer"/>
+         <SynchronizeGroup sourceGroup="Biz Group - Marketing" targetGroup="Marketing Analytics"   grantLicenseMode="onLogin" grantLicenseMinimumSiteRole="Explorer"/>
 
          <!-- EXAMPLE: WILDCARD GROUP NAMES. All groups starting with "TabProvision Groups" will be added    -->
          <!--          The group names will be duplicated between Azure AD and Tableau.                      -->         
-         <SynchronizeMatchedGroup sourceGroupMatch="startswith" sourceGroup="TabProvision Groups"  />
+         <SynchronizeMatchedGroup sourceGroupMatch="startswith" sourceGroup="TabProvision Groups" grantLicenseMode="ignore" />
     </SynchronizeGroups>
 
 </SynchronizeConfiguration>
@@ -127,27 +154,33 @@ Three XML files are used by the application.
        <User name="xxxxxPERSON+0xxxxxx@xxxxDOMAINxxxx.com"   role="SiteAdministratorExplorer" auth="serverDefault" />
        <User name="xxxxxPERSON+1xxxxxx@xxxxDOMAINxxxx.com"   role="Creator"                   auth="serverDefault" />
        <User name="xxxxxPERSON+2xxxxxx@xxxxDOMAINxxxx.com"   role="Viewer"                    auth="serverDefault" />
-
+ 
        <!-- RECOMMENDED: To support Tableau "Grant License on Sign In" you can specify the attribute allowPromotedRole="true". This indicates that if the user already has a Role greater than the one specified in this site membership list, then keep the higher role -->
        <!-- allowPromotedRole="true" is particularly useful when BULK ADDING users as "Unlicensed" and using Tableau's Grant License on Sign in functionality to assign a default role to members of a Tableau Site Group-->
        <!-- All of these users will become potential users for your site. If/when they sign in they will get upgraded from "Unlicensed" to "Explorer" or "Viewer"-->
        <!-- More info: https://help.tableau.com/current/online/en-us/grant_role.htm -->
-       <User name="xxxxxPERSON+3xxxxxx@xxxxDOMAINxxxx.com"   role="Unlicensed"    allowPromotedRole="True"  auth="serverDefault" />
+      <User name="xxxxxPERSON+3xxxxxx@xxxxDOMAINxxxx.com"   role="Unlicensed"    allowPromotedRole="True"  auth="serverDefault" />
    </SiteMembership>
 
    <!-- A list of all the groups who's member members we want to audit-->
    <GroupsMemberships unexpectedGroupMembers="Delete" missingGroupMembers="Add">
-      <GroupMembership name="Group1">
+      <!-- RECOMMENDED: Most groups should set grantLicenseMode="onLogin" and grantLicenseMinimumSiteRole="Viewer" or "Explorer"      -->
+      <!--              This will facilitate auto-provisioning for users in these groups; as they sign in they will be given licenses -->
+
+      <!-- Valid grantLicenseMode values:                                                                                                 -->
+      <!--   grantLicenseMode="ignore"  : do nothing (default)                                                                            -->
+      <!--   grantLicenseMode="none"    : REMOVE Grant Licenense on Login for the group                                                   -->
+      <!--   grantLicenseMode="onLogin" : (RECOMMENDED!) ENABLE Grant License on Login (requires 'grantLicenseMinimumSiteRole' to be set) -->
+      <GroupMembership name="Group1" grantLicenseMode="onLogin" grantLicenseMinimumSiteRole="Viewer">
           <GroupMember name="xxxxxPERSON+1xxxxxx@xxxxDOMAINxxxx.com" />
       </GroupMembership>
 
-      <GroupMembership name="Group2">
+      <GroupMembership name="Group2"  grantLicenseMode="onLogin" grantLicenseMinimumSiteRole="Explorer">
           <GroupMember name="xxxxxPERSON+1xxxxxx@xxxxDOMAINxxxx.com" />
           <GroupMember name="xxxxxPERSON+2xxxxxx@xxxxDOMAINxxxx.com" />
       </GroupMembership>
    </GroupsMemberships>
 </SiteProvisioning>
-
 ```
 
 ## You will need to create an Application with ID and Secret Token in Azure AD
