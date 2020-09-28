@@ -174,162 +174,7 @@ internal static class AppSettings
         }
     }
 
-    /// <summary>
-    /// SMPT Port for sending email
-    /// </summary>
-    internal static int SmtpPort
-    {
-        get
-        {
-            int portNumber = GetAppSettingInteger("iwsEmailSmtpPort", -1);
 
-            if(portNumber == -1)
-            {
-                throw new Exception("1025-1024: SMTP Port must be explicitly specified");
-            }
-
-            return portNumber;
-        }
-    }
-
-    /// <summary>
-    /// Email requires SSL
-    /// </summary>
-    public static bool SmtpReqireSsl
-    {
-        get
-        {
-            return GetAppSettingIntegerBoolean(
-                "iwsEmailSmtpRequireSsl",
-                true);
-        }
-    }
-
-    /// <summary>
-    /// Path to write 
-    /// </summary>
-    public static string SendEmailAnalyticsFilePath
-    {
-        get
-        {
-            var path = GetAppSettingString("iwsSendEmailAnalyticsFilePath", "");
-            //Write it to the app path
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                path = System.IO.Path.Combine(
-                    AppSettings.LocalFileSystemPath,
-                    "out_analytics");
-            }
-
-            FileIOHelper.CreatePathIfNeeded(path);
-            return path;
-        }
-    }
-
-    /// <summary>
-    /// If specified, write emails to an output file
-    /// </summary>
-    public static string DebugDivertEmailToFilePath
-    {
-        get
-        {
-            var path = GetAppSettingString("iwsDebugDivertEmailToFilePath", "");
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return null;
-            }
-
-            //If the path is not there, then assert on that
-            if (!System.IO.Directory.Exists(path))
-            {
-                IwsDiagnostics.Assert(false, "1004-234, debug directory does not exist: " + path);
-            }
-
-            return path;
-        }
-    }
-    /// <summary>
-    /// If specified, write emails to an output file
-    /// </summary>
-    public static string DebugSendEmailOnlyTo
-    {
-        get
-        {
-            var email = GetAppSettingString("iwsDebugSendEmailOnlyTo", "");
-            if (string.IsNullOrWhiteSpace(email))
-            {
-                return null;
-            }
-
-            return email;
-        }
-    }
-
-    /// <summary>
-    /// The address that goes in the 'From' line of the mails
-    /// </summary>
-    public static string SendEmailFrom
-    {
-        get
-        {
-            string value = GetAppSettingString("iwsEmailSendFrom", "");
-            IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(value), "151210-0600, No email send from");
-            return value;
-        }
-    }
-
-    /// <summary>
-    /// SMTP email server log in
-    /// </summary>
-    public static string SmtpServerLogInId
-    {
-        get
-        {
-            string value = GetAppSettingString("iwsEmailSmtpLogInId");
-            IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(value), "151210-0604, No email server id");
-            return value;
-        }
-    }
-
-    /// <summary>
-    /// SMTP email server log in
-    /// </summary>
-    public static string SmtpServerLogInPassword
-    {
-        get
-        {
-            string value = GetAppSettingString("iwsEmailSmtpLogInPassword");
-            IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(value), "151210-0605, No email password");
-            return value;
-        }
-    }
-
-
-    /// <summary>
-    /// SMTP email server 
-    /// </summary>
-    public static string SmtpServer
-    {
-        get
-        {
-            string value = GetAppSettingString("iwsEmailSmtpServer");
-            IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(value), "831-908, No smtp server");
-            return value;
-
-            //return "smtpout.secureserver.net";
-        }
-    }
-
-    /// <summary>
-    /// TRUE: We want to send email contents to the Console instead of sending an actual email
-    /// </summary>
-    public static bool DebugDivertEmailToConsole
-    {
-        get
-        {
-            return GetAppSettingIntegerBoolean("iwsDebugDivertEmailToConsole", false);
-        }
-    }
 
     /// <summary>
     /// Looks up an attribute by name and returns true/false
@@ -430,26 +275,6 @@ internal static class AppSettings
     }
 
 
-    /// <summary>
-    /// Path for storing site thumbnails
-    /// </summary>
-    /// <param name="siteSignIn"></param>
-    /// <returns></returns>
-    public static string LocalFileSystemPath_TempSpace_SiteWorkbookThumbnails(TableauServerSignIn siteSignIn, string workbookId)
-    {
-        if (!RegExHelper.IsValidIdTableauContentId(workbookId))
-        {
-            throw new Exception("1029-816, invalid workbook id");
-        }
-
-        var fullPath = System.IO.Path.Combine(
-            LocalFileSystemPath_TempSpace_Site(siteSignIn), "wb_thumb_" + workbookId);
-        //Create the directory if we need to
-        FileIOHelper.CreatePathIfNeeded(fullPath);
-        return fullPath;
-
-    }
-
 
     /// <summary>
     /// Path for storing temp data about a site (e.g. downloaded thumbnails)
@@ -509,18 +334,7 @@ internal static class AppSettings
     }
 
 
-
-    /// <summary>
-    /// Path to email templates
-    /// </summary>
-    public static string EmailTemplatesPath
-    {
-        get
-        {
-            return System.IO.Path.Combine(LocalFileSystemPath, "Templates\\EmailTemplates");
-        }
-    }
-
+   
     /// <summary>
     /// Returns the local file system path for the application
     /// </summary>
@@ -528,8 +342,6 @@ internal static class AppSettings
     {
         get
         {
-            //var localPath = HttpContext.Current.Server.MapPath("~");
-            //This works even when "HttpContext.Current.Server" is NULL (as it is with internally generated non-web request tasks)
             return AppDomain.CurrentDomain.GetData("APPBASE").ToString();
         }
     }
@@ -547,19 +359,10 @@ internal static class AppSettings
             return fullPathToPhotoDirectory;
         }
     }
+    
     /// <summary>
-    /// TRUE: We want to write security concernsinto files
+    /// 
     /// </summary>
-    public static bool DiagnosticsWriteSecurityConcernsToFile
-    {
-        get
-        {
-            return GetAppSettingIntegerBoolean(
-                "iwsDiagnosticsWriteSecurityConcernsToFile",
-                true); //Default to loggingin a file
-        }
-    }
-
     public static bool DiagnosticsWriteAssertsToFile
     {
         get
