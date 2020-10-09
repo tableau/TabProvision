@@ -70,7 +70,11 @@ Three XML files are used by the application.
 ### REQUIRED FOR AZURE AD USERS/GROUPS: XML file with Azure AD groups
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
-<SynchronizeConfiguration>
+<!-- Valid userEmailLookup: 
+          "UserPrincipalName"            : (default) Use the principal's name
+       or "PreferAzureProxyPrimaryEmail" : If present, use the AzureProxy (smtp) value; if not found, use the UserPrincipal 
+-->
+<SynchronizeConfiguration userEmailLookup="UserPrincipalName">
 
     <!-- Users in these source groups will be mapped to specific roles inside the Tableau site -->
     <!-- Valid actions: authXXXXXUnexpectedUsers ="Unlicense" or "Report" -->
@@ -233,6 +237,7 @@ The source code also contains example files in a “Secrets” subdirectory and 
 - FileSystem_SyncConfigExample.xml : Shows how to explicitly specify Groups and Users in a local file that are then provisioned in Tableau Online (or Tableau Server)
 - The XML attribute allowPromotedRole="true" (used in both the Azure AD and File System XML examples) is very useful in conjunction with Tableau Online and Server's "Grant License on Sign In". Users (and Azure AD Groups) imported with this setting can take advantage of being members of Tableau Groups that specify a MINIMUM SITE ROLE for group members. This is a great way to bulk add a potentially large number of Unlicensed users, and have these users be granted licensing roles when they first sign in. https://help.tableau.com/current/online/en-us/grant_role.htm
 - There is support for using wildcards ("starts with") pattern matching for Azure AD Group names. You can see this in the Azure AD XML, looking at the sourceGroupMatch="startswith" attribute in the "SynchronizeRole" XML node, and also the "SynchronizeMatchedGroup" XML node. Using pattern matching on group names can simplify your provisioning instructions.
+- Support for Azure AD 'proxyaddresses' - In some cases when integrating with legacy on-premises directories, the Azure AD user principal name is not the user's email address. In these cases there is an XML attribute in the Azure AD config (above) that can be set to <SynchronizeConfiguration userEmailLookup="PreferAzureProxyPrimaryEmail"> to look up the email address in the Azure AD user proxy address records.
 
 ## Is TabProvision supported? 
 Community supported. Using it you can accidentally modify or delete your content, just as you can by accidentally do so in the user interface. Despite efforts to write good and useful code there may be bugs that cause unexpected and undesirable behavior. The software is strictly “use at your own risk.”
