@@ -266,7 +266,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MinimumSize = new System.Drawing.Size(900, 500);
             this.Name = "FormTabProvision";
-            this.Text = "Online - TabProvision, site user/roles/auth/groups provisioning (v1.007)";
+            this.Text = "Online - TabProvision, site user/roles/auth/groups provisioning (v1.008)";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
