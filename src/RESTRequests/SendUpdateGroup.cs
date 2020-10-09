@@ -102,9 +102,16 @@ class SendUpdateGroup : TableauServerSignedInRequestBase
             if(this.PerformUpdateGrantLicense)
             {
                 xmlWriter.WriteAttributeString("grantLicenseMode", this.UpdatedGrantLicenseMode);
-                //xmlWriter.WriteAttributeString("siteRole", this.UpdatedGrantLicenseSiteRole);
-                xmlWriter.WriteAttributeString("minimumSiteRole", this.UpdatedGrantLicenseSiteRole);
-        }
+
+                //If the Grant license mode is blank, set the license role to be UNLICENSED
+                //This is required to remove the licensing mode: https://help.tableau.com/current/api/rest_api/en-us/REST/rest_api_ref.htm#update_group
+                string updateLicenseMode = this.UpdatedGrantLicenseSiteRole;
+                if (string.IsNullOrEmpty(this.UpdatedGrantLicenseMode))
+                    {
+                        updateLicenseMode = "UNLICENSED";
+                    }
+                xmlWriter.WriteAttributeString("minimumSiteRole", updateLicenseMode);
+            }
 
         xmlWriter.WriteEndElement();//</group>
         xmlWriter.WriteEndElement(); // </tsRequest>

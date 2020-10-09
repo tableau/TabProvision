@@ -12,6 +12,7 @@ using System.Xml;
 /// </summary>
 internal partial class ProvisionConfigExternalDirectorySync
 {
+    public readonly UserEmailMapping EmailMapping;
 
     /// <summary>
     /// Groups we are using for user roles
@@ -43,6 +44,7 @@ internal partial class ProvisionConfigExternalDirectorySync
     public readonly ProvisionUserInstructions.UnexpectedGroupMemberAction ActionForGroupUnexpectedMembers;
     public readonly ProvisionUserInstructions.MissingGroupMemberAction ActionForGroupMisingMembers;
 
+    private const string XmlAttribute_UserEmailMapping = "userEmailMapping";
     private const string XmlAttribute_SourceGroup = "sourceGroup";
     private const string XmlAttribute_TargetRole = "targetRole";
     private const string XmlAttribute_SourceGroupMatch = "sourceGroupMatch";
@@ -58,6 +60,15 @@ internal partial class ProvisionConfigExternalDirectorySync
         //==================================================================================
         var xmlConfig = new System.Xml.XmlDocument();
         xmlConfig.Load(filePathConfig);
+
+        //-------------------------------------------------------------------------------
+        //Get any special instructions for email mapping
+        //-------------------------------------------------------------------------------
+        var xnodeHeader = xmlConfig.SelectSingleNode("//SynchronizeConfiguration");
+        this.EmailMapping = ParseUserEmailMapping(
+            XmlHelper.SafeParseXmlAttribute(xnodeHeader, XmlAttribute_UserEmailMapping, ""));
+
+
 
         var xnodeRoleSyncHeader = xmlConfig.SelectSingleNode("//SynchronizeConfiguration/SynchronizeRoles");
         //-------------------------------------------------------------------------------

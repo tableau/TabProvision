@@ -142,9 +142,96 @@ internal partial class AzureDownload
     /// <returns></returns>
     private string GetUserEmailFromGraphADUser(Microsoft.Graph.User graphUser)
     {
-        string emailCandidate = graphUser.UserPrincipalName;
-        IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "814-705: User principal name is NULL");
-        return emailCandidate.Trim();
+        string emailCandidate;
+        switch(_configSyncGroups.EmailMapping)
+        {
+            //Use the name of the principal in AzureAD
+            case ProvisionConfigExternalDirectorySync.UserEmailMapping.UserPrincipalName:
+                emailCandidate = graphUser.UserPrincipalName;
+                IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "814-705: User principal name is NULL");
+                return emailCandidate.Trim();
+
+            //If the user has another email address listed, use it
+            case ProvisionConfigExternalDirectorySync.UserEmailMapping.PreferAzureProxyPrimaryEmail:
+                emailCandidate = GetUserEmailFromGraphADUser_TryPrimaryProxyEmailLookup(graphUser);
+                //If no email candidate was found, use the principal name
+                if(string.IsNullOrWhiteSpace(emailCandidate))
+                {
+                    emailCandidate = graphUser.UserPrincipalName;
+                    IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "1009-1210: User principal name is NULL");
+                }
+                return emailCandidate.Trim();
+
+
+            default: //Unknown mode
+                IwsDiagnostics.Assert(false, "1009-1208: Unknown user email mapping mode");
+                throw new Exception("1009-1208: Unknown user email mapping mode");
+        }
+    }
+
+    /// <summary>
+    /// If the user has a proxy name specified as email, then use it
+    /// </summary>
+    /// <param name="graphUser"></param>
+    /// <returns></returns>
+    private string GetUserEmailFromGraphADUser_TryPrimaryProxyEmailLookup(User graphUser)
+    {
+        var proxyNamesSet = graphUser.ProxyAddresses;
+        //If there are not proxy names specified, then there is nothing to do
+        if(proxyNamesSet == null)
+        {
+            return null;
+        }
+        
+        //Loop through all the proxy names and see if there is an email address
+        foreach(var thisProxyName in proxyNamesSet)
+        {
+            //Sanity condition.....
+            if(!string.IsNullOrEmpty(thisProxyName))
+            {
+                string thisProxyName_asEmail =
+                    GetUserEmailFromGraphADUser_TryProxyEmailLookup_TryPrimaryEmailParse(thisProxyName);
+
+                if (!string.IsNullOrEmpty(thisProxyName_asEmail))
+                {
+                    //SUCCESS:
+                    return thisProxyName_asEmail; //It's an email, returnit
+                }
+            }
+        }//end: foreach
+
+        //NO Email addreses found
+        return null;
+    }
+
+    /// <summary>
+    /// Attempt to parse the primary email from the (optional) Azure proxy name
+    /// </summary>
+    /// <param name="thisProxyName"></param>
+    /// <returns></returns>
+    private string GetUserEmailFromGraphADUser_TryProxyEmailLookup_TryPrimaryEmailParse(string thisProxyName)
+    {
+        //See: https://docs.microsoft.com/en-us/troubleshoot/azure/active-directory/proxyaddresses-attribute-populate
+
+        //Email protocol prefix
+        const string prefix_smtp_primary = "SMTP:";
+        //const string prefix_smtp_seconday = "smtp:"; //Currently we don't care about the secondary address
+        //If it's blank it can't be an email
+        if (string.IsNullOrWhiteSpace(thisProxyName))
+        {
+            return null;
+        }
+
+        //===============================================================
+        //If it starts with SMTP: it's an email address
+        //===============================================================
+        if(thisProxyName.StartsWith(prefix_smtp_primary))
+        {
+            //Strip off the prefix
+            thisProxyName.Substring(prefix_smtp_primary.Length);
+        }
+
+        return null;
     }
 
     /// <summary>

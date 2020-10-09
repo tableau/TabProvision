@@ -168,6 +168,7 @@
     <Compile Include="FilesLogging\PathHelper.cs" />
     <Compile Include="FilesLogging\SimpleLatch.cs" />
     <Compile Include="ProvisionSite\ProvisionConfigExternalDirectorySync.ISynchronizeGroupToGroup.cs" />
+    <Compile Include="ProvisionSite\ProvisionConfigExternalDirectorySync.UserEmailMapping.cs" />
     <Compile Include="ProvisionSite\ProvisionConfigExternalDirectorySync.SynchronizePatternMatchGroupToGroup.cs" />
     <Compile Include="ProvisionSite\ProvisionConfigExternalDirectorySync.SynchronizeGroupToGroup.cs" />
     <Compile Include="ProvisionSite\ProvisionConfigExternalDirectorySync.NamePatternMatch.cs" />
