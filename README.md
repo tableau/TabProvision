@@ -10,7 +10,7 @@ Some background information: Tableau Online already supports using SAML to authe
 However, these  users need to be provisioned; they need to be added to the Tableau Online site, have their Role in the site set (e.g. "Creator", "Explorer", "Viewer") and have their authentication mechanism specified. This tool does that.
 
 This is done in 2 steps:
-1. Setup: You defines (in a local XML file) (i) Azure AD groups to map to Tableau Online roles, (ii) Groups to sync to Tableau Online, (iii) Any service or external accounts
+1. Setup: You define (in a local XML file) (i) Azure AD groups to map to Tableau Online roles, (ii) Groups to sync to Tableau Online, (iii) Any service or external accounts
 2. Execution: You run TabProvision.exe and it:
     i. Logs into your Azure AD (using credentials you provide) and pulls down the membership information of the groups you have specified.
     ii. Logs into your Tableau Online or Server site (using credentials you provide) and pushes up the Users/Roles/Authentication you wish to provision, as well as any Group membership you wish to provision
@@ -44,9 +44,10 @@ You do not need to download and compile the source code to use TabProvision. Tho
 https://github.com/tableau/TabProvision/releases  
 Running setup.exe will install the TabProvision application on your Windows machine. 
 
-Application: The application can be run in either interactive (UI) or command line mode. When running in interactive mode the application will also show you the command line for performing all of the actions, making it easy to automate.  The application UI offers two top level options: 
+Application: The application can be run in either interactive (UI) or command line mode. When running in interactive mode the application will also show you the command line for performing all of the actions, making it easy to automate.  The application UI offers three top-level options: 
    1. Provision directly from an XML manifest file. This file will explicitly contain the users/roles/groups that you want to provision to your Tableau Online/Server site
    2. Provision from Microsoft Azure AD directory. For this you will use a local XML file that indicates which Azure AD Groups to provision from
+   3. Create a Provisioning Manifest XML file from your current Online (or Server) site. This signs into your Online site, downloads the list of Users and Groups and creates a local provisioning manifest XML file (it does not perform provisioning actions on your Online site). You can use this to make a 'backup' of the current state of users and groups provisioning on your Online site. This can also be useful for creating a baseline XML file that you can modify for custom provisioning needs.
 
 NOTE: Both of these options require logging into your Tableau Online (or Tableau Server) site. The Azure AD option requires logging in to your Microsoft Azure instance.  Example:
 
@@ -238,6 +239,7 @@ The source code also contains example files in a “Secrets” subdirectory and 
 - The XML attribute allowPromotedRole="true" (used in both the Azure AD and File System XML examples) is very useful in conjunction with Tableau Online and Server's "Grant License on Sign In". Users (and Azure AD Groups) imported with this setting can take advantage of being members of Tableau Groups that specify a MINIMUM SITE ROLE for group members. This is a great way to bulk add a potentially large number of Unlicensed users, and have these users be granted licensing roles when they first sign in. https://help.tableau.com/current/online/en-us/grant_role.htm
 - There is support for using wildcards ("starts with") pattern matching for Azure AD Group names. You can see this in the Azure AD XML, looking at the sourceGroupMatch="startswith" attribute in the "SynchronizeRole" XML node, and also the "SynchronizeMatchedGroup" XML node. Using pattern matching on group names can simplify your provisioning instructions.
 - Support for Azure AD 'proxyaddresses' - In some cases when integrating with legacy on-premises directories, the Azure AD user principal name is not the user's email address. In these cases there is an XML attribute in the Azure AD config (above) that can be set to <SynchronizeConfiguration userEmailLookup="PreferAzureProxyPrimaryEmail"> to look up the email address in the Azure AD user proxy address records.
+- Create Provisioning Manifest from current Online site - This option signs into your Online site, downloads the list of Users and Groups and creates a local provisioning manifest XML file. 
 
 ## Is TabProvision supported? 
 Community supported. Using it you can accidentally modify or delete your content, just as you can by accidentally do so in the user interface. Despite efforts to write good and useful code there may be bugs that cause unexpected and undesirable behavior. The software is strictly “use at your own risk.”
