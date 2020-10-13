@@ -50,10 +50,81 @@ internal partial class ProvisionConfigExternalDirectorySync
     private const string XmlAttribute_SourceGroupMatch = "sourceGroupMatch";
 
     /// <summary>
-    /// CONSTRUCTOR
+    /// Generate an object with the default settings
     /// </summary>
-    /// <param name="filePathConfig"></param>
-    public ProvisionConfigExternalDirectorySync(string filePathConfig)
+    /// <returns></returns>
+    public static ProvisionConfigExternalDirectorySync FromDefaults()
+    {
+        
+        return new ProvisionConfigExternalDirectorySync(
+            ProvisionUserInstructions.UnexpectedUserAction.Unlicense,
+            ProvisionUserInstructions.UnexpectedUserAction.Unlicense,
+            ProvisionUserInstructions.UnexpectedUserAction.Unlicense,
+            ProvisionUserInstructions.MissingUserAction.Add,
+            ProvisionUserInstructions.MissingUserAction.Add,
+            ProvisionUserInstructions.MissingUserAction.Add,
+            ProvisionUserInstructions.ExistingUserAction.Modify,
+            ProvisionUserInstructions.ExistingUserAction.Modify,
+            ProvisionUserInstructions.ExistingUserAction.Modify,
+            ProvisionUserInstructions.UnexpectedGroupMemberAction.Delete,
+            ProvisionUserInstructions.MissingGroupMemberAction.Add);
+
+    }
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="actionForUnexpectedSamlUsers"></param>
+    /// <param name="actionForUnexpectedDefaultAuthUsers"></param>
+    /// <param name="actionForUnexpectedOpenIdUsers"></param>
+    /// <param name="actionForMissingSamlUsers"></param>
+    /// <param name="actionForMissingDefaultAuthUsers"></param>
+    /// <param name="actionForMissingOpenIdUsers"></param>
+    /// <param name="actionForExistingSamlUsers"></param>
+    /// <param name="actionForExistingDefaultAuthUsers"></param>
+    /// <param name="actionForExistingOpenIdUsers"></param>
+    /// <param name="actionForGroupUnexpectedMembers"></param>
+    /// <param name="actionForGroupMisingMembers"></param>
+    public ProvisionConfigExternalDirectorySync(
+        ProvisionUserInstructions.UnexpectedUserAction actionForUnexpectedSamlUsers,
+        ProvisionUserInstructions.UnexpectedUserAction actionForUnexpectedDefaultAuthUsers,
+        ProvisionUserInstructions.UnexpectedUserAction actionForUnexpectedOpenIdUsers,
+        ProvisionUserInstructions.MissingUserAction actionForMissingSamlUsers,
+        ProvisionUserInstructions.MissingUserAction actionForMissingDefaultAuthUsers,
+        ProvisionUserInstructions.MissingUserAction actionForMissingOpenIdUsers,
+        ProvisionUserInstructions.ExistingUserAction actionForExistingSamlUsers,
+        ProvisionUserInstructions.ExistingUserAction actionForExistingDefaultAuthUsers,
+        ProvisionUserInstructions.ExistingUserAction actionForExistingOpenIdUsers,
+        ProvisionUserInstructions.UnexpectedGroupMemberAction actionForGroupUnexpectedMembers,
+        ProvisionUserInstructions.MissingGroupMemberAction actionForGroupMisingMembers
+)
+    {
+        //Unexpected
+        this.ActionForUnexpectedSamlUsers        = actionForUnexpectedSamlUsers;
+        this.ActionForUnexpectedDefaultAuthUsers = actionForUnexpectedDefaultAuthUsers;
+        this.ActionForUnexpectedOpenIdUsers      = actionForUnexpectedOpenIdUsers;
+
+        //Missing
+        this.ActionForMissingSamlUsers        = actionForMissingSamlUsers;
+        this.ActionForMissingDefaultAuthUsers = actionForMissingDefaultAuthUsers;
+        this.ActionForMissingOpenIdUsers      = actionForMissingOpenIdUsers;
+
+        //Existing users needing modification
+        this.ActionForExistingSamlUsers        = actionForExistingSamlUsers;
+        this.ActionForExistingDefaultAuthUsers = actionForExistingDefaultAuthUsers;
+        this.ActionForExistingOpenIdUsers      = actionForExistingOpenIdUsers;
+
+        //Group memberships
+        this.ActionForGroupUnexpectedMembers = actionForGroupUnexpectedMembers;
+        this.ActionForGroupMisingMembers     = actionForGroupMisingMembers;
+
+}
+
+/// <summary>
+/// CONSTRUCTOR
+/// </summary>
+/// <param name="filePathConfig"></param>
+public ProvisionConfigExternalDirectorySync(string filePathConfig)
     {
         //==================================================================================
         //Load values from the TARGET SITE config file

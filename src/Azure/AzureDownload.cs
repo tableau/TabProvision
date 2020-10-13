@@ -7,7 +7,7 @@ using Microsoft.Graph;
 using System.Linq;
 
 /// <summary>
-/// Provision a site
+/// Download data from Azure about users and groups, so we can build a provision manifest file
 /// </summary>
 internal partial class AzureDownload
 {

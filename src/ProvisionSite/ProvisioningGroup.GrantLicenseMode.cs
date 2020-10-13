@@ -48,6 +48,25 @@ internal partial class ProvisioningGroup
         }
     }
 
+
+    /// <summary>
+    /// Parse it (from an XML attribute)
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns></returns>
+    public static GrantLicenseMode ParseGrantLicenseModeFromTableauServer(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return GrantLicenseMode.None;
+        }
+
+        if (string.Compare(text, GrantLicenseMode_OnLogin, true) == 0) { return GrantLicenseMode.OnLogin; }
+
+        throw new Exception("1012-525: Unknown Grant License Mode: " + text);
+    }
+
+
     /// <summary>
     /// Parse it (from an XML attribute)
     /// </summary>

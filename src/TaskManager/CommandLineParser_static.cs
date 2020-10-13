@@ -11,11 +11,12 @@ partial class CommandLineParser
 
     public const string Parameter_Command               = "-command";             //Specifies the top level command to the REST applicaiton
     public const string Parameter_ExitWhenDone          = "-exitWhenDone";        //When running as command line, if 'true' we will exit when the work is done
-                                                                                  //    public const string Parameter_TargetSitePath        = "-targetSite";          //Target site config
-    public const string Parameter_PathSecrets           = "-pathSecrets";          //path to secrets file
-    public const string Parameter_PathProvisionPlan     = "-pathProvisionPlan";   //path to the provisioning plan we want to follow
-    public const string Parameter_PathOutput            = "-pathOutput";          //path to output files we generate
+    public const string Parameter_PathSecrets           = "-pathSecrets";         //Path to secrets file
+    public const string Parameter_PathProvisionPlan     = "-pathProvisionPlan";   //Path to the provisioning plan we want to follow
+    public const string Parameter_PathOutput            = "-pathOutput";          //Path to output files we generate
+    public const string Parameter_IgnoreAllUsersGroup   = "-ignoreAllUsersGroup"; //Ignore the 'All Users' group when exporting a site manifest (recommended)
 
+    public const string Command_GenerateManifestFromOnlineSite = "generateManifestFromOnlineSite";  //Generate a provisioning manifest from the live Online site
     public const string Command_ProvisionFromAzure        = "provisionSiteFromAzure";  //Provision an Online site using data in Azure AD
     public const string Command_ProvisionFromFileManifest = "provisionSiteFromFile";   //Provision an Online site using an explicit file manifest
 

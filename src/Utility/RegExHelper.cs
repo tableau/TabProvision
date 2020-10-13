@@ -22,8 +22,6 @@ internal static class RegExHelper
     /// Email validator
     /// </summary>
     static Regex _isEmail;
-    static Regex _isTag;
-    static Regex _isSafeJsonPropertyName;
     static Regex _isSimpleAlphabetic;
     static Regex _isValidTableauContentId;
 

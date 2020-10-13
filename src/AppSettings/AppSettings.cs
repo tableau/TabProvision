@@ -21,6 +21,7 @@ internal static class AppSettings
     const string Registry_Preference_DefaultSecretsPath = "DefaultSecretsPath";
     const string Registry_Preference_DefaultAzureAdConfigPath = "DefaultAzureAdProvisioningConfigPath";
     const string Registry_Preference_DefaultFileProvisioningPath = "DefaultFileProvisioningConfigPath";
+    const string Registry_Preference_DefaultTargetPathTableauSiteSourcedManifest = "TargetPathTableauSiteSourcedManifest";
 
     /// <summary>
     /// Load the user's preferred path to their secrets file
@@ -70,12 +71,30 @@ internal static class AppSettings
 
 
     /// <summary>
+    /// Load the perferred location to write Tableau sources manifed
+    /// </summary>
+    /// <returns></returns>
+    internal static string LoadPreference_TargetPathTableauSiteSourcedManifest()
+    {
+        return LoadRegistryString(Registry_Preference_DefaultTargetPathTableauSiteSourcedManifest);
+    }
+
+    /// <summary>
     /// Save the user's preferred path to the File provisioning file
     /// </summary>
     /// <param name="text"></param>
     internal static void SavePreference_PathFileProvisioningConfig(string text)
     {
         SaveRegistryValue(Registry_Preference_DefaultFileProvisioningPath, text);
+    }
+
+    /// <summary>
+    /// User's perferred location for the target of Tableau Site generated manifests
+    /// </summary>
+    /// <param name="text"></param>
+    internal static void SavePreference_TargetPathTableauSiteSourcedManifest(string text)
+    {
+        SaveRegistryValue(Registry_Preference_DefaultTargetPathTableauSiteSourcedManifest, text);
     }
 
     /// <summary>
@@ -174,7 +193,21 @@ internal static class AppSettings
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    public static bool CommandLine_IgnoreAllUsersGroup
+    {
+        get
+        {
+            //No command line?  
+            if (s_CommandLineParsed == null) return true;
 
+            //Command line: Default to exit when done
+            return s_CommandLineParsed.GetParameterValue_Boolean(
+                CommandLineParser.Parameter_IgnoreAllUsersGroup, true);
+        }
+    }
 
     /// <summary>
     /// Looks up an attribute by name and returns true/false

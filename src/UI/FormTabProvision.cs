@@ -26,7 +26,8 @@ namespace OnlineContentDownloader
         /// </summary>
         private void ExitApplication()
         {
-            this.Close();
+
+            Application.Exit();
         }
 
 
@@ -85,7 +86,7 @@ namespace OnlineContentDownloader
         {
 
             //If the user is closing the app, then save the preferences
-            if(e.CloseReason == CloseReason.UserClosing)
+            if (e.CloseReason == CloseReason.UserClosing)
             {
                 AppPreferences_Save();
             }
@@ -116,11 +117,13 @@ namespace OnlineContentDownloader
             txtPathToSecrets.Text = AppSettings.LoadPreference_PathSecretsConfig();
             txtPathToAzureAdProvisioningConfig.Text = AppSettings.LoadPreference_PathAzureAdProvisioningConfig();
             txtPathToFileProvisioningConfig.Text = AppSettings.LoadPreference_PathFileProvisioningConfig();
+            txtPathToGenerateManifestFile.Text = AppSettings.LoadPreference_TargetPathTableauSiteSourcedManifest();
 
             //If any of these are blank then generate them
             txtPathToSecrets.Text = AppPreferences_GenerateDefaultIfBlank(txtPathToSecrets.Text, "Templates_Secrets\\Example_Secrets.xml");
             txtPathToAzureAdProvisioningConfig.Text = AppPreferences_GenerateDefaultIfBlank(txtPathToAzureAdProvisioningConfig.Text, "Templates\\ExampleSyncConfig_AzureAD.xml");
             txtPathToFileProvisioningConfig.Text = AppPreferences_GenerateDefaultIfBlank(txtPathToFileProvisioningConfig.Text, "Templates\\ExampleSyncConfig_FileSystem.xml");
+            txtPathToGenerateManifestFile.Text = AppPreferences_GenerateDefaultIfBlank(txtPathToGenerateManifestFile.Text, "Templates\\output\\TableauSiteBackup.xml");
         }
 
 
@@ -166,6 +169,7 @@ namespace OnlineContentDownloader
             AppSettings.SavePreference_PathSecretsConfig(txtPathToSecrets.Text);
             AppSettings.SavePreference_PathAzureAdProvisioningConfig(txtPathToAzureAdProvisioningConfig.Text);
             AppSettings.SavePreference_PathFileProvisioningConfig(txtPathToFileProvisioningConfig.Text);
+            AppSettings.SavePreference_TargetPathTableauSiteSourcedManifest(txtPathToGenerateManifestFile.Text);
         }
 
 
@@ -241,6 +245,19 @@ namespace OnlineContentDownloader
                     ProvisionFromFileManifest(statusLogs, pathSecrets, pathProvisionPlan, pathOutput);
                     break;
 
+                case CommandLineParser.Command_GenerateManifestFromOnlineSite:
+                    //Update the paths in the UI so the user can see & re-run them if they want
+                    txtPathToSecrets.Text = pathSecrets;
+                    txtPathToGenerateManifestFile.Text = pathProvisionPlan;
+
+                    //Run the work...
+                    GenerateManifestFromOnlineSite(
+                        statusLogs, 
+                        pathSecrets, 
+                        pathProvisionPlan,
+                        AppSettings.CommandLine_IgnoreAllUsersGroup);
+                    break;
+
                 default:
                     statusLogs.AddError("1101-432: Unknown command: " + AppSettings.CommandLine_Command);
                     break;
@@ -255,17 +272,26 @@ namespace OnlineContentDownloader
         /// <param name="secretsPath"></param>
         /// <param name="planPath"></param>
         /// <param name="outputPath"></param>
-        private void GenerateProvisioningCommandLine(string commandName, string secretsPath, string planPath, string outputPath)
+        private void GenerateProvisioningCommandLine(string commandName, string secretsPath, string planPath, string outputPath, bool ignoreAllUsersGroup = true)
         {
+            string commandSegment_ignoreAllUsersGroup = "";
+            if(!ignoreAllUsersGroup)
+            {
+                commandSegment_ignoreAllUsersGroup = " " + CommandLineParser.Parameter_IgnoreAllUsersGroup + " false";
+            }
+
+
+
             const string appName = "TabProvision.exe";
             string commandText =
                 appName
-                + " " + CommandLineParser.Parameter_Command           + " " + commandName
-                + " " + CommandLineParser.Parameter_PathSecrets       + " \"" + secretsPath + "\""
-                + " " + CommandLineParser.Parameter_PathProvisionPlan + " \"" + planPath    + "\""
-                + " " + CommandLineParser.Parameter_PathOutput        + " \"" + outputPath  + "\""
-                + " " + CommandLineParser.Parameter_ExitWhenDone;
-
+                + " " + CommandLineParser.Parameter_Command + " " + commandName
+                + " " + CommandLineParser.Parameter_PathSecrets + " \"" + secretsPath + "\""
+                + " " + CommandLineParser.Parameter_PathProvisionPlan + " \"" + planPath + "\""
+                + " " + CommandLineParser.Parameter_PathOutput + " \"" + outputPath + "\""
+                + commandSegment_ignoreAllUsersGroup
+                + " " + CommandLineParser.Parameter_ExitWhenDone
+                + "";
             textBoxCommandLineExample.Text = commandText 
                 + "\r\n\r\n" 
                 +  appName + " installed in folder: " + AppSettings.LocalFileSystemPath;
@@ -548,5 +574,145 @@ namespace OnlineContentDownloader
             statusLogs.AddStatusHeader("Done!");
             ((IShowLogs)this).NewLogResultsToShow(statusLogs);
         }
+
+
+        /// <summary>
+        /// Called to generate a provisioning manifest file from a Tableau site
+        /// This is useful for creating a "backup" of the sites existing users/groups
+        /// provisioning
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnCreateBackupManifestFile_Click(object sender, EventArgs e)
+        {
+            var statusLogs = new TaskStatusLogs();
+            statusLogs.AddStatus("Starting...");
+            UpdateStatusText(statusLogs, true);
+            bool ignoreAllUsersGroup = chkIgoreAllUsersGroup.Checked;
+
+
+            string pathSecrets = txtPathToSecrets.Text;
+            if (!File.Exists(pathSecrets))
+            {
+                MessageBox.Show("Secrets file does not exist at specified path (" + pathSecrets + ")");
+                return;
+            }
+
+            
+            string pathOutputManifestFile = txtPathToGenerateManifestFile.Text;
+            var pathOutput = Path.GetDirectoryName(pathOutputManifestFile);
+            FileIOHelper.CreatePathIfNeeded(pathOutput);
+
+            //Show the user a command line that they can use to run this same work
+            GenerateProvisioningCommandLine(
+                CommandLineParser.Command_GenerateManifestFromOnlineSite,
+                pathSecrets,
+                pathOutputManifestFile,
+                pathOutput,
+                ignoreAllUsersGroup);
+
+            //Run the work
+            try
+            {
+                GenerateManifestFromOnlineSite(
+                    statusLogs,
+                    pathSecrets,
+                    pathOutputManifestFile,
+                    ignoreAllUsersGroup);
+            }
+            catch (Exception exError)
+            {
+                MessageBox.Show("Error: " + exError.Message);
+            }
+
+            UpdateStatusText(statusLogs, true);
+
+            //Open the file explorer to the output directory
+            if (Directory.Exists(pathOutput))
+            {
+                System.Diagnostics.Process.Start(pathOutput);
+            }
+        }
+
+        /// <summary>
+        /// Generate a maniefest file based on the current Online site
+        /// </summary>
+        /// <param name="statusLogs"></param>
+        /// <param name="pathSecrets"></param>
+        /// <param name="pathOutputFile"></param>
+        /// <param name="ignoreAllUsersGroup">(recommend TRUE) If false, the manifest file will contain the "all users" group</param>
+        private void GenerateManifestFromOnlineSite(
+            TaskStatusLogs statusLogs,
+            string pathSecrets,
+            string pathOutputFile,
+            bool ignoreAllUsersGroup)
+        {
+            var pathOutputs = Path.GetDirectoryName(pathOutputFile);
+
+            ProvisionConfigSiteAccess secretsConfig;
+            //===========================================================================================
+            //Get the sign in information
+            //===========================================================================================
+            try
+            {
+                //Load the config from the files
+                secretsConfig = new ProvisionConfigSiteAccess(pathSecrets);
+            }
+            catch (Exception exSignInConfig)
+            {
+                statusLogs.AddError("Error loading sign in config file");
+                throw new Exception("1012-327: Error parsing sign in config, " + exSignInConfig.Message);
+            }
+
+
+            //===========================================================================================
+            //Create a place for out output files
+            //===========================================================================================
+            FileIOHelper.CreatePathIfNeeded(pathOutputs);
+
+
+            var provisionSettings = ProvisionConfigExternalDirectorySync.FromDefaults();
+            //===========================================================================================
+            //Download all the data we need from the Tableau Online site
+            //===========================================================================================
+            statusLogs.AddStatusHeader("Retrieving information from Tableau");
+            UpdateStatusText(statusLogs);
+            var tableauDownload = new TableauProvisionDownload(
+                secretsConfig,
+                this, 
+                statusLogs,
+                ignoreAllUsersGroup);
+
+            try
+            {
+                tableauDownload.Execute();
+            }
+            catch (Exception exTableauDownload)
+            {
+                statusLogs.AddError("Error retrieving data from Tableau");
+                throw new Exception("813-0148: Error in Tableau Download, " + exTableauDownload.Message);
+            }
+
+
+            //===========================================================================================
+            //Write the provisioning manifest out to a file
+            //===========================================================================================
+            statusLogs.AddStatusHeader("Writing out manifest file for Tableau provisioning");
+            UpdateStatusText(statusLogs);
+            var outputProvisioningRoles = tableauDownload.ProvisioningManifestResults;
+
+            try
+            {
+                outputProvisioningRoles.GenerateProvisioningManifestFile(pathOutputFile, provisionSettings);
+            }
+            catch (Exception exWriteProvisioningManifest)
+            {
+                statusLogs.AddError("Error creating provisioning manifest");
+                throw new Exception("1012-252: Error writing provisioning manifest, " + exWriteProvisioningManifest.Message);
+            }
+
+        }
+
+
     }
 }

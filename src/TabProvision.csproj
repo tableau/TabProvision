@@ -251,6 +251,7 @@
     <Compile Include="ServerData\SiteTagsSet.cs" />
     <Compile Include="ServerData\SiteDocumentBase.cs" />
     <Compile Include="ServerData\SiteUser_statics.cs" />
+    <Compile Include="TableauAsProvisionSource\TableauProvisionDownload.cs" />
     <Compile Include="TaskManager\CommandLineParser_static.cs" />
     <Compile Include="TaskManager\CommandLineParser.cs" />
     <Compile Include="FilesLogging\CsvDataGenerator.cs" />

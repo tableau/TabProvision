@@ -43,8 +43,9 @@ class DownloadGroupsList : TableauServerSignedInRequestBase
     /// <summary>
     /// Request the data from Online
     /// </summary>
-    /// <param name="serverName"></param>
-    public void ExecuteRequest(bool downloadMemberList = true)
+    /// <param name="downloadMemberList"></param>
+    /// <returns></returns>
+    public bool ExecuteRequest(bool downloadMemberList = true)
     {
         var siteGroups = new List<SiteGroup>();
 
@@ -59,10 +60,12 @@ class DownloadGroupsList : TableauServerSignedInRequestBase
             catch (Exception exPageRequest)
             {
                 StatusLog.AddError("Groups error during page request: " + exPageRequest.Message);
+                return false;
             }
         }
 
         _groups = siteGroups;
+        return true;
     }
 
     /// <summary>
