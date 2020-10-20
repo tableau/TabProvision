@@ -78,9 +78,9 @@ Three XML files are used by the application.
 <SynchronizeConfiguration userEmailLookup="UserPrincipalName">
 
     <!-- Users in these source groups will be mapped to specific roles inside the Tableau site -->
-    <!-- Valid actions: authXXXXXUnexpectedUsers ="Unlicense" or "Report" -->
-    <!-- Valid actions: authXXXXXMissingUsers    ="Add"       or "Report" -->
-    <!-- Valid actions: authXXXXXExistingUsers   ="Modify"    or "Report" -->
+    <!-- Valid actions: authXXXXXUnexpectedUsers ="Unlicense" or "Report" or "Delete" -->
+    <!-- Valid actions: authXXXXXMissingUsers    ="Add"       or "Report"             -->
+    <!-- Valid actions: authXXXXXExistingUsers   ="Modify"    or "Report"             -->
     <!-- EXAMPLE: Apply changes: <SynchronizeRoles authSamlUnexpectedUsers="Unlicense" authSamlMissingUsers="Add"    authSamlExistingUsers="Modify"     authDefaultUnexpectedUsers="Unlicense" authDefaultMissingUsers="Add"    authDefaultExistingUsers="Modify"        authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">  -->
     <!-- EXAMPLE: Reports only: <SynchronizeRoles authSamlUnexpectedUsers="Report"    authSamlMissingUsers="Report" authSamlExistingUsers="Report"     authDefaultUnexpectedUsers="Report"    authDefaultMissingUsers="Report" authDefaultExistingUsers="Report"        authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report"> --> 
     <SynchronizeRoles authSamlUnexpectedUsers="Unlicense" authSamlMissingUsers="Add" authSamlExistingUsers="Modify"   authDefaultUnexpectedUsers="Unlicense" authDefaultMissingUsers="Add" authDefaultExistingUsers="Modify"     authOpenIdUnexpectedUsers="Unlicense" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">  
@@ -151,9 +151,9 @@ Three XML files are used by the application.
 <?xml version="1.0" encoding="utf-8"?>
 <SiteProvisioning>
    <!-- All the users on the site go here -->
-   <!-- Valid actions: authXXXXXUnexpectedUsers ="Unlicense" or "Report" -->
-   <!-- Valid actions: authXXXXXMissingUsers    ="Add"       or "Report" -->
-   <!-- Valid actions: authXXXXXExistingUsers   ="Modify"    or "Report" -->
+   <!-- Valid actions: authXXXXXUnexpectedUsers ="Unlicense" or "Report" or "Delete" -->
+   <!-- Valid actions: authXXXXXMissingUsers    ="Add"       or "Report"             -->
+   <!-- Valid actions: authXXXXXExistingUsers   ="Modify"    or "Report"             -->
    <!-- Valid roles: Creator, Explorer, ExplorerCanPublish, SiteAdministratorExplorer, SiteAdministratorCreator, Unlicensed, or Viewer -->
    <SiteMembership authSamlUnexpectedUsers="Unlicense" authSamlMissingUsers="Report" authSamlExistingUsers="Report"     authDefaultUnexpectedUsers="Report" authDefaultMissingUsers="Add" authDefaultExistingUsers="Report"      authOpenIdUnexpectedUsers="Unlicense" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">
        <User name="xxxxxPERSON+0xxxxxx@xxxxDOMAINxxxx.com"   role="SiteAdministratorExplorer" auth="serverDefault" />
