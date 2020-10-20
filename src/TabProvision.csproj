@@ -221,6 +221,7 @@
     <Compile Include="RESTRequests\SendCreateGroup.cs" />
     <Compile Include="RESTRequests\SendAddUserToGroup.cs" />
     <Compile Include="RESTRequests\SendCreateUser.cs" />
+    <Compile Include="RESTRequests\SendDeleteUser.cs" />
     <Compile Include="RESTRequests\SendDeleteUserFromGroup.cs" />
     <Compile Include="RESTRequests\SendUpdateGroup.cs" />
     <Compile Include="RESTRequests\SendUpdateUser.cs" />

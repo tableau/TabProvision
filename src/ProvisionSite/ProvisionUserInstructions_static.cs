@@ -126,9 +126,13 @@ internal partial class ProvisionUserInstructions
 
             case UnexpectedUserAction.Report:
                 return AttributeValue_Report;
+
+            case UnexpectedUserAction.Delete:
+                return AttributeValue_Delete;
+
             default:
-                IwsDiagnostics.Assert(false, "814-303: Internal error, missing value");
-                throw new Exception("814-303: Internal error, missing value");
+                IwsDiagnostics.Assert(false, "814-303: Internal error, missing UnexpectedUserAction value");
+                throw new Exception("814-303: Internal error, missing UnexpectedUserAction value");
         }
     }
 
@@ -213,6 +217,11 @@ internal partial class ProvisionUserInstructions
         if (parseText == AttributeValue_Unlicense)
         {
             return UnexpectedUserAction.Unlicense;
+        }
+
+        if (parseText == AttributeValue_Delete)
+        {
+            return UnexpectedUserAction.Delete;
         }
 
         IwsDiagnostics.Assert(false, "811-1105: Unkown value for ParseUnexpectedUserAction: " + parseText);

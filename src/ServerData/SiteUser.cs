@@ -35,14 +35,27 @@ partial class SiteUser : IHasSiteItemId
     public static SiteUser FromUserXMLWithoutUserId(XmlNode userNode, string userIdFixed)
     {
         IwsDiagnostics.Assert(!string.IsNullOrEmpty(userIdFixed), "811-1041: Internal error, expected non-blank user ID");
-        return new SiteUser(userNode, userIdFixed);
+        return new SiteUser(userNode, userIdFixed, null);
+    }
+
+    /// <summary>
+    /// Some server reponses do NOT include a user-id (e.g. Update User requests).  For these we 
+    /// do NOT want to try to look up the user-id.
+    /// </summary>
+    /// <param name="userNode"></param>
+    /// <param name="userIdFixed"></param>
+    /// <returns></returns>
+    public static SiteUser FromUserXMLWithoutUserIdOrAuthRole(XmlNode userNode, string userIdFixed, SiteUserAuth authRole)
+    {
+        IwsDiagnostics.Assert(!string.IsNullOrEmpty(userIdFixed), "1018-104: Internal error, expected non-blank user ID");
+        return new SiteUser(userNode, userIdFixed, authRole);
     }
 
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="userNode"></param>
-    public SiteUser(XmlNode userNode) : this(userNode, null)
+    public SiteUser(XmlNode userNode) : this(userNode, null, null)
     {
     }
 
@@ -51,7 +64,7 @@ partial class SiteUser : IHasSiteItemId
     /// </summary>
     /// <param name="userNode">XML for user</param>
     /// <param name="userIdFixed">NULL if ID is expected in the XML.  If non-NULL we will use the handed in user-id</param>
-    private SiteUser(XmlNode userNode, string userIdFixed)
+    private SiteUser(XmlNode userNode, string userIdFixed, SiteUserAuth? siteUserAuthFixed)
     {
         if (userNode.Name.ToLower() != "user")
         {
@@ -71,7 +84,6 @@ partial class SiteUser : IHasSiteItemId
 
         this.Name = userNode.Attributes["name"].Value;
         this.SiteRole = userNode.Attributes["siteRole"].Value;
-        this.SiteAuthentication = userNode.Attributes["authSetting"].Value;
 
         this.LastLogin = XmlHelper.GetAttributeDateTimeIfExists(userNode, "lastLogin");
         this.LastLoginAsText = XmlHelper.GetAttributeIfExists(userNode, "lastLogin", null);
@@ -82,8 +94,21 @@ partial class SiteUser : IHasSiteItemId
         this.SiteRoleParsed = ParseUserRole(this.SiteRole);
         AppDiagnostics.Assert(this.SiteRoleParsed != SiteUserRole.Unknown, "Unknown user role: " + this.SiteRole);
 
-        this.SiteAuthenticationParsed = ParseUserAuthentication(this.SiteAuthentication);
-        AppDiagnostics.Assert(this.SiteAuthenticationParsed != SiteUserAuth.Unknown, "Unknown user auth: " + this.SiteAuthenticationParsed);
+
+        //If we were not passed in an explicit user authentication, then it needs to be in the XML
+        if(siteUserAuthFixed == null)
+        {
+            this.SiteAuthentication = userNode.Attributes["authSetting"].Value;
+
+            this.SiteAuthenticationParsed = ParseUserAuthentication(this.SiteAuthentication);
+            AppDiagnostics.Assert(this.SiteAuthenticationParsed != SiteUserAuth.Unknown, "Unknown user auth: " + this.SiteAuthenticationParsed);
+        }
+        else
+        {
+            //Use the explicitly passed in value
+            this.SiteAuthenticationParsed = siteUserAuthFixed.Value;
+            this.SiteAuthentication = UserAuthenticationToString(this.SiteAuthenticationParsed);
+        }
 
 
         this.IsSiteAdmin = ParseIsSiteAdmin(this.SiteRole);

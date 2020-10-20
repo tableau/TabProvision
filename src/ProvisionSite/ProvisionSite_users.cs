@@ -48,7 +48,7 @@ internal partial class ProvisionSite
         }
 
         //============================================================================================
-        //Examine all the remaining users and decide if we need to delete them
+        //Examine all the remaining users and decide if we need to unlicense or delete them
         //============================================================================================
         _statusLogs.AddStatusHeader("Process unexpected users list");
         foreach (var unexpectedUser in workingListUnexaminedUsers.GetUsers())
@@ -220,11 +220,12 @@ internal partial class ProvisionSite
             //Modify the existing user
             case ProvisionUserInstructions.ExistingUserAction.Modify:
                 _statusLogs.AddStatus("Update user: User exists but role or auth differs. Update: " + userToProvision.UserName);
+
                 var updateUser = new SendUpdateUser(
-                    siteSignIn.ServerUrls,
                     siteSignIn,
                     existingUser.Id,
                     userToProvision.UserRole,
+                    userToProvision.UserAuthenticationParsed != existingUser.SiteAuthenticationParsed, //We only want to update the user role if it is NOT what we expect it to be 
                     userToProvision.UserAuthenticationParsed);
 
                 var userUpdated = updateUser.ExecuteRequest();
@@ -347,47 +348,120 @@ internal partial class ProvisionSite
                 return;
 
             case ProvisionUserInstructions.UnexpectedUserAction.Unlicense:
-                //If the user is already unlicensed, then there is nothing that needs to be done
-                if (unexpectedUser.SiteRoleParsed == SiteUserRole.Unlicensed)
-                {
-                    return;
-                }
+                Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior_Unlicense(
+                    unexpectedUser, siteSignIn, workingList_allKnownUsers);
+                return;
 
-                _statusLogs.AddStatus("Unlicense unexpected user: " + unexpectedUser.ToString());
-                var updateUser = new SendUpdateUser(
-                    siteSignIn.ServerUrls,
-                    siteSignIn,
-                    unexpectedUser.Id,
-                    SiteUser.Role_Unlicensed,
-                    unexpectedUser.SiteAuthenticationParsed);
+               
+            case ProvisionUserInstructions.UnexpectedUserAction.Delete:
+                Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior_Delete(
+                    unexpectedUser, siteSignIn, workingList_allKnownUsers);
+                return;
 
-                var userUpdated = updateUser.ExecuteRequest();
-
-                //-------------------------------------------------------------------------------
-                //Record the action in an output file
-                //-------------------------------------------------------------------------------
-                if(userUpdated != null)
-                {
-                    CSVRecord_UserModified(
-                        unexpectedUser.Name,
-                        unexpectedUser.SiteRole,
-                        unexpectedUser.SiteAuthentication,
-                        "existing/removed",
-                        unexpectedUser.SiteRole + "->" + userUpdated.SiteRole);
-
-                    workingList_allKnownUsers.ReplaceUser(userUpdated);
-                    return;
-                }
-                else
-                {
-                    CSVRecord_ErrorUpdatingUser(unexpectedUser.Name, unexpectedUser.SiteRole, unexpectedUser.SiteAuthentication, "Error unlicensing user (913-215)");
-                    return;
-                }
 
             default:
                 IwsDiagnostics.Assert(false, "811-1130: Internal error. Unknown provisioning behavior for user " + unexpectedUser.ToString());
                 _statusLogs.AddError("811-1130: Internal error. Unknown provisioning behavior for user " + unexpectedUser.ToString());
                 return;
+        }
+    }
+
+    /// <summary>
+    /// Delete and unexpected user
+    /// </summary>
+    /// <param name="unexpectedUser"></param>
+    /// <param name="siteSignIn"></param>
+    /// <param name="workingList_allKnownUsers"></param>
+    private void Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior_Delete(SiteUser unexpectedUser, TableauServerSignIn siteSignIn, WorkingListSiteUsers workingList_allKnownUsers)
+    {
+        _statusLogs.AddStatus("Delete unexpected user: " + unexpectedUser.ToString());
+
+        //Attempt to delete the user
+        var deleteUser = new SendDeleteUser(siteSignIn, unexpectedUser.Id);
+        bool deleteSuccess = deleteUser.ExecuteRequest();
+
+        if(deleteSuccess)
+        {
+            CSVRecord_UserModified(
+                unexpectedUser.Name,
+                unexpectedUser.SiteRole,
+                unexpectedUser.SiteAuthentication,
+                "existing/deleted",
+                unexpectedUser.SiteRole + "->" + "DELETED");
+
+            workingList_allKnownUsers.RemoveUser(unexpectedUser.Name);
+
+            return; //SUCCESS
+        }
+
+        //============================================================================================
+        //The delete user attempt was not a success (probably the user has owned content)
+        //Log an error and attempt to unlicense the user
+        //============================================================================================
+        CSVRecord_ErrorUpdatingUser(
+            unexpectedUser.Name, 
+            unexpectedUser.SiteRole, 
+            unexpectedUser.SiteAuthentication, 
+            "Error deleting user (1020-227)");
+
+
+        //If the user is not unlicensed, then unlicense them...
+        if(unexpectedUser.SiteRoleParsed != SiteUserRole.Unlicensed)
+        {
+            Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior_Unlicense(
+                unexpectedUser,
+                siteSignIn,
+                workingList_allKnownUsers);
+        }
+
+    }
+
+    /// <summary>
+    /// Unlicense the user
+    /// </summary>
+    /// <param name="unexpectedUser"></param>
+    /// <param name="siteSignIn"></param>
+    /// <param name="workingList_allKnownUsers"></param>
+    private void Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior_Unlicense(
+        SiteUser unexpectedUser, 
+        TableauServerSignIn siteSignIn,
+        WorkingListSiteUsers workingList_allKnownUsers)
+    {
+        //If the user is already unlicensed, then there is nothing that needs to be done
+        if (unexpectedUser.SiteRoleParsed == SiteUserRole.Unlicensed)
+        {
+            return;
+        }
+
+        _statusLogs.AddStatus("Unlicense unexpected user: " + unexpectedUser.ToString());
+        var updateUser = new SendUpdateUser(
+            siteSignIn,
+            unexpectedUser.Id,
+            SiteUser.Role_Unlicensed,
+            false,
+            unexpectedUser.SiteAuthenticationParsed);
+
+        var userUpdated = updateUser.ExecuteRequest();
+
+        //-------------------------------------------------------------------------------
+        //Record the action in an output file
+        //-------------------------------------------------------------------------------
+        if (userUpdated != null)
+        {
+            CSVRecord_UserModified(
+                unexpectedUser.Name,
+                unexpectedUser.SiteRole,
+                unexpectedUser.SiteAuthentication,
+                "existing/removed",
+                unexpectedUser.SiteRole + "->" + userUpdated.SiteRole);
+
+            workingList_allKnownUsers.ReplaceUser(userUpdated);
+            return;
+        }
+        else
+        {
+            CSVRecord_ErrorUpdatingUser(unexpectedUser.Name, unexpectedUser.SiteRole, unexpectedUser.SiteAuthentication, "Error unlicensing user (913-215)");
+            return;
         }
     }
 

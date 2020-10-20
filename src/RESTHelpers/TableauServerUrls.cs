@@ -65,6 +65,7 @@ class TableauServerUrls : ITableauServerSiteInfo
     private readonly string _urlWorkbooksInfoTemplate;
     private readonly string _urlAddUserToGroupTemplate;
     private readonly string _urlDeleteUserFromGroupTemplate;
+    private readonly string _urlDeleteUserFromSiteTemplate;
 
     /// <summary>
     /// Server url with protocol
@@ -134,7 +135,7 @@ class TableauServerUrls : ITableauServerSiteInfo
         this._urlRecentContentListTemplate         = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/content/recent";
         this._urlWorkbooksInfoTemplate             = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/workbooks/{{iwsWorkbookId}}";
         this._urlUpdateSiteGroupTemplate           = serverNameWithProtocol + "/api/3.9/sites/{{iwsSiteId}}/groups/{{iwsGroupId}}";
-
+        this._urlDeleteUserFromSiteTemplate        = serverNameWithProtocol + "/api/3.9/sites/{{iwsSiteId}}/users/{{iwsUserId}}";
 
         //Any server version specific things we want to do?
         switch (serverVersion)
@@ -749,6 +750,22 @@ class TableauServerUrls : ITableauServerSiteInfo
         string workingText = _urlDownloadDatasourceTemplate;
         workingText = workingText.Replace("{{iwsSiteId}}", session.SiteId);
         workingText = workingText.Replace("{{iwsRepositoryId}}", contentInfo.Id);
+
+        ValidateTemplateReplaceComplete(workingText);
+        return workingText;
+    }
+
+    /// <summary>
+    /// URL to delete a user from a site
+    /// </summary>
+    /// <param name="onlineSession"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    internal string Url_DeleteUserFromSite(TableauServerSignIn session, string userId)
+    {
+        string workingText = _urlDeleteUserFromSiteTemplate;
+        workingText = workingText.Replace("{{iwsSiteId}}", session.SiteId);
+        workingText = workingText.Replace("{{iwsUserId}}", userId);
 
         ValidateTemplateReplaceComplete(workingText);
         return workingText;

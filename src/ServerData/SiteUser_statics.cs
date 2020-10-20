@@ -35,6 +35,33 @@ partial class SiteUser : IHasSiteItemId
     }
 
     /// <summary>
+    /// Turn a parsed role into an attribute string
+    /// </summary>
+    /// <param name="roleName"></param>
+    /// <returns></returns>
+    public static string UserAuthenticationToString(SiteUserAuth userAuth)
+    {
+        switch(userAuth)
+        {
+            case SiteUserAuth.Default:
+                return "ServerDefault";
+
+            case SiteUserAuth.SAML:
+                return "SAML";
+
+            case SiteUserAuth.OpenID:
+                return "OpenId";
+
+            case SiteUserAuth.Unknown:
+                return "*Unknown*";
+
+            default:
+                IwsDiagnostics.Assert(false, "1018-100: Unrecognized user auth type");
+                return "*Unrecognized*";
+        }
+    }
+
+    /// <summary>
     /// Parse into known roles
     /// </summary>
     /// <param name="roleName"></param>

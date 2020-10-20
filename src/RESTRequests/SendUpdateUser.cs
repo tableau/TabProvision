@@ -17,6 +17,7 @@ class SendUpdateUser: TableauServerSignedInRequestBase
     private readonly string _newRole;
     private readonly string _userId;
     private readonly SiteUserAuth _newAuthentication;
+    private readonly bool _updateAuthSetting = false;
 
     /// <summary>
     /// Constructor
@@ -26,19 +27,42 @@ class SendUpdateUser: TableauServerSignedInRequestBase
     /// <param name="userId">GUID</param>
     /// <param name="newRole">GUID</param>
     public SendUpdateUser(
-        TableauServerUrls onlineUrls, 
         TableauServerSignIn login,
         string userId,
         string newRole,
+        bool updateAuthSetting,
         SiteUserAuth newAuthentication)
         : base(login)
     {
-        _onlineUrls = onlineUrls;
+        _onlineUrls = login.ServerUrls;
         _userId = userId;
         _newRole = newRole;
         _newAuthentication = newAuthentication;
+        _updateAuthSetting = updateAuthSetting;
     }
 
+    /*
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="onlineUrls"></param>
+    /// <param name="login"></param>
+    /// <param name="userId">GUID</param>
+    /// <param name="newRole">GUID</param>
+    public SendUpdateUser(
+        TableauServerSignIn login,
+        string userId,
+        string newRole)
+        : this(
+              login, 
+              userId, 
+              newRole, 
+              false, 
+              SiteUserAuth.Unknown //This is a "don't care" value since we are not updating the role
+              )
+    {
+    }
+    */
     /// <summary>
     /// Change the user
     /// </summary>
@@ -47,7 +71,7 @@ class SendUpdateUser: TableauServerSignedInRequestBase
     {
         try
         {
-            var updatedUser = UpdateUser(_userId, _newRole, _newAuthentication);
+            var updatedUser = UpdateUser(_userId, _newRole, _updateAuthSetting, _newAuthentication);
             this.StatusLog.AddStatus("Site user updated:" + updatedUser.Name + "/" + updatedUser.Id +  ", role:" + updatedUser.SiteRole + ", auth:" + updatedUser.SiteAuthentication );
             return updatedUser;
         }
@@ -59,12 +83,11 @@ class SendUpdateUser: TableauServerSignedInRequestBase
     }
 
 
-    private SiteUser UpdateUser(string userId, string newRole, SiteUserAuth newAuthentication)
+    private SiteUser UpdateUser(string userId, string newRole, bool updateAuthentication, SiteUserAuth newAuthentication)
     {
         AppDiagnostics.Assert(!string.IsNullOrWhiteSpace(userId), "missing user id");
         AppDiagnostics.Assert(!string.IsNullOrWhiteSpace(newRole), "missing role");
 
-        string newAuthenticationText = SendCreateUser.SiteUserAuthToAttributeText(newAuthentication);
 
         //ref: https://help.tableau.com/current/api/rest_api/en-us/REST/rest_api_ref.htm#update_user
         var sb = new StringBuilder();
@@ -72,7 +95,13 @@ class SendUpdateUser: TableauServerSignedInRequestBase
         xmlWriter.WriteStartElement("tsRequest");
         xmlWriter.WriteStartElement("user");
             xmlWriter.WriteAttributeString("siteRole", newRole);
-            xmlWriter.WriteAttributeString("authSetting", newAuthenticationText);
+
+            //Only if we are updating the user's authentication method do we need to update this
+            if(updateAuthentication)
+            {
+                string newAuthenticationText = SendCreateUser.SiteUserAuthToAttributeText(newAuthentication);
+                xmlWriter.WriteAttributeString("authSetting", newAuthenticationText);
+            }
         xmlWriter.WriteEndElement();//</user>
         xmlWriter.WriteEndElement(); // </tsRequest>
         xmlWriter.Close();
@@ -97,14 +126,21 @@ class SendUpdateUser: TableauServerSignedInRequestBase
 
             try
             {
-                return SiteUser.FromUserXMLWithoutUserId(xNodeUser, userId);
+                if(updateAuthentication)
+                {
+                    return SiteUser.FromUserXMLWithoutUserId(xNodeUser, userId);
+                }
+                else
+                {
+                    //Use the passed in authentication
+                    return SiteUser.FromUserXMLWithoutUserIdOrAuthRole(xNodeUser, userId, newAuthentication);
+                }
             }
             catch (Exception parseXml)
             {
                 StatusLog.AddError("Update user, error parsing XML response " + parseXml.Message + "\r\n" + xNodeUser.InnerXml);
                 return null;
-            }
-            
+            }            
         }
     }
 

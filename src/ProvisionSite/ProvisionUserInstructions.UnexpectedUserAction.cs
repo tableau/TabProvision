@@ -25,6 +25,12 @@ internal partial class ProvisionUserInstructions
         /// <summary>
         /// Change the unexpected user to be unlicensed
         /// </summary>
-        Unlicense
+        Unlicense,
+
+
+        /// <summary>
+        /// Try to DELETE the unexpected user
+        /// </summary>
+        Delete
     }
 }

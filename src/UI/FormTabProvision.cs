@@ -476,7 +476,7 @@ namespace OnlineContentDownloader
             }
             catch(Exception exSignInConfig)
             {
-                statusLogs.AddError("Error loading sign in config file");
+                statusLogs.AddError("Error loading sign in config file. Error: " + exSignInConfig.Message);
                 throw new Exception("813-1212: Error parsing sign in config, " + exSignInConfig.Message);
             }
 
@@ -489,7 +489,7 @@ namespace OnlineContentDownloader
             }
             catch(Exception exGroupsMapping)
             {
-                statusLogs.AddError("Error loading sync groups provisioning file");
+                statusLogs.AddError("Error loading sync groups provisioning file. Error: " + exGroupsMapping.Message);
                 throw new Exception("813-1214: Error parsing sync groups, " + exGroupsMapping.Message);
             }
 
@@ -507,7 +507,7 @@ namespace OnlineContentDownloader
             }
             catch(Exception exAzureDownload)
             {
-                statusLogs.AddError("Error retrieving data from Azure AD");
+                statusLogs.AddError("Error retrieving data from Azure AD. Error: " + exAzureDownload.Message);
                 throw new Exception("813-0148: Error in Azure Download, " + exAzureDownload.Message);
             }
 
@@ -524,7 +524,7 @@ namespace OnlineContentDownloader
             }
             catch (Exception exWriteProvisioningManifest)
             {
-                statusLogs.AddError("Error creating provisioning manifest");
+                statusLogs.AddError("Error creating provisioning manifest. Error: " + exWriteProvisioningManifest.Message);
                 throw new Exception("813-739: Error writing provisioning manifest, " + exWriteProvisioningManifest.Message);
             }
 
@@ -539,7 +539,7 @@ namespace OnlineContentDownloader
             }
             catch(Exception exProvisionSite)
             {
-                statusLogs.AddError("Error provisioning Tableau Online site");
+                statusLogs.AddError("Error provisioning Tableau Online site. Error: " + exProvisionSite.Message);
                 throw new Exception("814-353: Error provisioning Tableau Online site, " + exProvisionSite.Message);
             }
         }

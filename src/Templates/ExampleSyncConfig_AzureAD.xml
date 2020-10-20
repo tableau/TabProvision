@@ -6,9 +6,9 @@
 <SynchronizeConfiguration userEmailLookup="UserPrincipalName">
 
     <!-- Users in these source groups will be mapped to specific roles inside the Tableau site -->
-    <!-- Valid actions: authXXXXXUnexpectedUsers ="Unlicense" or "Report" -->
-    <!-- Valid actions: authXXXXXMissingUsers    ="Add"       or "Report" -->
-    <!-- Valid actions: authXXXXXExistingUsers   ="Modify"    or "Report" -->
+    <!-- Valid actions: authXXXXXUnexpectedUsers = "Unlicense" or "Report" or "Delete" -->
+    <!-- Valid actions: authXXXXXMissingUsers    = "Add"       or "Report"             -->
+    <!-- Valid actions: authXXXXXExistingUsers   = "Modify"    or "Report"             -->
     <!-- EXAMPLE: Apply changes: <SynchronizeRoles authSamlUnexpectedUsers="Unlicense" authSamlMissingUsers="Add"    authSamlExistingUsers="Modify"     authDefaultUnexpectedUsers="Unlicense" authDefaultMissingUsers="Add"    authDefaultExistingUsers="Modify"        authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">  -->
     <!-- EXAMPLE: Reports only: <SynchronizeRoles authSamlUnexpectedUsers="Report"    authSamlMissingUsers="Report" authSamlExistingUsers="Report"     authDefaultUnexpectedUsers="Report"    authDefaultMissingUsers="Report" authDefaultExistingUsers="Report"        authOpenIdUnexpectedUsers="Report" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report"> --> 
     <SynchronizeRoles authSamlUnexpectedUsers="Unlicense" authSamlMissingUsers="Add" authSamlExistingUsers="Modify"   authDefaultUnexpectedUsers="Unlicense" authDefaultMissingUsers="Add" authDefaultExistingUsers="Modify"     authOpenIdUnexpectedUsers="Unlicense" authOpenIdMissingUsers="Report" authOpenIdExistingUsers="Report">  
