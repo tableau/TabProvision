@@ -135,6 +135,23 @@ internal partial class AzureDownload
 
     private async Task GenerateUsersRolesListFromAzureGroups_ProcessSingleGroup(GraphServiceClient azureGraph, Group azureGroup, ProvisionConfigExternalDirectorySync.SynchronizeGroupToRole groupToRetrieve)
     {
+        //----------------------------------------------------------------------------------------------------------------------------------------------
+        //See if there is an additional 'contains' filter we need to apply to the result
+        //----------------------------------------------------------------------------------------------------------------------------------------------
+        if (!string.IsNullOrWhiteSpace(groupToRetrieve.FilterSourceGroupNameContains))
+        {
+            //If the Azure Group does not contain the specified Contains fitering term, then skip it
+            if (!azureGroup.DisplayName.Contains(groupToRetrieve.FilterSourceGroupNameContains))
+            {
+                _statusLogs.AddStatus("Skipping members of group: '"
+                    + azureGroup.DisplayName
+                    + "', becuase the group name does not contain the filter term '"
+                    + groupToRetrieve.FilterSourceGroupNameContains
+                    + "'");
+                return;
+            }
+        }
+
         _statusLogs.AddStatus("Get Azure AD group membership from '" + azureGroup.DisplayName + "' for user-role mapping for group '" + groupToRetrieve.SourceGroupName + "'");
 
         //----------------------------------------------------------------------------------------------------

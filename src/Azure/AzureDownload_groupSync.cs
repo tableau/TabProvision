@@ -149,6 +149,23 @@ internal partial class AzureDownload
     /// <returns></returns>
     private async Task GenerateGroupsMembersList_ProcessSingleGroup(GraphServiceClient azureGraph, Group azureGroup, ProvisionConfigExternalDirectorySync.ISynchronizeGroupToGroup groupSyncInstructions)
     {
+        //----------------------------------------------------------------------------------------------------------------------------------------------
+        //See if there is an additional 'contains' filter we need to apply to the result
+        //----------------------------------------------------------------------------------------------------------------------------------------------
+        if (!string.IsNullOrWhiteSpace(groupSyncInstructions.FilterSourceGroupNameContains))
+        {
+            //If the Azure Group does not contain the specified Contains fitering term, then skip it
+            if (!azureGroup.DisplayName.Contains(groupSyncInstructions.FilterSourceGroupNameContains))
+            {
+                _statusLogs.AddStatus("Skipping groups sync members of group: '"
+                    + azureGroup.DisplayName
+                    + "', becuase the group name does not contain the filter term '"
+                    + groupSyncInstructions.FilterSourceGroupNameContains
+                    + "'");
+                return;
+            }
+        }
+
         _statusLogs.AddStatus("Loading members of Azure group '" + azureGroup.DisplayName + "' for sync group '" + groupSyncInstructions.SourceGroupName + "'");
 
         //==============================================================

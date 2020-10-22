@@ -233,7 +233,16 @@ namespace OnlineContentDownloader
                     txtPathToAzureAdProvisioningConfig.Text = pathProvisionPlan;
 
                     //Run the work...
-                    ProvisionFromAzureAd(statusLogs, pathSecrets, pathProvisionPlan, pathOutput);
+                    ProvisionFromAzureAd(statusLogs, pathSecrets, pathProvisionPlan, true, pathOutput);
+                    break;
+
+                case CommandLineParser.Command_GenerateManifestFromAzure:
+                    //Update the paths in the UI so the user can see & re-run them if they want
+                    txtPathToSecrets.Text = pathSecrets;
+                    txtPathToAzureAdProvisioningConfig.Text = pathProvisionPlan;
+
+                    //Run the work...
+                    ProvisionFromAzureAd(statusLogs, pathSecrets, pathProvisionPlan, false, pathOutput);
                     break;
 
                 case CommandLineParser.Command_ProvisionFromFileManifest:
@@ -328,7 +337,8 @@ namespace OnlineContentDownloader
             textBoxErrors.Text = statusUpdate.ErrorText;
         }
 
-        private void btnProvisionFromAzureAd_Click(object sender, EventArgs e)
+
+        private void ProvisionFromAzureAd_FromUISetup(bool deployProvisioningToTableau)
         {
             var statusLogs = new TaskStatusLogs();
             statusLogs.AddStatus("Starting...");
@@ -355,9 +365,23 @@ namespace OnlineContentDownloader
                         "out");
             FileIOHelper.CreatePathIfNeeded(pathOutput);
 
+
+            //=======================================================================================
+            //Is this a test run, or a "deploy changes to Tableau run"
+            //=======================================================================================
+            string primaryCommand;
+            if(deployProvisioningToTableau)
+            {
+                primaryCommand = CommandLineParser.Command_ProvisionFromAzure;
+            }
+            else
+            {
+                primaryCommand = CommandLineParser.Command_GenerateManifestFromAzure;
+            }
+
             //Show the user a command line that they can use to run this same work
             GenerateProvisioningCommandLine(
-                CommandLineParser.Command_ProvisionFromAzure,
+                primaryCommand,
                 pathSecrets,
                 pathProvisionPlan,
                 pathOutput);
@@ -369,6 +393,7 @@ namespace OnlineContentDownloader
                     statusLogs,
                     pathSecrets,
                     txtPathToAzureAdProvisioningConfig.Text,
+                    deployProvisioningToTableau,
                     pathOutput);
             }
             catch (Exception exError)
@@ -384,6 +409,11 @@ namespace OnlineContentDownloader
                 System.Diagnostics.Process.Start(pathOutput);
             }
 
+        }
+
+        private void btnProvisionFromAzureAd_Click(object sender, EventArgs e)
+        {
+            ProvisionFromAzureAd_FromUISetup(true);
         }
 
 
@@ -456,6 +486,7 @@ namespace OnlineContentDownloader
             TaskStatusLogs statusLogs,
             string pathSecrets,
             string pathProvisionPlan,
+            bool deployToTableauTarget,
             string pathOutputs)
         {
             //===========================================================================================
@@ -528,19 +559,30 @@ namespace OnlineContentDownloader
                 throw new Exception("813-739: Error writing provisioning manifest, " + exWriteProvisioningManifest.Message);
             }
 
-            //===========================================================================================
-            //Provision the Tableau site using the manifest file we just created
-            //===========================================================================================
-            statusLogs.AddStatusHeader("Provision Tableau site using generated manifest file");
-            UpdateStatusText(statusLogs);
-            try
+
+            //=================================================================================================
+            //See if this is a test run, or whether we want to actually deploy the provisioning
+            //=================================================================================================
+            if (deployToTableauTarget)
             {
-                ProvisionFromFileManifest(statusLogs, pathSecrets, provisioningManifest, pathOutputs);
+                //===========================================================================================
+                //Provision the Tableau site using the manifest file we just created            
+                //===========================================================================================
+                statusLogs.AddStatusHeader("Provision Tableau site using generated manifest file");
+                UpdateStatusText(statusLogs);
+                try
+                {
+                    ProvisionFromFileManifest(statusLogs, pathSecrets, provisioningManifest, pathOutputs);
+                }
+                catch (Exception exProvisionSite)
+                {
+                    statusLogs.AddError("Error provisioning Tableau Online site. Error: " + exProvisionSite.Message);
+                    throw new Exception("814-353: Error provisioning Tableau Online site, " + exProvisionSite.Message);
+                }
             }
-            catch(Exception exProvisionSite)
+            else
             {
-                statusLogs.AddError("Error provisioning Tableau Online site. Error: " + exProvisionSite.Message);
-                throw new Exception("814-353: Error provisioning Tableau Online site, " + exProvisionSite.Message);
+                statusLogs.AddStatusHeader("Skipping Tableau site provisioning step (generate manifest only)");
             }
         }
 
@@ -713,6 +755,14 @@ namespace OnlineContentDownloader
 
         }
 
-
+        /// <summary>
+        /// Generate a manifest file, but do not deploy it
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnAzureAdGenerateManifestOnly_Click(object sender, EventArgs e)
+        {
+            ProvisionFromAzureAd_FromUISetup(false);
+        }
     }
 }

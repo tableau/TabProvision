@@ -48,6 +48,7 @@ internal partial class ProvisionConfigExternalDirectorySync
     private const string XmlAttribute_SourceGroup = "sourceGroup";
     private const string XmlAttribute_TargetRole = "targetRole";
     private const string XmlAttribute_SourceGroupMatch = "sourceGroupMatch";
+    private const string XmlAttribute_FilterSourceGroupContains = "filterSourceGroupContains";
 
     /// <summary>
     /// Generate an object with the default settings

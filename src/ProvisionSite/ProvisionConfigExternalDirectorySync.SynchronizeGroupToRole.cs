@@ -25,9 +25,10 @@ internal partial class ProvisionConfigExternalDirectorySync
 
         public readonly bool AllowPromotedRoleForMembers;
         /// <summary>
-        /// If TRUE, the source group is a RegEx expression
+        /// Are we doing a name pattern match
         /// </summary>
         public readonly NamePatternMatch NamePatternMatch;
+        public readonly string FilterSourceGroupNameContains = "";
 
         /// <summary>
         /// Constructor
@@ -58,6 +59,9 @@ internal partial class ProvisionConfigExternalDirectorySync
             this.AuthenticationModel = xmlNode.Attributes[ProvisioningUser.XmlAttribute_Auth].Value; 
             this.NamePatternMatch = ParseNamePatternMatch(
                 XmlHelper.SafeParseXmlAttribute(xmlNode, XmlAttribute_SourceGroupMatch, NamePatternMatch_Equals));
+            //An optional filter to apply
+            this.FilterSourceGroupNameContains = XmlHelper.SafeParseXmlAttribute(xmlNode, XmlAttribute_FilterSourceGroupContains, "");
+
 
             // TRUE: It is not unexpected to find that the user has an acutal role > than this specified role (useful for Grant License on Sign In scenarios)
             // FALSE: It is unexpected to find the user with a role that differs from this specified role

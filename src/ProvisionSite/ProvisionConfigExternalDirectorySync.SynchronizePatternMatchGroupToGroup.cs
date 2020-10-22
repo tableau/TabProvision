@@ -21,6 +21,7 @@ internal partial class ProvisionConfigExternalDirectorySync
     {
         public readonly string SourceGroupName;
         public readonly NamePatternMatch NamePatternMatch;
+        public readonly string FilterSourceGroupNameContains = "";
 
         /// <summary>
         /// Instructions for what to do about the Grant License mode of the Tableau site Group
@@ -57,6 +58,9 @@ internal partial class ProvisionConfigExternalDirectorySync
             this.NamePatternMatch =
                 ProvisionConfigExternalDirectorySync.ParseNamePatternMatch(
                     XmlHelper.SafeParseXmlAttribute(xmlNode, XmlAttribute_SourceGroupMatch, NamePatternMatch_Equals));
+
+            //An optional filter to apply
+            this.FilterSourceGroupNameContains = XmlHelper.SafeParseXmlAttribute(xmlNode, XmlAttribute_FilterSourceGroupContains, "");
 
             //Read in the grant license attributes
             ProvisioningGroup.ReadGrantLicenseXmlAttributes(
@@ -132,6 +136,16 @@ internal partial class ProvisionConfigExternalDirectorySync
             }
         }
 
+        /// <summary>
+        /// A secondary filter to apply
+        /// </summary>
+        string ISynchronizeGroupToGroup.FilterSourceGroupNameContains
+        {
+            get
+            {
+                return this.FilterSourceGroupNameContains;
+            }
+        }
     }
 
 }

@@ -53,6 +53,12 @@ internal partial class ProvisionFromDirectoryGroupsMembershipManager
                 thisGroupManager = new SingleGroupManager(group, ifCreateGrantLicenseMode, ifCreateGrantLicenseRole);
                 _groupsManager.Add(cannonicalGroup, thisGroupManager);
             }
+            else
+            {
+                //Check to see if this definition of the group specifies a BETTER Grant License behavior,
+                //if so, apply that
+                thisGroupManager.ConsiderGrantLicenseRoleUpgrade(ifCreateGrantLicenseMode, ifCreateGrantLicenseRole);
+            }
         }
         return thisGroupManager;
     }

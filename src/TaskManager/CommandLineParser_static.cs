@@ -18,6 +18,7 @@ partial class CommandLineParser
 
     public const string Command_GenerateManifestFromOnlineSite = "generateManifestFromOnlineSite";  //Generate a provisioning manifest from the live Online site
     public const string Command_ProvisionFromAzure        = "provisionSiteFromAzure";  //Provision an Online site using data in Azure AD
+    public const string Command_GenerateManifestFromAzure = "generateManifestFromAzure"; //Generate the manifest (but don't deploy it)
     public const string Command_ProvisionFromFileManifest = "provisionSiteFromFile";   //Provision an Online site using an explicit file manifest
 
     /// <summary>

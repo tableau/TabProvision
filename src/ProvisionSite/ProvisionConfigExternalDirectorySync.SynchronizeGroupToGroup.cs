@@ -111,5 +111,16 @@ internal partial class ProvisionConfigExternalDirectorySync
             }
         }
 
+        /// <summary>
+        /// Since in this class, the name is explicit. We do not need a filter here
+        /// </summary>
+        string ISynchronizeGroupToGroup.FilterSourceGroupNameContains
+        {
+            get
+            {
+                return "";
+            }
+        }
+
     }
 }

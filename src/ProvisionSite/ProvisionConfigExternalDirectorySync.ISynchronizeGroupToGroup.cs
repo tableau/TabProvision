@@ -34,6 +34,13 @@ internal partial class ProvisionConfigExternalDirectorySync
         /// </summary>
         NamePatternMatch NamePatternMatch { get; }
 
+
+        /// <summary>
+        /// A simple "contains" filter to apply in addition to the pattern match
+        /// </summary>
+        string FilterSourceGroupNameContains { get; }
+
+
         /// <summary>
         /// If NOT NULL, then this is a group name that we always expect to have 
         /// on the target (i.e. Tableau) side.  If there are 0 sourcs members found
