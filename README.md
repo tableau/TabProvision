@@ -100,6 +100,9 @@ Three XML files are used by the application.
          <!-- EXAMPLE: WILDCARD group name matching: All users in groups starting with "TabProvision Groups" will be added with the specified targetRole-->         
          <SynchronizeRole sourceGroupMatch="startswith" sourceGroup="TabProvision Groups" targetRole="Unlicensed" auth="serverDefault" allowPromotedRole="true"/>
 
+        <!-- EXAMPLE: Wildcard has additional 'filterSourceGroupContains' filter that searches for a match at any position in the name-->
+         <SynchronizeRole sourceGroupMatch="startswith" filterSourceGroupContains="Explorer" sourceGroup="TabProvision Groups" targetRole="Explorer" auth="serverDefault" allowPromotedRole="true"/>
+        
          <!-- EXAMPLE: OVERRIDES specify any explicit user/auth/role that we want to supersede anything we find in the groups that we syncrhonize from -->
          <SiteMembershipOverrides>
               <!-- Valid role values: "Unlicensed", "Viewer", "Explorer", "Creator", "SiteAdministratorExplorer", "SiteAdministratorCreator"-->
@@ -141,6 +144,10 @@ Three XML files are used by the application.
          <!-- EXAMPLE: WILDCARD GROUP NAMES. All groups starting with "TabProvision Groups" will be added    -->
          <!--          The group names will be duplicated between Azure AD and Tableau.                      -->         
          <SynchronizeMatchedGroup sourceGroupMatch="startswith" sourceGroup="TabProvision Groups" grantLicenseMode="ignore" />
+        
+         <!-- EXAMPLE: Wildcard has additional 'filterSourceGroupContains' filter that searches for a match at any position in the name-->
+         <SynchronizeMatchedGroup sourceGroupMatch="startswith" filterSourceGroupContains="Tableau Creator" sourceGroup="TabProvision Groups"  grantLicenseMode="onLogin" grantLicenseMinimumSiteRole="Creator"  />
+
     </SynchronizeGroups>
 
 </SynchronizeConfiguration>
