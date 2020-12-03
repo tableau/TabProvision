@@ -153,7 +153,7 @@ Three XML files are used by the application.
 </SynchronizeConfiguration>
 ```
 
-### REQUIRED FOR FILE-BASED PROVISIONING OF USERS/GROUPS: XML file with Azure AD groups
+### REQUIRED FOR FILE-BASED PROVISIONING OF USERS/GROUPS: XML file with Users and Groups
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <SiteProvisioning>
@@ -223,15 +223,42 @@ You will need to get/create this information from your Microsoft Azure accout po
 
 That's it. You now have a client applicaiton ID registered in Azure AD with the necessary permissions, and the secret needed for TabProvision.exe to sign in to Azure as this application.
 
+## Safety tips 
+The REST APIs used by this application allow you to upload, download, and otherwise modify your site’s content, workbooks, data sources, content tags, etc. So yes, it is certainly possible for you to modify existing users/roles/authentication/groups on the Online/Server site. A few tips:
+-	First run the system with all changes set to "Report" (e.g. instead of "Add", "Delete" or "Unlicense"). This can be configured in your XML attributes.  Doing this will generate a report (in a CSV file) that you can inspect before running and making changes. 
+
 ## Some advanced TabProvision capabilities
 1. TabProvision.exe produces an output.csv file documenting all changes made to the Online site
 2. Config XML file has toggles for simulating changes so the customer can see the changes before running them (set them all to "Report")
 3. Flexible pipeline: After reading from Azure AD and processing, an intermediary XML file is generated to drive the Online provisioning.  This file can easily be adapted/hand-generated for use with other sources of Groups/Identity, or even just file-based provisioning definitions for customers.
 4. Flexible identity/group options: Each group can be configured to represent either SAML (SSO) users, or ServerDefault (TableauID).  Source groups in AzureAD can be combined into a single target group. Groups within Groups inside AzureAD are handled
+5. Bulk changes to CONTENT OWNERSHIP (see XML example below). Using the FILE-BASED PROVISIONING XML, you can use TabProvision to reassign Workbooks/Datasources/Flows ownership.  This can be particularly useful if your organization needs to change its email domain and many or all users email addresses have changed. To bulk reassign ownership of content in a Tableau Site, you specify the OLD and the NEW user names (email addresses in Tableau Online), as shown in the XML below. All content owned by the OLD user will be assigned to the NEW user.  You can also assign multiple users' content to a single user if desired. 
 
-## Safety tips 
-The REST APIs used by this application allow you to upload, download, and otherwise modify your site’s content, workbooks, data sources, content tags, etc. So yes, it is certainly possible for you to modify existing users/roles/authentication/groups on the Online/Server site. A few tips:
--	First run the system with all changes set to "Report" (e.g. instead of "Add", "Delete" or "Unlicense"). This can be configured in your XML attributes.  Doing this will generate a report (in a CSV file) that you can inspect before running and making changes. 
+## Example XML for Changing Content Ownership (Workbooks/Datasources/Flows)
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<SiteProvisioning>
+  <!-- OPTIONAL: "SiteMembership" XML Node for provisioning users/role (see example above)       -->
+  <!--           If this section is not present, then the site's membership will not be modified -->    
+    
+  <!-- OPTIONAL: "GroupsMemberships" XML Node for provisioning group membership (see example above) -->
+  <!--           If this section is not present, then the groups memberships will not be modified   -->    
+  
+    
+  <!-- The "ContentOwnership" node (if supplied) allows you to specify instructions for changing                            -->
+  <!-- Workbooks/Datasources/Flows owners.  You specify the "oldOwnerName" and the "newOwnerName",                          -->
+  <!-- TabProvision then finds content belonging to the OLD owner, and reassigns it to the NEW owner.                       -->
+  <!-- NOTE: The NEW owner must be a provisioned user in the site (they can be added in the "SiteMembership" XML Node above -->
+  <ContentOwnership>
+    <ChangeContentOwner oldOwnerName="sue.old.name@xxxxxxxxx.com"     newOwnerName="susan.new.name@yyyyyyyyyyy.com" />
+    <!-- NOTE: Any content that is owned by "another.old.name@xxxxxxxxx.com will be reassigned to "susan.new.name@yyyyyyyyyyy.com"-->
+    <ChangeContentOwner oldOwnerName="another.old.name@xxxxxxxxx.com" newOwnerName="susan.new.name@yyyyyyyyyyy.com" />
+    <ChangeContentOwner oldOwnerName="bob.old.name@xxxxxxxxx.com"     newOwnerName="robert.new.name@yyyyyyyyyyyyy.com" />
+  </ContentOwnership>
+    
+</SiteProvisioning>
+```
+
 
 ## Getting started with TabProvision (for developers)
 Source code: The project is written in C# and should load into Visual Studio 2019 or newer.             
