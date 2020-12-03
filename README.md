@@ -2,11 +2,18 @@
 [![Community Supported](https://img.shields.io/badge/Support%20Level-Community%20Supported-457387.svg)](https://www.tableau.com/support-levels-it-and-developer-tools)
 
 ## What is TabProvision?
-Many Tableau Online customers need to user their organization's Azure AD directory to manage their Tableau Online deployment. 
-This sample shows how to use Azure AD Groups (or groups defined explicitly in a local file) to provision Administrators/Creators/Explorers/Viewers in their Tableau Online site. 
+TabProvision is a flexible tool for automating user/role/groups provisioning in Tableau Online (it should also work with Tableau Server). These provisioning tasks can be one-time, or they can be automated for scheduled execution. Three scenarios are of particular importance: 
+
+Firstly, flexible provisioning of users/roles/groups based based on an XML file that you generate (either by hand or through your scripts of your own). 
+
+Secondly, bulk changes of content ownership, such as those that are required when an organization changes its email domain and all (or many) of their users email addresses have changed. This can require exporting the old list of users and groups, editing (copy/paste/modify) this list to add the changed email addresses, provisioning this updated list to the Tableau site, and finally changing the ownership of existing content. TabProvision can help simplify these tasks, and make it easy to test updates before making them, as well as create backups of the site's current provisioning in case these need to be restored.
+
+Thirdly, TabProvision can help with automating Azure AD user/role synchronization flexibly. Many Tableau Online customers want to use their organization's Azure AD directory to manage their Tableau Online deployment. This sample shows how to use Azure AD Groups (or groups defined explicitly in a local file) to provision Administrators/Creators/Explorers/Viewers in their Tableau Online site. 
+
 The sample code can also be adapted to read Group membership information from any other source and to use that information to provision the users/roles/groups in a Tableau Online (or Tableau Server) site.
 
-Some background information: Tableau Online already supports using SAML to authenticate users from Microsoft Azure (or other SAML supporting Identity Providers, IdPs). 
+### Some background information on authentication/roles/provisioning 
+Tableau Online already supports using SAML to authenticate users from Microsoft Azure (or other SAML supporting Identity Providers, IdPs). 
 However, these  users need to be provisioned; they need to be added to the Tableau Online site, have their Role in the site set (e.g. "Creator", "Explorer", "Viewer") and have their authentication mechanism specified. This tool does that.
 
 This is done in 2 steps:
