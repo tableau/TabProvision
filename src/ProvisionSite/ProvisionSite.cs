@@ -67,6 +67,7 @@ internal partial class ProvisionSite
     /// <param name="statusLogs"></param>
     public void Execute()
     {
+        WorkingListSiteUsers workingList_allKnownUsers = null;
         //==================================================================================
         //Get the data we need to run
         //==================================================================================
@@ -97,13 +98,18 @@ internal partial class ProvisionSite
         //=================================================================================
         //Provision the users
         //=================================================================================
-        var workingList_allKnownUsers = Execute_ProvisionUsers(siteSignIn);
+         workingList_allKnownUsers = Execute_ProvisionUsers(siteSignIn);
         ShowLogs();
 
         //=================================================================================
         //Provision the groups
         //=================================================================================
         Execute_ProvisionGroups(siteSignIn, workingList_allKnownUsers);
+
+        //=================================================================================
+        //Content ownership changes
+        //=================================================================================
+        Execute_ProvisionContentOwnershipChanges(siteSignIn, workingList_allKnownUsers);
     }
 
 

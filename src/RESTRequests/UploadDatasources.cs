@@ -437,7 +437,7 @@ class UploadDatasources : TableauServerSignedInRequestBase
         }
 
         //Lets tell server to update the owner
-        var changeOwnership = new SendUpdateDatasourceOwner(_onlineUrls, _onlineSession, datasource.Id, desiredServerUser.Id);
+        var changeOwnership = new SendUpdateDatasourceOwner(_onlineSession, datasource.Id, desiredServerUser.Id);
         SiteDatasource updatedDatasource;
         try
         {

@@ -19,7 +19,7 @@ internal partial class TableauProvisionDownload
     /// <summary>
     /// The calculated sets of users
     /// </summary>
-    public ProvisionFromDirectoryManager ProvisioningManifestResults = new ProvisionFromDirectoryManager();
+    public readonly ProvisionFromDirectoryManager ProvisioningManifestResults = new ProvisionFromDirectoryManager();
 
     /// <summary>
     /// The internal manager we use to track all the user roles for provisioning

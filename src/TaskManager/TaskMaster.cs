@@ -363,7 +363,7 @@ internal partial class TaskMaster
         try
         {
             //Get the list of datasources
-            var datasourcesManager = new DownloadDatasourcesList(_onlineUrls, onlineLogin);
+            var datasourcesManager = new DownloadDatasourcesList(onlineLogin);
             datasourcesManager.ExecuteRequest();
             datasourcesList = datasourcesManager.Datasources;
         }
@@ -449,7 +449,7 @@ internal partial class TaskMaster
         try
         {
             //Get the list of datasources
-            var datasources = new DownloadDatasourcesList(_onlineUrls, onlineLogin);
+            var datasources = new DownloadDatasourcesList(onlineLogin);
             datasources.ExecuteRequest();
 
             //Store them in our object
@@ -669,7 +669,7 @@ internal partial class TaskMaster
         ICollection<SiteWorkbook> workbooksList = null;
         try
         {
-            var workbooks = new DownloadWorkbooksList(onlineLogin, explicitUserId);
+            var workbooks = new DownloadWorkbooksList(onlineLogin, explicitUserId, false);
             //Query for the list of workbook
             workbooks.ExecuteRequest();
             workbooksList = workbooks.Workbooks;

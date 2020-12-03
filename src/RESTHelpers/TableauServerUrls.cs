@@ -33,6 +33,9 @@ class TableauServerUrls : ITableauServerSiteInfo
     /// Template for URL to acess workbooks list
     /// </summary>
     private readonly string _urlListWorkbooksForUserTemplate;
+//    private readonly string _urlListDatasourcesForUserTemplate;
+    private readonly string _urlListFlowsForUserTemplate;
+    private readonly string _urlListFlowsTemplate;
     private readonly string _urlListWorkbookConnectionsTemplate;
     private readonly string _urlListDatasourcesTemplate;
     private readonly string _urlListProjectsTemplate;
@@ -66,6 +69,7 @@ class TableauServerUrls : ITableauServerSiteInfo
     private readonly string _urlAddUserToGroupTemplate;
     private readonly string _urlDeleteUserFromGroupTemplate;
     private readonly string _urlDeleteUserFromSiteTemplate;
+    private readonly string _urlUpdateFlowTemplate;
 
     /// <summary>
     /// Server url with protocol
@@ -102,7 +106,10 @@ class TableauServerUrls : ITableauServerSiteInfo
         this.ServerUrlWithProtocol                 = serverNameWithProtocol;
         this.UrlLogin                              = serverNameWithProtocol + "/api/3.8/auth/signin";
         this.UrlLogout                             = serverNameWithProtocol + "/api/3.8/auth/signout";
-        this._urlListWorkbooksForUserTemplate      = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/users/{{iwsUserId}}/workbooks?{{iwsSortDirective}}pageSize={{iwsPageSize}}&pageNumber={{iwsPageNumber}}";
+        this._urlListWorkbooksForUserTemplate      = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/users/{{iwsUserId}}/workbooks?{{iwsSortDirective}}{{iwsOwnedByDirective}}pageSize={{iwsPageSize}}&pageNumber={{iwsPageNumber}}";
+//        this._urlListDatasourcesForUserTemplate    = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/users/{{iwsUserId}}/datasources?{{iwsSortDirective}}{{iwsOwnedByDirective}}pageSize={{iwsPageSize}}&pageNumber={{iwsPageNumber}}";
+        this._urlListFlowsForUserTemplate          = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/users/{{iwsUserId}}/flows?{{iwsSortDirective}}{{iwsOwnedByDirective}}pageSize={{iwsPageSize}}&pageNumber={{iwsPageNumber}}";
+        this._urlListFlowsTemplate                 = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/flows?pageSize={{iwsPageSize}}&pageNumber={{iwsPageNumber}}";
         this._urlListWorkbookConnectionsTemplate   = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/workbooks/{{iwsWorkbookId}}/connections";
         this._urlListDatasourcesTemplate           = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/datasources?pageSize={{iwsPageSize}}&pageNumber={{iwsPageNumber}}";
         this._urlListProjectsTemplate              = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/projects?pageSize={{iwsPageSize}}&pageNumber={{iwsPageNumber}}";
@@ -136,6 +143,7 @@ class TableauServerUrls : ITableauServerSiteInfo
         this._urlWorkbooksInfoTemplate             = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/workbooks/{{iwsWorkbookId}}";
         this._urlUpdateSiteGroupTemplate           = serverNameWithProtocol + "/api/3.9/sites/{{iwsSiteId}}/groups/{{iwsGroupId}}";
         this._urlDeleteUserFromSiteTemplate        = serverNameWithProtocol + "/api/3.9/sites/{{iwsSiteId}}/users/{{iwsUserId}}";
+        this._urlUpdateFlowTemplate                = serverNameWithProtocol + "/api/3.8/sites/{{iwsSiteId}}/flows/{{iwsFlowId}}";
 
         //Any server version specific things we want to do?
         switch (serverVersion)
@@ -305,8 +313,15 @@ class TableauServerUrls : ITableauServerSiteInfo
     /// </summary>
     /// <param name="siteUrlSegment"></param>
     /// <returns></returns>
-    public string Url_WorkbooksListForUser(TableauServerSignIn session, string userId, int pageSize, int pageNumber = 1, string sortDirective = "")
+    public string Url_WorkbooksListForUser(TableauServerSignIn session, string userId, bool filterOwnedByUserOnly, int pageSize, int pageNumber = 1, string sortDirective = "")
     {
+        string directiveFilterOwnedBy = "";
+        if(filterOwnedByUserOnly)
+        {
+            directiveFilterOwnedBy = "ownedBy=true&";
+        }
+
+
         string sortParameter = "";
         if(!string.IsNullOrWhiteSpace(sortDirective))
         {
@@ -319,6 +334,71 @@ class TableauServerUrls : ITableauServerSiteInfo
         workingText = workingText.Replace("{{iwsPageSize}}", pageSize.ToString());
         workingText = workingText.Replace("{{iwsPageNumber}}", pageNumber.ToString());
         workingText = workingText.Replace("{{iwsSortDirective}}", sortParameter);
+        workingText = workingText.Replace("{{iwsOwnedByDirective}}", directiveFilterOwnedBy);
+        ValidateTemplateReplaceComplete(workingText);
+
+        return workingText;
+    }
+    /*
+    /// <summary>
+    /// URL for the Workbooks list
+    /// </summary>
+    /// <param name="siteUrlSegment"></param>
+    /// <returns></returns>
+    public string Url_DatasourcesListForUser(TableauServerSignIn session, string userId, bool filterOwnedByUserOnly, int pageSize, int pageNumber = 1, string sortDirective = "")
+    {
+        string directiveFilterOwnedBy = "";
+        if (filterOwnedByUserOnly)
+        {
+            directiveFilterOwnedBy = "ownedBy=true&";
+        }
+
+
+        string sortParameter = "";
+        if (!string.IsNullOrWhiteSpace(sortDirective))
+        {
+            sortParameter = sortDirective + "&";
+        }
+
+        string workingText = _urlListDatasourcesForUserTemplate;
+        workingText = workingText.Replace("{{iwsSiteId}}", session.SiteId);
+        workingText = workingText.Replace("{{iwsUserId}}", userId);
+        workingText = workingText.Replace("{{iwsPageSize}}", pageSize.ToString());
+        workingText = workingText.Replace("{{iwsPageNumber}}", pageNumber.ToString());
+        workingText = workingText.Replace("{{iwsSortDirective}}", sortParameter);
+        workingText = workingText.Replace("{{iwsOwnedByDirective}}", directiveFilterOwnedBy);
+        ValidateTemplateReplaceComplete(workingText);
+
+        return workingText;
+    }
+    */
+    /// <summary>
+    /// URL for the Workbooks list
+    /// </summary>
+    /// <param name="siteUrlSegment"></param>
+    /// <returns></returns>
+    public string Url_FlowsListForUser(TableauServerSignIn session, string userId, bool filterOwnedByUserOnly, int pageSize, int pageNumber = 1, string sortDirective = "")
+    {
+        string directiveFilterOwnedBy = "";
+        if (filterOwnedByUserOnly)
+        {
+            directiveFilterOwnedBy = "ownedBy=true&";
+        }
+
+
+        string sortParameter = "";
+        if (!string.IsNullOrWhiteSpace(sortDirective))
+        {
+            sortParameter = sortDirective + "&";
+        }
+
+        string workingText = _urlListFlowsForUserTemplate;
+        workingText = workingText.Replace("{{iwsSiteId}}", session.SiteId);
+        workingText = workingText.Replace("{{iwsUserId}}", userId);
+        workingText = workingText.Replace("{{iwsPageSize}}", pageSize.ToString());
+        workingText = workingText.Replace("{{iwsPageNumber}}", pageNumber.ToString());
+        workingText = workingText.Replace("{{iwsSortDirective}}", sortParameter);
+        workingText = workingText.Replace("{{iwsOwnedByDirective}}", directiveFilterOwnedBy);
         ValidateTemplateReplaceComplete(workingText);
 
         return workingText;
@@ -374,6 +454,22 @@ class TableauServerUrls : ITableauServerSiteInfo
     public string Url_DatasourcesList(TableauServerSignIn session, int pageSize, int pageNumber = 1)
     {
         string workingText = _urlListDatasourcesTemplate;
+        workingText = workingText.Replace("{{iwsSiteId}}", session.SiteId);
+        workingText = workingText.Replace("{{iwsPageSize}}", pageSize.ToString());
+        workingText = workingText.Replace("{{iwsPageNumber}}", pageNumber.ToString());
+        ValidateTemplateReplaceComplete(workingText);
+
+        return workingText;
+    }
+
+    /// <summary>
+    /// URL for the Datasources list
+    /// </summary>
+    /// <param name="siteUrlSegment"></param>
+    /// <returns></returns>
+    public string Url_FlowsList(TableauServerSignIn session, int pageSize, int pageNumber = 1)
+    {
+        string workingText = _urlListFlowsTemplate;
         workingText = workingText.Replace("{{iwsSiteId}}", session.SiteId);
         workingText = workingText.Replace("{{iwsPageSize}}", pageSize.ToString());
         workingText = workingText.Replace("{{iwsPageNumber}}", pageNumber.ToString());
@@ -506,6 +602,21 @@ class TableauServerUrls : ITableauServerSiteInfo
 
         return workingText;
     }
+
+    /// <summary>
+    /// URL for updating datasource metadata (e.g. owner id)
+    /// </summary>
+    /// <returns></returns>
+    public string Url_UpdateFlow(TableauServerSignIn session, string flowId)
+    {
+        string workingText = _urlUpdateFlowTemplate;
+        workingText = workingText.Replace("{{iwsSiteId}}", session.SiteId);
+        workingText = workingText.Replace("{{iwsFlowId}}", flowId);
+        ValidateTemplateReplaceComplete(workingText);
+
+        return workingText;
+    }
+
 
     /// <summary>
     /// URL for updating user's metadata 

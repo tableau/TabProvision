@@ -13,6 +13,9 @@ class DownloadDatasourcesList : TableauServerSignedInRequestBase
     /// </summary>
     private readonly TableauServerUrls _onlineUrls;
 
+//    private readonly string _userIdForContentQuery;
+//    private readonly bool _filterToOwnedBy = false;
+
     /// <summary>
     /// Workbooks we've parsed from server results
     /// </summary>
@@ -34,12 +37,32 @@ class DownloadDatasourcesList : TableauServerSignedInRequestBase
     /// </summary>
     /// <param name="onlineUrls"></param>
     /// <param name="login"></param>
-    public DownloadDatasourcesList(TableauServerUrls onlineUrls, TableauServerSignIn login)
-        : base(login)
+    public DownloadDatasourcesList(TableauServerSignIn login) : base(login)
     {
-        _onlineUrls = onlineUrls;
-//        _user = user;
+        _onlineUrls = login.ServerUrls;
     }
+/*
+    /// <summary>
+    /// Constructor: Call when we want to query the Workbooks on behalf of an explicitly specified user
+    /// </summary>
+    /// <param name="onlineUrls"></param>
+    /// <param name="login"></param>
+    /// <param name="user"></param>
+    public DownloadDatasourcesList(TableauServerSignIn login, string userId, bool filterToOwnedBy) : base(login)
+    {
+        _onlineUrls = login.ServerUrls;
+
+        //Sanity test
+        if (!RegExHelper.IsValidIdTableauContentId(userId))
+        {
+            throw new Exception("1030-139: Invalid user ID");
+        }
+
+        _onlineUrls = login.ServerUrls;
+        _userIdForContentQuery = userId;
+        _filterToOwnedBy = filterToOwnedBy;
+    }
+*/
 
     /// <summary>
     /// Request the data from Online
@@ -75,6 +98,7 @@ class DownloadDatasourcesList : TableauServerSignedInRequestBase
     {
         int pageSize =_onlineUrls.PageSize; 
         //Create a web request, in including the users logged-in auth information in the request headers
+//        var urlQuery = _onlineUrls.Url_DatasourcesList(_onlineSession, pageSize, pageToRequest);
         var urlQuery = _onlineUrls.Url_DatasourcesList(_onlineSession, pageSize, pageToRequest);
 
         _onlineSession.StatusLog.AddStatus("Web request: " + urlQuery, -10);

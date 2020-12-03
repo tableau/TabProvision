@@ -5,6 +5,7 @@ using System.Xml;
 
 partial class DownloadWorkbooksList : TableauServerSignedInRequestBase
 {
+    /*
     /// <summary>
     /// Queries for the set of workbooks that the specified user can access
     /// </summary>
@@ -22,4 +23,5 @@ partial class DownloadWorkbooksList : TableauServerSignedInRequestBase
         downloader.ExecuteRequest();
         return downloader;
     }
+    */
 }

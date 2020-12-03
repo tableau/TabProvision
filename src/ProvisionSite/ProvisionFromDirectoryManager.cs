@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 
 
 /// <summary>
-/// Allows us to sort all users being provisioned into role
+/// 
 /// </summary>
 internal partial class ProvisionFromDirectoryManager
 {

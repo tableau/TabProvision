@@ -25,13 +25,13 @@ class SendUpdateWorkbookOwner: TableauServerSignedInRequestBase
     /// <param name="workbookId">GUID</param>
     /// <param name="newOwnerId">GUID</param>
     public SendUpdateWorkbookOwner(
-        TableauServerUrls onlineUrls, 
+//        TableauServerUrls onlineUrls, 
         TableauServerSignIn login,
         string workbookId,
         string newOwnerId)
         : base(login)
     {
-        _onlineUrls = onlineUrls;
+        _onlineUrls = login.ServerUrls;
         _workbookId = workbookId;
         _newOwnerId = newOwnerId;
     }

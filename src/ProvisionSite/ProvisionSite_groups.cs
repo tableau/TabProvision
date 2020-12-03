@@ -13,6 +13,13 @@ internal partial class ProvisionSite
     /// <param name="siteSignIn"></param>
     private void Execute_ProvisionGroups(TableauServerSignIn siteSignIn, WorkingListSiteUsers workingList_allKnownUsers)
     {
+        //If there are no provisioning instructions, then there is nothing we need to do here
+        if (_provisionInstructions.GroupsToProvision == null)
+        {
+            _statusLogs.AddStatus("Skipping groups provisioning, because there are no instructions for this...");
+            return;
+        }
+
         _statusLogs.AddStatusHeader("Provision the specified groups in site");
 
         //=================================================================================

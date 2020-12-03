@@ -180,9 +180,15 @@
     <Compile Include="ProvisionSite\ProvisionFromDirectoryRolesMembershipManager.cs" />
     <Compile Include="ProvisionSite\ProvisioningGroup.GrantLicenseMode.cs" />
     <Compile Include="ProvisionSite\ProvisioningGroup.cs" />
+    <Compile Include="ProvisionSite\ProvisioningChangeContentOwnership.cs" />
+    <Compile Include="ProvisionSite\ProvisioningChangeContentOwnership_static.cs" />
     <Compile Include="ProvisionSite\ProvisioningUser_static.cs" />
     <Compile Include="ProvisionSite\ProvisioningUser.cs" />
     <Compile Include="ProvisionSite\ProvisionConfigExternalDirectorySync.cs" />
+    <Compile Include="ProvisionSite\ProvisionSite_contentOwnership_datasources.cs" />
+    <Compile Include="ProvisionSite\ProvisionSite_contentOwnership_flows.cs" />
+    <Compile Include="ProvisionSite\ProvisionSite_contentOwnership_workbooks.cs" />
+    <Compile Include="ProvisionSite\ProvisionSite_contentOwnership.cs" />
     <Compile Include="ProvisionSite\ProvisionSite_users.cs" />
     <Compile Include="ProvisionSite\ProvisionSite_groups.cs" />
     <Compile Include="ProvisionSite\ProvisionSite.WorkingListSiteUsers.cs" />
@@ -215,6 +221,7 @@
     <Compile Include="RESTRequests\DownloadUsersList_static.cs" />
     <Compile Include="RESTRequests\DownloadViewsList.cs" />
     <Compile Include="RESTRequests\DownloadSubscriptionsList.cs" />
+    <Compile Include="RESTRequests\DownloadFlowsList.cs" />
     <Compile Include="RESTRequests\DownloadWorkbooksList_static.cs" />
     <Compile Include="RESTRequests\DownloadWorkbookViewThumbnail.cs" />
     <Compile Include="RESTRequests\DownloadWorkbookThumbnail.cs" />
@@ -223,6 +230,7 @@
     <Compile Include="RESTRequests\SendCreateUser.cs" />
     <Compile Include="RESTRequests\SendDeleteUser.cs" />
     <Compile Include="RESTRequests\SendDeleteUserFromGroup.cs" />
+    <Compile Include="RESTRequests\SendUpdateFlowOwner.cs" />
     <Compile Include="RESTRequests\SendUpdateGroup.cs" />
     <Compile Include="RESTRequests\SendUpdateUser.cs" />
     <Compile Include="RESTRequests\SendUpdateDatasourceOwner.cs" />
@@ -238,6 +246,7 @@
     <Compile Include="ServerData\IEditDataConnectionsSet.cs" />
     <Compile Include="ServerData\IHasSiteItemId.cs" />
     <Compile Include="ServerData\ITagSetInfo.cs" />
+    <Compile Include="ServerData\SiteFlow.cs" />
     <Compile Include="ServerData\SiteGroup.cs" />
     <Compile Include="ServerData\SiteConnection.cs" />
     <Compile Include="ServerData\KeyedLookup.cs" />

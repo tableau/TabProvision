@@ -18,9 +18,10 @@ partial class DownloadWorkbooksList : TableauServerSignedInRequestBase
     /// URL manager
     /// </summary>
     private readonly TableauServerUrls _onlineUrls;
-    private readonly string _userIdForWorkbookQuery;
-    private readonly int _maxNumberItemsReturned;
     private readonly Sort _sort;
+    private readonly string _userIdForContentQuery;
+    private readonly int _maxNumberItemsReturned;
+    private readonly bool _filterToOwnedBy = false;
 
     /// <summary>
     /// Workbooks we've parsed from server results
@@ -42,7 +43,7 @@ partial class DownloadWorkbooksList : TableauServerSignedInRequestBase
     /// <param name="onlineUrls"></param>
     /// <param name="login"></param>
     public DownloadWorkbooksList(TableauServerSignIn login, int maxNumberItems = int.MaxValue)
-        : this(login, login.UserId, maxNumberItems)
+        : this(login, login.UserId, false, maxNumberItems)
     {
     }
 
@@ -52,7 +53,7 @@ partial class DownloadWorkbooksList : TableauServerSignedInRequestBase
     /// <param name="onlineUrls"></param>
     /// <param name="login"></param>
     /// <param name="user"></param>
-    public DownloadWorkbooksList(TableauServerSignIn login, string userId, int maxNumberItems = int.MaxValue) : base(login)
+    public DownloadWorkbooksList(TableauServerSignIn login, string userId, bool filterToOwnedBy, int maxNumberItems = int.MaxValue) : base(login)
     {
         //Sanity test
         if(!RegExHelper.IsValidIdTableauContentId(userId))
@@ -61,9 +62,10 @@ partial class DownloadWorkbooksList : TableauServerSignedInRequestBase
         }
 
         _onlineUrls = login.ServerUrls;
-        _userIdForWorkbookQuery = userId;
         _maxNumberItemsReturned = maxNumberItems;
         _sort = DownloadWorkbooksList.Sort.NoSort; //[2019-10-29] This is currently the only option
+        _userIdForContentQuery = userId;
+        _filterToOwnedBy = filterToOwnedBy;
     }
 
 
@@ -120,7 +122,7 @@ partial class DownloadWorkbooksList : TableauServerSignedInRequestBase
     public void ExecuteRequest()
     {
         //Sanity check
-        if(string.IsNullOrWhiteSpace(_userIdForWorkbookQuery))
+        if(string.IsNullOrWhiteSpace(_userIdForContentQuery))
         {
             _onlineSession.StatusLog.AddError("User ID required to query workbooks");            
         }
@@ -185,7 +187,7 @@ exit_success:
     {
         int pageSize = _onlineUrls.PageSize;
         //Create a web request, in including the users logged-in auth information in the request headers
-        var urlQuery = _onlineUrls.Url_WorkbooksListForUser(_onlineSession, _userIdForWorkbookQuery, pageSize, pageToRequest, SortDirectiveForContentQuery());
+        var urlQuery = _onlineUrls.Url_WorkbooksListForUser(_onlineSession, _userIdForContentQuery, _filterToOwnedBy, pageSize, pageToRequest, SortDirectiveForContentQuery());
 
         _onlineSession.StatusLog.AddStatus("Web request: " + urlQuery, -10);
         var xmlDoc = ResourceSafe_PerformWebRequest_GetXmlDocument(urlQuery, "get workbooks list");

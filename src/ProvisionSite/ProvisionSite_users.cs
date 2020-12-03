@@ -15,6 +15,13 @@ internal partial class ProvisionSite
     /// <param name="existingSiteUsers"></param>
     private WorkingListSiteUsers Execute_ProvisionUsers(TableauServerSignIn siteSignIn)
     {
+        //If there are no provisioning instructions, then there is nothing we need to do here
+        if(_provisionInstructions.UsersToProvision == null)
+        {
+            _statusLogs.AddStatus("Skipping users/roles provisioning, because there are no instructions for this...");
+            return null;
+        }
+
         _statusLogs.AddStatusHeader("Provision users/roles in site");
         //=================================================================================
         //Load the set of users for the site...

@@ -456,7 +456,7 @@ partial class UploadWorkbooks : TableauServerSignedInRequestBase
         }
 
         //Lets tell server to update the owner
-        var changeOwnership = new SendUpdateWorkbookOwner(_onlineUrls, _onlineSession, workbook.Id, desiredServerUser.Id);
+        var changeOwnership = new SendUpdateWorkbookOwner(_onlineSession, workbook.Id, desiredServerUser.Id);
         SiteWorkbook updatedWorkbook;
         try
         {
