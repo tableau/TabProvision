@@ -27,11 +27,15 @@ internal partial class ProvisionFromDirectoryManager
     /// <param name="provisioningManifest"></param>
     /// <param name="provisionConfig"></param>
     internal void GenerateProvisioningManifestFile(string provisioningManifest, ProvisionConfigExternalDirectorySync provisionConfig)
-    {
-        var xmlWriter = XmlWriter.Create(provisioningManifest);
-        WriteProvisioningManifestXml(xmlWriter, provisionConfig);
-        xmlWriter.Close();
+    {        
+        var xmlWriter = new XmlTextWriter(provisioningManifest, System.Text.Encoding.UTF8);
+        using(xmlWriter)
+        {
+            xmlWriter.Formatting = Formatting.Indented; //Let's make it human readable
 
+            WriteProvisioningManifestXml(xmlWriter, provisionConfig);
+            xmlWriter.Close();
+        }
     }
 
     internal void WriteProvisioningManifestXml(XmlWriter xmlWriter, ProvisionConfigExternalDirectorySync provisionConfig)
