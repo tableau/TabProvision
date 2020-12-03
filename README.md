@@ -245,7 +245,7 @@ The REST APIs used by this application allow you to upload, download, and otherw
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <SiteProvisioning>
-  <!-- OPTIONAL: "SiteMembership" XML Node for provisioning users/role (see example above)       -->
+  <!-- OPTIONAL: "SiteMembership" XML Node for provisioning users/role2 (see example above)      -->
   <!--           If this section is not present, then the site's membership will not be modified -->    
     
   <!-- OPTIONAL: "GroupsMemberships" XML Node for provisioning group membership (see example above) -->
