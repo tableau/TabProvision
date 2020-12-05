@@ -640,10 +640,22 @@ namespace OnlineContentDownloader
                 return;
             }
 
-            
+
             string pathOutputManifestFile = txtPathToGenerateManifestFile.Text;
+            //If they gave us a directory, not a file-name, then add filename to it
+            if(Directory.Exists(pathOutputManifestFile))
+            {
+                pathOutputManifestFile = Path.Combine(
+                    pathOutputManifestFile,
+                    FileIOHelper.FilenameWithDateTimeUnique("SiteProvisionManifest.xml"));
+                    //Show it in the UI
+                    txtPathToGenerateManifestFile.Text = pathOutputManifestFile;
+            }
+
+
             var pathOutput = Path.GetDirectoryName(pathOutputManifestFile);
             FileIOHelper.CreatePathIfNeeded(pathOutput);
+
 
             //Show the user a command line that they can use to run this same work
             GenerateProvisioningCommandLine(
