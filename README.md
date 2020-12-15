@@ -218,7 +218,7 @@ You will need to get/create this information from your Microsoft Azure accout po
       - Choose "Microsoft Graph" -> "Application Permissions" -> "Directory" and check "Directory.Read.All (Read directory data)"  
       
     iv. Grant your Azure AD instance consent to use your new application.
-      - In your Application config (see above), chose "API Permissions"  You will see an alert on this screen that says "(!) Not granted for Default..."
+      - In your Application config (see above), choose "API Permissions"  You will see an alert on this screen that says "(!) Not granted for Default..."
       - Click on the button at the top of the list that says, "Grant admin consent for Default Directory"  (THIS IS IMPORTANT!)  
       
     v. Generate a Azure secret that your application can use to sign into Azure with
