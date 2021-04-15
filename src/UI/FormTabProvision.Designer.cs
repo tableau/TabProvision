@@ -51,6 +51,7 @@
             this.btnAzureAdGenerateManifestOnly = new System.Windows.Forms.Button();
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
+            this.chkShowDebugAsserts = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerStatus)).BeginInit();
             this.splitContainerStatus.Panel1.SuspendLayout();
             this.splitContainerStatus.Panel2.SuspendLayout();
@@ -327,12 +328,24 @@
             this.label9.TabIndex = 84;
             this.label9.Text = "(uses Azure AD path specified above)";
             // 
+            // chkShowDebugAsserts
+            // 
+            this.chkShowDebugAsserts.AutoSize = true;
+            this.chkShowDebugAsserts.Location = new System.Drawing.Point(116, 540);
+            this.chkShowDebugAsserts.Name = "chkShowDebugAsserts";
+            this.chkShowDebugAsserts.Size = new System.Drawing.Size(287, 23);
+            this.chkShowDebugAsserts.TabIndex = 85;
+            this.chkShowDebugAsserts.Text = "Show debugging asserts in UI";
+            this.chkShowDebugAsserts.UseVisualStyleBackColor = true;
+            this.chkShowDebugAsserts.CheckedChanged += new System.EventHandler(this.chkShowDebugAsserts_CheckedChanged);
+            // 
             // FormTabProvision
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1433, 882);
+            this.Controls.Add(this.chkShowDebugAsserts);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.btnAzureAdGenerateManifestOnly);
             this.Controls.Add(this.label8);
@@ -396,6 +409,7 @@
         private System.Windows.Forms.Button btnAzureAdGenerateManifestOnly;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.CheckBox chkShowDebugAsserts;
     }
 }
 

@@ -14,6 +14,28 @@ using System.Diagnostics;
 internal static class IwsDiagnostics
 {
 
+
+    /// <summary>
+    /// GETS/SETS whether we show asserts as UI pop-ups
+    /// </summary>
+    public static bool ShowAssertsInUI
+    {
+        get
+        {
+            return s_showAssertsInUIDialog;
+        }
+        set
+        {
+            s_showAssertsInUIDialog = value;
+        }
+    }
+
+    /// <summary>
+    /// TRUE: Show the assert in the UI
+    /// FALSE: Don't show the assert dialog
+    /// </summary>
+    private static bool s_showAssertsInUIDialog = true;
+
     /// <summary>
     /// This will serve as the debug-assert mechanism for this app
     /// </summary>
@@ -23,8 +45,15 @@ internal static class IwsDiagnostics
     {
         if (condition) return;
 
+
+        //Write the standard output...
+        System.Console.WriteLine("ASSERT FALSE:" + text);
+
         //System assert...
-        System.Diagnostics.Debug.Assert(false, text);
+        if(s_showAssertsInUIDialog)
+        {
+            System.Diagnostics.Debug.Assert(false, text);
+        }
 
         //UNDONE: (1) Write to debug file. (2) Add mechanism to return assert failures to client
         string assertFailure = text;

@@ -323,6 +323,9 @@ namespace OnlineContentDownloader
                 //Load the normal application preferences
                 AppPreferences_Load();
             }
+
+            //Indicate whether any DEBUG ASSERTS should be shown in the UI
+            chkShowDebugAsserts.Checked = IwsDiagnostics.ShowAssertsInUI;
         }
 
 
@@ -775,6 +778,15 @@ namespace OnlineContentDownloader
         private void btnAzureAdGenerateManifestOnly_Click(object sender, EventArgs e)
         {
             ProvisionFromAzureAd_FromUISetup(false);
+        }
+
+        private void chkShowDebugAsserts_CheckedChanged(object sender, EventArgs e)
+        {
+            //If the UI state was changed, make user the underlying app setting gets changed
+            if (chkShowDebugAsserts.Checked != IwsDiagnostics.ShowAssertsInUI)
+            {
+                IwsDiagnostics.ShowAssertsInUI = chkShowDebugAsserts.Checked;
+            }
         }
     }
 }
