@@ -110,7 +110,7 @@ Three XML files are used by the application.
         <!-- EXAMPLE: Wildcard has additional 'filterSourceGroupContains' filter that searches for a match at any position in the name-->
          <SynchronizeRole sourceGroupMatch="startswith" filterSourceGroupContains="Explorer" sourceGroup="TabProvision Groups" targetRole="Explorer" auth="serverDefault" allowPromotedRole="true"/>
         
-         <!-- EXAMPLE: OVERRIDES specify any explicit user/auth/role that we want to supersede anything we find in the groups that we syncrhonize from -->
+         <!-- EXAMPLE: OVERRIDES specify any explicit user/auth/role that we want to supersede anything we find in the groups that we synchronize from -->
          <SiteMembershipOverrides>
               <!-- Valid role values: "Unlicensed", "Viewer", "Explorer", "Creator", "SiteAdministratorExplorer", "SiteAdministratorCreator"-->
               <!-- EXAMPLE: This user will be licensed as "Unlicensed"-->
