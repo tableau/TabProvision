@@ -154,17 +154,46 @@ internal partial class ProvisionUserInstructions
     /// </summary>
     /// <param name="xDoc"></param>
     /// <returns></returns>
-    public static List<ProvisioningUser> ParseUsers(XmlDocument xDoc, string xPath, string overrideSourceGroup = null)
+    public static List<ProvisioningUser> ParseUsers(
+        XmlDocument xDoc, 
+        string xPath, 
+        string overrideSourceGroup = null)
     {
         var xmlUsersToProvision = xDoc.SelectNodes(xPath);
         var listOut = new List<ProvisioningUser>();
         foreach(XmlNode xNode in xmlUsersToProvision)
         {
             var thisUser = new ProvisioningUser(xNode, overrideSourceGroup);
-            listOut.Add(thisUser);
+            ParseUsers_ValidateAndAddUserToList(listOut, thisUser);
+            //listOut.Add(thisUser);
         }
 
         return listOut;
     }
 
+    /// <summary>
+    /// Validate that the user can legitimately be added to the list of users, and if so, add them
+    /// </summary>
+    /// <param name="usersList"></param>
+    /// <param name="userToAdd"></param>
+    private static void ParseUsers_ValidateAndAddUserToList(List<ProvisioningUser> usersList, ProvisioningUser userToAdd)
+    {
+        //=================================================================================
+        //Make sure an existing matching user does not already exist in our list
+        //=================================================================================
+        var thisUserNameToLower = userToAdd.UserName.ToLower(); //Cannonicalize it to losercase
+        foreach(var existingListUser in usersList)
+        {
+            //Compare the existing list item name to the user we want to add.  If it is a duplicate, throw an error
+            if(string.Compare(existingListUser.UserName.ToLower(), thisUserNameToLower) == 0)
+                {
+                throw new Exception(
+                    "420-506: Duplicate entries of a user-name are not allowed in the users manifest. User:" + thisUserNameToLower);
+                }
+        }
+
+
+        //Things look OK, add the user to the list...
+        usersList.Add(userToAdd);
+    }
 }
