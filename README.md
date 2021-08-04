@@ -67,9 +67,11 @@ Three XML files are used by the application.
     <!-- Replace the entire URL below with a URL to your Tableau server and site-->
     <SiteUrl value="https://xxxxYourPodxxxx.online.tableau.com/#/site/xxxxYOUR SITE HERExxxx"/>
 
-    <!-- Information we need to sign into the Tableau site-->
-    <TableauSiteLogin clientId="xxxxx@xxxx.com" secret="xxxxxxxx"/>
-
+    <!-- Information we need to sign into the Tableau site. -->
+    <!--EXAMPLE email/password sign-in (not recommended): <TableauSiteLogin signInMode="NameAndPassword" clientId="xxxxx@yyyyyyy.com" secret="PASSWORD"/>-->
+    <!--EXAMPLE Token Based sign-in    (recommended)    : <TableauSiteLogin clientId="MY_TOKEN_NAME" secret="MY_TOKEN_SECRET"/>-->
+    <TableauSiteLogin clientId="xxxxx@xxxx.com_OR_TokenName" secret="xxxxxxxx"/>
+    
     <!--Information about the Azure AD instance we need to sign into to grab group/members information -->    
     <AzureAdLogin tenantId="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" clientId="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" secret="xxxxxxxxxxxxxx" />
 </Configuration>

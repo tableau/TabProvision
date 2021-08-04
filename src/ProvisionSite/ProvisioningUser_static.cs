@@ -14,6 +14,7 @@ internal partial class ProvisioningUser
     public const int RoleRank_Creator = 40;
     public const int RoleRank_SiteAdministratorExplorer = 50;
     public const int RoleRank_SiteAdministratorCreator = 100;
+    public const int RoleRank_ServerAdministrator = 500;
     public const string RoleText_SiteAdministratorCreator = "SiteAdministratorCreator";
 
     public const string XmlAttribute_Role = "role";
@@ -44,6 +45,7 @@ internal partial class ProvisioningUser
         if (cannonicalRole == "siteadministratorexplorer") return RoleRank_SiteAdministratorExplorer;
         if (cannonicalRole == "siteadministrator")         return RoleRank_SiteAdministratorExplorer;
         if (cannonicalRole == "siteadministratorcreator")  return RoleRank_SiteAdministratorCreator;
+        if (cannonicalRole == "serveradministrator")       return RoleRank_ServerAdministrator;
 
         IwsDiagnostics.Assert(false, "813-549: Unknown role " + role);
         throw new Exception("813-549: Unknown role " + role);
