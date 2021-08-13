@@ -124,6 +124,9 @@ internal partial class TableauProvisionDownload
         //=================================================================================
         //Sign in to the site
         //=================================================================================
+        _statusLogs.AddStatus("Attempting sign in. Site: " + siteUrlManager.SiteUrlSegement +
+               ", client id: " + _configTableauSecrets.SiteClientId + 
+               ", auth mode: " + _configTableauSecrets.SiteSignInMode.ToString());
         var siteSignIn = new TableauServerSignIn(
             siteUrlManager,
             _configTableauSecrets.SiteClientId,
@@ -140,19 +143,19 @@ internal partial class TableauProvisionDownload
         var downloadSiteInfo = new DownloadSiteInfo(siteSignIn);
         downloadSiteInfo.ExecuteRequest();
         var siteInfo = downloadSiteInfo.Site;
+        //_statusLogs.AddStatus("Site info: " + siteInfo.Name + ", state: " + siteInfo.State.ToString() + ", id: " + siteInfo.Id);
 
         //===================================================================================
         //Get Groups that map to Tableau Site User Roles from Tableau
         //===================================================================================
-        _statusLogs.AddStatus("Tableau: Getting user roles groups");
+        _statusLogs.AddStatus("Tableau: Getting users roles");
         GenerateUsersRolesList_FromTableauSite(siteSignIn);
 
         //===================================================================================
         //Get Groups that map to Tableau Site Groups from Tableau
         //===================================================================================
-        _statusLogs.AddStatus("Tableau: Getting user roles groups");
+        _statusLogs.AddStatus("Tableau: Getting groups' memberships");
         GenerateGroupsMembersList_FromTableauSite(siteSignIn);
-
     }
 
     /// <summary>

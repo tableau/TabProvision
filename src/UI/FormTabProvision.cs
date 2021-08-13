@@ -492,6 +492,9 @@ namespace OnlineContentDownloader
             bool deployToTableauTarget,
             string pathOutputs)
         {
+            //Note the task we are starting
+            statusLogs.AddStatus("Starting task: Provision from Azure AD");
+
             //===========================================================================================
             //Create a place for out output files
             //===========================================================================================
@@ -542,7 +545,7 @@ namespace OnlineContentDownloader
             catch(Exception exAzureDownload)
             {
                 statusLogs.AddError("Error retrieving data from Azure AD. Error: " + exAzureDownload.Message);
-                throw new Exception("813-0148: Error in Azure Download, " + exAzureDownload.Message);
+                throw new Exception("813-1543: Error in Azure Download, " + exAzureDownload.Message);
             }
 
             //===========================================================================================
@@ -598,6 +601,9 @@ namespace OnlineContentDownloader
         /// <param name="outputPath">Where output files go</param>
         private void ProvisionFromFileManifest(TaskStatusLogs statusLogs, string pathSecrets, string pathProvisioningManifest, string outputPath)
         {
+            //Note the task we are starting
+            statusLogs.AddStatus("Starting task: Provision from file manifest");
+
             //Load the config from the files
             var secretsConfig = new ProvisionConfigSiteAccess(pathSecrets);
 
@@ -704,6 +710,9 @@ namespace OnlineContentDownloader
             string pathOutputFile,
             bool ignoreAllUsersGroup)
         {
+            //Note the task we are starting
+            statusLogs.AddStatus("Starting task: Generate manifest from online/server site");
+
             var pathOutputs = Path.GetDirectoryName(pathOutputFile);
 
             ProvisionConfigSiteAccess secretsConfig;
