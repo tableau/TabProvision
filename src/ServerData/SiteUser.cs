@@ -98,10 +98,21 @@ partial class SiteUser : IHasSiteItemId
         //If we were not passed in an explicit user authentication, then it needs to be in the XML
         if(siteUserAuthFixed == null)
         {
-            this.SiteAuthentication = userNode.Attributes["authSetting"].Value;
 
-            this.SiteAuthenticationParsed = ParseUserAuthentication(this.SiteAuthentication);
-            AppDiagnostics.Assert(this.SiteAuthenticationParsed != SiteUserAuth.Unknown, "Unknown user auth: " + this.SiteAuthenticationParsed);
+            if(userNode.Attributes["authSetting"] != null)
+            {
+                this.SiteAuthentication = userNode.Attributes["authSetting"].Value;
+
+
+                this.SiteAuthenticationParsed = ParseUserAuthentication(this.SiteAuthentication);
+                AppDiagnostics.Assert(this.SiteAuthenticationParsed != SiteUserAuth.Unknown, "1209-1230: Unknown user auth: " + this.SiteAuthenticationParsed);
+            }
+            else
+            {
+                this.SiteAuthenticationParsed = SiteUserAuth.Unknown;
+                AppDiagnostics.Assert(this.SiteAuthenticationParsed != SiteUserAuth.Unknown, "1209-1231: Unknown user auth attribute missing: ");
+            }
+
         }
         else
         {

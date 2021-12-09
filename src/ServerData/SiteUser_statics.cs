@@ -17,6 +17,11 @@ partial class SiteUser : IHasSiteItemId
     /// <returns></returns>
     public static SiteUserAuth ParseUserAuthentication(string authText)
     {
+        if(string.IsNullOrEmpty(authText))
+        {
+            return SiteUserAuth.Unknown;
+        }
+
         authText = authText.ToLower();
         switch (authText)
         {
