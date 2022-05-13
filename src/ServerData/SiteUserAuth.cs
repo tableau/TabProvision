@@ -7,5 +7,6 @@ enum SiteUserAuth
     Default,
     SAML,
     OpenID,
+    TabIdWithMFA,
     Unknown
 }

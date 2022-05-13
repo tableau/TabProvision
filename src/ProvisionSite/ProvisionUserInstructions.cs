@@ -19,14 +19,17 @@ internal partial class ProvisionUserInstructions
     //Instructions on how to handle updates to the Tableau Site
     //Unexpected site users
     public readonly UnexpectedUserAction ActionForUnexpectedSamlUsers = UnexpectedUserAction.Report;
+    public readonly UnexpectedUserAction ActionForUnexpectedTabIdWithMFAUsers = UnexpectedUserAction.Report;
     public readonly UnexpectedUserAction ActionForUnexpectedDefaultAuthUsers = UnexpectedUserAction.Report;
     public readonly UnexpectedUserAction ActionForUnexpectedOpenIdUsers = UnexpectedUserAction.Report;
     //Site missing users needing provisioning
     public readonly MissingUserAction ActionForMissingSamlUsers = MissingUserAction.Report;
+    public readonly MissingUserAction ActionForMissingTabIdWithMFAUsers = MissingUserAction.Report;
     public readonly MissingUserAction ActionForMissingDefaultAuthUsers = MissingUserAction.Report;
     public readonly MissingUserAction ActionForMissingOpenIdUsers = MissingUserAction.Report;
     //Site existing users needing modification
     public readonly ExistingUserAction ActionForExistingSamlUsers = ExistingUserAction.Report;
+    public readonly ExistingUserAction ActionForExistingTabIdWithMFAUsers = ExistingUserAction.Report;
     public readonly ExistingUserAction ActionForExistingDefaultAuthUsers = ExistingUserAction.Report;
     public readonly ExistingUserAction ActionForExistingOpenIdUsers = ExistingUserAction.Report;
 
