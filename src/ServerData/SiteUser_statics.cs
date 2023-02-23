@@ -34,6 +34,9 @@ partial class SiteUser : IHasSiteItemId
             case "openid":
                 return SiteUserAuth.OpenID;
 
+            case "tableauidwithmfa":
+                return SiteUserAuth.TableauIDWithMFA;
+
             default:
                 return SiteUserAuth.Unknown;
         }
@@ -57,6 +60,9 @@ partial class SiteUser : IHasSiteItemId
             case SiteUserAuth.OpenID:
                 return "OpenId";
 
+            case SiteUserAuth.TableauIDWithMFA:
+                return "TableauIDWithMFA";
+
             case SiteUserAuth.Unknown:
                 return "*Unknown*";
 
@@ -78,13 +84,16 @@ partial class SiteUser : IHasSiteItemId
         {
             case "serveradministrator":
                 return SiteUserRole.ServerAdministrator;
-
             case "creator":
-            case "siteadministratorcreator":
                 return SiteUserRole.Creator;
-
+            case "siteadministratorcreator":
+                return SiteUserRole.SiteAdministratorCreator;
+            case "siteadministratorexplorer":
+                return SiteUserRole.SiteAdministratorExplorer;
             case "explorer":
-            case "siteadministratorexplorer": 
+                return SiteUserRole.Explorer;
+            case "explorercanpublish":
+                return SiteUserRole.ExplorerCanPublish;
             case "siteadministrator": //Legacy
             case "interactor":  //[2019-11-02] Legacy role (still shows up in site user data)
             case "publisher":   //[2019-11-02] Legacy role (still shows up in site user data)

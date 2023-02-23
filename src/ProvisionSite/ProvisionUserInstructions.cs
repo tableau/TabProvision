@@ -21,14 +21,21 @@ internal partial class ProvisionUserInstructions
     public readonly UnexpectedUserAction ActionForUnexpectedSamlUsers = UnexpectedUserAction.Report;
     public readonly UnexpectedUserAction ActionForUnexpectedDefaultAuthUsers = UnexpectedUserAction.Report;
     public readonly UnexpectedUserAction ActionForUnexpectedOpenIdUsers = UnexpectedUserAction.Report;
+    public readonly UnexpectedUserAction ActionForUnexpectedTabIdWithMFAUsers = UnexpectedUserAction.Report;
+
     //Site missing users needing provisioning
     public readonly MissingUserAction ActionForMissingSamlUsers = MissingUserAction.Report;
     public readonly MissingUserAction ActionForMissingDefaultAuthUsers = MissingUserAction.Report;
     public readonly MissingUserAction ActionForMissingOpenIdUsers = MissingUserAction.Report;
+    public readonly MissingUserAction ActionForMissingTabIdWithMFAUsers = MissingUserAction.Report;
+
+
     //Site existing users needing modification
     public readonly ExistingUserAction ActionForExistingSamlUsers = ExistingUserAction.Report;
     public readonly ExistingUserAction ActionForExistingDefaultAuthUsers = ExistingUserAction.Report;
     public readonly ExistingUserAction ActionForExistingOpenIdUsers = ExistingUserAction.Report;
+    public readonly ExistingUserAction ActionForExistingTabIdWithMFAUsers = ExistingUserAction.Report;
+
 
     //Group membership
     public readonly UnexpectedGroupMemberAction ActionForUnexpectedGroupMembers = UnexpectedGroupMemberAction.Report;

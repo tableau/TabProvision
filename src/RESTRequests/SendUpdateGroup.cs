@@ -40,7 +40,7 @@ class SendUpdateGroup : TableauServerSignedInRequestBase
     /// <param name="updatedGroupName"></param>
     /// <param name="performGrantLicenseUpdate">FALSE: Ignore the Grant License data</param>
     /// <param name="grantLicenseMode">"" or "onLogin"</param>
-    /// <param name="grantLicenseSiteRole">"Viewer", "Explorer", "Creator", site admin roles...</param>
+    /// <param name="grantLicenseSiteRole">"Viewer", "Explorer", "ExplorerCanPublish", "Creator", site admin roles...</param>
     public SendUpdateGroup(
         TableauServerSignIn login,
         string groupId,

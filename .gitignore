@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/src/bin/Debug
+/src/obj/Debug
+/packages
+/secrets.xml.txt
+/.vs/TabProvision

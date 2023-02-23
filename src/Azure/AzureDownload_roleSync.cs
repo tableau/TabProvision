@@ -51,6 +51,18 @@ internal partial class AzureDownload
             //Query for it
             var thisGroupAsSet = await azureGraph.Groups.Request().Select(x => new { x.Id, x.DisplayName }).Filter(azureFilterCommand).GetAsync();
 
+            //----------------------------------------------------------------------------------------------------
+            // Abhinav Pathak : Added a condition if Account name and Display Name is not same
+            //----------------------------------------------------------------------------------------------------
+
+            if (thisGroupAsSet.Count == 0)
+            {
+                azureFilterCommand =
+                GenerateAzureMatchCommand(groupToRetrieve.NamePatternMatch, "mailNickname", groupToRetrieve.SourceGroupName);
+
+                thisGroupAsSet = await azureGraph.Groups.Request().Select(x => new { x.Id, x.DisplayName, x.OnPremisesSamAccountName, x.MailNickname }).Filter(azureFilterCommand).GetAsync();
+
+            }
 
             //----------------------------------------------------------------------------------------------------
             //If the expected group does not exist in Azure, treat the error condition as fatal

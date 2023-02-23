@@ -33,7 +33,7 @@ internal partial class ProvisionFromDirectoryGroupsMembershipManager
         private ProvisioningGroup.GrantLicenseMode _grantLicenseInstructions;
 
         /// <summary>
-        /// If we are using GrantLicense then what is the role, e.g. "Creator", "Explorer", "Viewer", types of admins, ...
+        /// If we are using GrantLicense then what is the role, e.g. "Creator", "Explorer", "ExplorerCanPublish", "Viewer", types of admins, ...
         /// </summary>
         public string GrantLicenseRole
         {

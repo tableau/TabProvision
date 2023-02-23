@@ -30,7 +30,7 @@ internal partial class ProvisioningGroup
     public const string XmlAttribute_GrantLicenseMinimumSiteRole = "grantLicenseMinimumSiteRole";
 
     /// <summary>
-    /// If we are using GrantLicense then what is the role, e.g. "Creator", "Explorer", "Viewer", types of admins, ...
+    /// If we are using GrantLicense then what is the role, e.g. "Creator", "Explorer", "ExplorerCanPublish", "Viewer", types of admins, ...
     /// </summary>
     public readonly string GrantLicenseRole;
 

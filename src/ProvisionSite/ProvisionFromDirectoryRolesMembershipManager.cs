@@ -115,7 +115,7 @@ internal partial class ProvisionFromDirectoryRolesMembershipManager
         //  1.The user was previously added as a CREATOR, and is being added as an EXPLORER-ADMIN
         //  2. The user was previously added as an EXPLORER-ADMIN, and is being added as a CREATOR
         //
-        //In both of these cases, we want to combine the "CREATOR" and "ADMIN" roles, so that the user does not get a diminished rol
+        //In both of these cases, we want to combine the "CREATOR" and "ADMIN" roles, so that the user does not get a diminished role
         //========================================================================================
         if (ProvisioningUser.IsCombinedUserRoleCreatorAdministrator(existingUser.RoleRank,  userToAdd.RoleRank))
         {         

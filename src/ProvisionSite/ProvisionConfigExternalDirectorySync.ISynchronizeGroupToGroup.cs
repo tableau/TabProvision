@@ -57,7 +57,7 @@ internal partial class ProvisionConfigExternalDirectorySync
         ProvisioningGroup.GrantLicenseMode GrantLicenseInstructions { get; }
 
         /// <summary>
-        /// If we are using GrantLicense then what is the role, e.g. "Creator", "Explorer", "Viewer", types of admins, ...
+        /// If we are using GrantLicense then what is the role, e.g. "Creator", "Explorer", "ExplorerCanPublish", "Viewer", types of admins, ...
         /// This may be NULL if there is no Grant License instruction
         /// </summary>
         string GrantLicenseRole { get; }

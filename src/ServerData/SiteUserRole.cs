@@ -5,8 +5,11 @@ using System.Xml;
 enum SiteUserRole
 { 
     ServerAdministrator,
+    SiteAdministratorExplorer,
+    SiteAdministratorCreator,
     Creator,
     Explorer,
+    ExplorerCanPublish,
     Viewer,
     Unlicensed,
     Unknown

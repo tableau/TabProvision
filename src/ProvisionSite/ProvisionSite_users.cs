@@ -96,6 +96,9 @@ internal partial class ProvisionSite
             case SiteUserAuth.OpenID:
                 Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(unexpectedUser, siteSignIn, _provisionInstructions.ActionForUnexpectedOpenIdUsers, workingList_allKnownUsers);
                 break;
+            case SiteUserAuth.TableauIDWithMFA:
+                Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(unexpectedUser, siteSignIn, _provisionInstructions.ActionForUnexpectedTabIdWithMFAUsers, workingList_allKnownUsers);
+                break;
             default:
                 IwsDiagnostics.Assert(false, "811-1123: Unknown authentication type " + unexpectedUser.SiteAuthentication + ", for user " + unexpectedUser.Name);
                 _statusLogs.AddError("811-1123: Unknown authentication type " + unexpectedUser.SiteAuthentication + ", for user " + unexpectedUser.Name);
@@ -135,6 +138,10 @@ internal partial class ProvisionSite
             case SiteUserAuth.OpenID:
                 missingUserAction = _provisionInstructions.ActionForMissingOpenIdUsers;
                 unexpectedUserAction = _provisionInstructions.ActionForUnexpectedOpenIdUsers;
+                break;
+            case SiteUserAuth.TableauIDWithMFA:
+                missingUserAction = _provisionInstructions.ActionForMissingTabIdWithMFAUsers;
+                unexpectedUserAction = _provisionInstructions.ActionForUnexpectedTabIdWithMFAUsers;
                 break;
             default:
                 var unknownAuthType = userToProvision.UserAuthentication;
@@ -216,6 +223,9 @@ internal partial class ProvisionSite
                 break;
             case SiteUserAuth.OpenID:
                 existingUserAction = _provisionInstructions.ActionForExistingOpenIdUsers;
+                break;
+            case SiteUserAuth.TableauIDWithMFA:
+                existingUserAction = _provisionInstructions.ActionForExistingTabIdWithMFAUsers;
                 break;
             default:
                 IwsDiagnostics.Assert(false, "814-1234: Unknown user auth type");
