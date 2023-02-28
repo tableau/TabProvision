@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Valid userEmailLookup: 
           "UserPrincipalName"            : (default) Use the principal's name
+		  "UserMail"                     : (alternative) Use the user.mail attribute (email address)
        or "PreferAzureProxyPrimaryEmail" : If present, use the AzureProxy (smtp) value; if not found, use the UserPrincipal 
 -->
 <SynchronizeConfiguration userEmailLookup="UserPrincipalName">
