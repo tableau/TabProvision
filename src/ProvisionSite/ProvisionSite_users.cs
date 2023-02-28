@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 internal partial class ProvisionSite
 {
 
-
     /// <summary>
     /// Compare the list of users on the Server Site with the provision list of users and make the necessary updates
     /// </summary>
@@ -87,7 +86,7 @@ internal partial class ProvisionSite
         _statusLogs.AddStatus("Process unexpected user: " + unexpectedUser.ToString());
         switch (unexpectedUser.SiteAuthenticationParsed)
         {
-            case SiteUserAuth.Default:
+            case SiteUserAuth.ServerDefault:
                 Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(unexpectedUser, siteSignIn, _provisionInstructions.ActionForUnexpectedDefaultAuthUsers, workingList_allKnownUsers);
                 break;
             case SiteUserAuth.SAML:
@@ -99,9 +98,11 @@ internal partial class ProvisionSite
             case SiteUserAuth.TableauIDWithMFA:
                 Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(unexpectedUser, siteSignIn, _provisionInstructions.ActionForUnexpectedTabIdWithMFAUsers, workingList_allKnownUsers);
                 break;
+            case SiteUserAuth.Unknown:
+                Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(unexpectedUser, siteSignIn, _provisionInstructions.ActionForUnexpectedDefaultAuthUsers, workingList_allKnownUsers);
+                break;
             default:
-                IwsDiagnostics.Assert(false, "811-1123: Unknown authentication type " + unexpectedUser.SiteAuthentication + ", for user " + unexpectedUser.Name);
-                _statusLogs.AddError("811-1123: Unknown authentication type " + unexpectedUser.SiteAuthentication + ", for user " + unexpectedUser.Name);
+                Execute_UpdateUnexpectedUsersProvisioning_SingleUser_WithBehavior(unexpectedUser, siteSignIn, _provisionInstructions.ActionForUnexpectedDefaultAuthUsers, workingList_allKnownUsers);
                 break;
         }
     }
@@ -127,7 +128,7 @@ internal partial class ProvisionSite
         //Get the instructions based on the desired Auth model for the user we are provisioning
         switch (userToProvision.UserAuthenticationParsed)
         {
-            case SiteUserAuth.Default:
+            case SiteUserAuth.ServerDefault:
                 missingUserAction = _provisionInstructions.ActionForMissingDefaultAuthUsers;
                 unexpectedUserAction = _provisionInstructions.ActionForUnexpectedDefaultAuthUsers;
                 break;
@@ -143,15 +144,14 @@ internal partial class ProvisionSite
                 missingUserAction = _provisionInstructions.ActionForMissingTabIdWithMFAUsers;
                 unexpectedUserAction = _provisionInstructions.ActionForUnexpectedTabIdWithMFAUsers;
                 break;
+            case SiteUserAuth.Unknown:
+                missingUserAction = _provisionInstructions.ActionForMissingDefaultAuthUsers;
+                unexpectedUserAction = _provisionInstructions.ActionForUnexpectedDefaultAuthUsers;
+                break;
             default:
-                var unknownAuthType = userToProvision.UserAuthentication;
-                if(unknownAuthType == null)
-                {
-                    unknownAuthType = "";
-                }
-
-                IwsDiagnostics.Assert(false, "814-1204: Unknown auth type, " + unknownAuthType);
-                throw new Exception("814-1204: Unknown auth type, " + unknownAuthType);
+                missingUserAction = _provisionInstructions.ActionForMissingDefaultAuthUsers;
+                unexpectedUserAction = _provisionInstructions.ActionForUnexpectedDefaultAuthUsers;
+                break;
         }
 
         //===============================================================================================
@@ -215,7 +215,7 @@ internal partial class ProvisionSite
         ProvisionUserInstructions.ExistingUserAction existingUserAction;
         switch(existingUser.SiteAuthenticationParsed)
         {
-            case SiteUserAuth.Default:
+            case SiteUserAuth.ServerDefault:
                 existingUserAction = _provisionInstructions.ActionForExistingDefaultAuthUsers;
                 break;
             case SiteUserAuth.SAML:
@@ -227,9 +227,12 @@ internal partial class ProvisionSite
             case SiteUserAuth.TableauIDWithMFA:
                 existingUserAction = _provisionInstructions.ActionForExistingTabIdWithMFAUsers;
                 break;
+            case SiteUserAuth.Unknown:
+                existingUserAction = _provisionInstructions.ActionForExistingDefaultAuthUsers;
+                break;
             default:
-                IwsDiagnostics.Assert(false, "814-1234: Unknown user auth type");
-                throw new Exception("814-1234: Unknown user auth type");
+                IwsDiagnostics.Assert(false, "814-1234: Unknown user auth type " + existingUser.SiteAuthenticationParsed);
+                throw new Exception("814-1234: Unknown user auth type " + existingUser.SiteAuthenticationParsed);
         }
 
         switch(existingUserAction)

@@ -4,7 +4,7 @@ using System.Text;
 using System.Xml;
 enum SiteUserAuth
 {
-    Default,
+    ServerDefault,
     SAML,
     OpenID,
     TableauIDWithMFA,

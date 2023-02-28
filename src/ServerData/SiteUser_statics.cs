@@ -26,7 +26,7 @@ partial class SiteUser : IHasSiteItemId
         switch (authText)
         {
             case "serverdefault":
-                return SiteUserAuth.Default;
+                return SiteUserAuth.ServerDefault;
 
             case "saml":
                 return SiteUserAuth.SAML;
@@ -51,7 +51,7 @@ partial class SiteUser : IHasSiteItemId
     {
         switch(userAuth)
         {
-            case SiteUserAuth.Default:
+            case SiteUserAuth.ServerDefault:
                 return "ServerDefault";
 
             case SiteUserAuth.SAML:

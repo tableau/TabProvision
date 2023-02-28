@@ -63,7 +63,7 @@ class SendCreateUser : TableauServerSignedInRequestBase
     {
         switch (userAuthentication)
         {
-            case SiteUserAuth.Default:
+            case SiteUserAuth.ServerDefault:
                 return "ServerDefault";
             case SiteUserAuth.SAML:
                 return "SAML";
@@ -95,7 +95,7 @@ class SendCreateUser : TableauServerSignedInRequestBase
         xmlWriter.WriteStartElement("user");
         xmlWriter.WriteAttributeString("name", userName);
         xmlWriter.WriteAttributeString("siteRole", userRole);
-        // xmlWriter.WriteAttributeString("authSetting", authSettingText);
+        xmlWriter.WriteAttributeString("authSetting", authSettingText);
         xmlWriter.WriteEndElement();//</user>
         xmlWriter.WriteEndElement(); //</tsRequest>
         xmlWriter.Close();

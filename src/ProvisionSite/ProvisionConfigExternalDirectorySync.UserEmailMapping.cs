@@ -6,7 +6,9 @@
 internal partial class ProvisionConfigExternalDirectorySync
 {
     private const string UserEmailMapping_UserPrincipalName = "UserPrincipalName";
+    private const string UserEmailMapping_UserMaill = "UserMail";
     private const string UserEmailMapping_PreferAzureProxyEmail = "PreferAzureProxyPrimaryEmail";
+
 
     /// <summary>
     /// Parse the mapping instructions for finding the users email
@@ -23,8 +25,11 @@ internal partial class ProvisionConfigExternalDirectorySync
         if(string.Compare(text, UserEmailMapping_UserPrincipalName, true) == 0) 
             { return UserEmailMapping.UserPrincipalName; }
 
+        if (string.Compare(text, UserEmailMapping_UserMaill, true) == 0)
+            { return UserEmailMapping.Mail; }
+
         if (string.Compare(text, UserEmailMapping_PreferAzureProxyEmail, true) == 0)
-            { return UserEmailMapping.PreferAzureProxyPrimaryEmail; }
+        { return UserEmailMapping.PreferAzureProxyPrimaryEmail; }
 
         throw new Exception("1009-1200: Unknown email mapping instruction" + text);
     }
@@ -43,6 +48,11 @@ internal partial class ProvisionConfigExternalDirectorySync
         /// <summary>
         /// If it exists, use Azure's specified Proxy Email instead of user's principal name
         /// </summary>
-        PreferAzureProxyPrimaryEmail
+        PreferAzureProxyPrimaryEmail,
+
+        /// <summary>
+        /// Option: The user's mail attribute (email address)
+        /// </summary>
+        Mail
     }
 }
