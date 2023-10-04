@@ -6,7 +6,8 @@
 internal partial class ProvisionConfigExternalDirectorySync
 {
     private const string UserEmailMapping_UserPrincipalName = "UserPrincipalName";
-    private const string UserEmailMapping_UserMaill = "UserMail";
+    private const string UserEmailMapping_UserMail = "UserMail";
+    private const string UserEmailMapping_UserMailNickname = "UserMailNickname";
     private const string UserEmailMapping_PreferAzureProxyEmail = "PreferAzureProxyPrimaryEmail";
 
 
@@ -25,8 +26,11 @@ internal partial class ProvisionConfigExternalDirectorySync
         if(string.Compare(text, UserEmailMapping_UserPrincipalName, true) == 0) 
             { return UserEmailMapping.UserPrincipalName; }
 
-        if (string.Compare(text, UserEmailMapping_UserMaill, true) == 0)
+        if (string.Compare(text, UserEmailMapping_UserMail, true) == 0)
             { return UserEmailMapping.Mail; }
+
+        if (string.Compare(text, UserEmailMapping_UserMailNickname, true) == 0)
+            { return UserEmailMapping.MailNickname; }
 
         if (string.Compare(text, UserEmailMapping_PreferAzureProxyEmail, true) == 0)
         { return UserEmailMapping.PreferAzureProxyPrimaryEmail; }
@@ -53,6 +57,11 @@ internal partial class ProvisionConfigExternalDirectorySync
         /// <summary>
         /// Option: The user's mail attribute (email address)
         /// </summary>
-        Mail
+        Mail,
+
+        /// <summary>
+        /// Option: The user's mail attribute (email address)
+        /// </summary>
+        MailNickname
     }
 }
