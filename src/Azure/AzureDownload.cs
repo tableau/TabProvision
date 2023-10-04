@@ -148,22 +148,23 @@ internal partial class AzureDownload
             //Use the name of the principal in AzureAD
             case ProvisionConfigExternalDirectorySync.UserEmailMapping.UserPrincipalName:
                 emailCandidate = graphUser.UserPrincipalName;
-                IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "814-705: User 'userPrincipalName' is NULL");
+                IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "1009-1211: User principal name and 'mail' is NULL");
                 return emailCandidate.Trim();
 
             case ProvisionConfigExternalDirectorySync.UserEmailMapping.Mail:
                 emailCandidate = graphUser.Mail;
-                IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "814-705: User 'mail' attribute is NULL");
+                IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "1009-1210: User 'mail' attribute is NULL");
                 return emailCandidate.Trim();
 
             //If the user has another email address listed, use it
             case ProvisionConfigExternalDirectorySync.UserEmailMapping.PreferAzureProxyPrimaryEmail:
                 emailCandidate = GetUserEmailFromGraphADUser_TryPrimaryProxyEmailLookup(graphUser);
+                
                 //If no email candidate was found, use the principal name
-                if(string.IsNullOrWhiteSpace(emailCandidate))
+                if (string.IsNullOrWhiteSpace(emailCandidate))
                 {
                     emailCandidate = graphUser.UserPrincipalName;
-                    IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "1009-1210: User principal name is NULL");
+                    IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "1009-1209: User principal name is NULL");
                 }
                 return emailCandidate.Trim();
 

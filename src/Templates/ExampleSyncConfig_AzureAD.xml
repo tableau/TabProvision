@@ -34,7 +34,7 @@
 
          <!-- EXAMPLE: OVERRIDES specify any explicit user/auth/role that we want to supersede anything we find in the groups that we syncrhonize from -->
          <SiteMembershipOverrides>
-              <!-- Valid role values: "Unlicensed", "Viewer", "Explorer", "Creator", "SiteAdministratorExplorer", "SiteAdministratorCreator"-->
+              <!-- Valid role values: "Unlicensed", "Viewer", "Explorer", "ExplorerCanPublish", "Creator", "SiteAdministratorExplorer", "SiteAdministratorCreator"-->
               <!-- EXAMPLE: This user will be licensed as "Unlicensed"-->
               <User name="xxxxPerson1xxxxx@xxxxDomainxxxxx.com"   role="Unlicensed" auth="serverDefault" allowPromotedRole="false" />
               <!-- EXAMPLE: This user will be licensed as "Unlicensed" if they don't exist on the site.                                     -->
