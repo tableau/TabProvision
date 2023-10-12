@@ -158,7 +158,28 @@ internal partial class AzureDownload
 
             case ProvisionConfigExternalDirectorySync.UserEmailMapping.MailNickname:
                 emailCandidate = graphUser.MailNickname;
-                IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "1009-1210: User 'mailNickname' attribute is NULL");
+                IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "1009-1210: User 'mailNickname' attribute is NULL for user: " + graphUser.UserPrincipalName);
+                
+                //If no email candidate was found, use the principal name
+                if (string.IsNullOrWhiteSpace(emailCandidate))
+                {
+                    emailCandidate = graphUser.UserPrincipalName;
+                    IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "1009-1209: User principal name is NULL");
+                }
+
+                return emailCandidate.Trim();
+
+            case ProvisionConfigExternalDirectorySync.UserEmailMapping.OnPremisesSamAccountName:
+                emailCandidate = graphUser.OnPremisesSamAccountName;
+                IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "1009-1210: User 'onPremisesSamAccountName' attribute is NULL for user: " + graphUser.UserPrincipalName);
+                
+                //If no email candidate was found, use the principal name
+                if (string.IsNullOrWhiteSpace(emailCandidate))
+                {
+                    emailCandidate = graphUser.UserPrincipalName;
+                    IwsDiagnostics.Assert(!string.IsNullOrWhiteSpace(emailCandidate), "1009-1209: User principal name is NULL");
+                }
+
                 return emailCandidate.Trim();
 
             //If the user has another email address listed, use it
